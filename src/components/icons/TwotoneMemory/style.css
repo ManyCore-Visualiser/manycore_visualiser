@@ -1,0 +1,27 @@
+.memory-loading-animation path:nth-child(1) {
+  stroke-dasharray: 300;
+  stroke-dashoffset: -300;
+
+  animation: loadingLoop 10s 2s ease infinite;
+}
+
+.memory-loading-animation path:nth-child(2) {
+  opacity: 0;
+
+  animation: comeIn 2s 0s ease-in-out forwards;
+}
+
+@keyframes loadingLoop {
+  from {
+    stroke-dashoffset: -300;
+  }
+  to {
+    stroke-dashoffset: 300;
+  }
+}
+
+@keyframes comeIn {
+  to {
+    opacity: 1;
+  }
+}

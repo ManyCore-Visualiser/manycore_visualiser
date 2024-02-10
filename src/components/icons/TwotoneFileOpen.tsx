@@ -1,6 +1,6 @@
 import { SVGFunctionComponentT } from "./SVGFunctionComponentType";
 
-const IcTwotoneFileOpen: SVGFunctionComponentT = (props) => {
+const TwotoneFileOpen: SVGFunctionComponentT = (props) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -22,4 +22,4 @@ const IcTwotoneFileOpen: SVGFunctionComponentT = (props) => {
   );
 };
 
-export default IcTwotoneFileOpen;
+export default TwotoneFileOpen;
