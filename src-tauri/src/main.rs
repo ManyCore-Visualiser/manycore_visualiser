@@ -2,20 +2,24 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod parse;
+mod result_status;
+mod svg;
 
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use manycore_parser::ManycoreSystem;
+use manycore_svg::SVG;
 
 #[derive(Default)]
 pub struct State {
-    pub manycore: Mutex<Option<ManycoreSystem>>,
+    pub manycore: Arc<Mutex<Option<ManycoreSystem>>>,
+    pub svg: Arc<Mutex<Option<SVG>>>,
 }
 
 fn main() {
     tauri::Builder::default()
         .manage(State::default())
-        .invoke_handler(tauri::generate_handler![parse::parse])
+        .invoke_handler(tauri::generate_handler![parse::parse, svg::get_svg])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

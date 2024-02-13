@@ -4,11 +4,8 @@ import { useEffect } from "react";
 import TwotoneFileOpen from "./icons/TwotoneFileOpen";
 import { invoke } from "@tauri-apps/api";
 import { useAppContext } from "../App";
-
-type ProcessingResponseT = {
-  message: string;
-  status: "ok" | "error";
-};
+import type { BaseResponseT } from "../types/baseResponse";
+import getSVG from "../utils/getSvg";
 
 const FileLoader: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -18,14 +15,13 @@ const FileLoader: React.FunctionComponent = () => {
 
   const startProcessing = (filePath: string) => {
     ctx.setProcessingInput(true);
-    invoke<ProcessingResponseT>("parse", { filePath }).then((res) => {
-      ctx.setProcessingInput(false);
-
+    invoke<BaseResponseT>("parse", { filePath }).then((res) => {
       if (res.status === "ok") {
-        // ctx.setSVG;
+        getSVG(ctx.setSVG);
       } else {
         // TODO: Propagate error
       }
+      ctx.setProcessingInput(false);
     });
   };
 

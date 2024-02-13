@@ -1,24 +1,16 @@
 use manycore_parser::ManycoreSystem;
 use serde::Serialize;
 
-use crate::State;
-
-#[derive(Serialize, Debug)]
-enum ParseResultStatus {
-    #[serde(rename = "ok")]
-    Ok,
-    #[serde(rename = "error")]
-    Error,
-}
+use crate::{result_status::ResultStatus, State};
 
 #[derive(Serialize, Debug)]
 pub struct ParseResult {
-    status: ParseResultStatus,
+    status: ResultStatus,
     message: String,
 }
 
 fn format_error_response(ret: &mut ParseResult, msg: String) {
-    ret.status = ParseResultStatus::Error;
+    ret.status = ResultStatus::Error;
     ret.message = msg;
 }
 
@@ -27,7 +19,7 @@ pub fn parse(file_path: &str, state: tauri::State<State>) -> ParseResult {
     let manycore_parse_res = ManycoreSystem::parse_file(file_path);
 
     let mut ret = ParseResult {
-        status: ParseResultStatus::Ok,
+        status: ResultStatus::Ok,
         message: String::from("Successfully parsed file"),
     };
 
