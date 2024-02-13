@@ -69,7 +69,7 @@ const FileLoader: React.FunctionComponent = () => {
         width={"33%"}
         height={"100%"}
       />
-      <p className="font-roboto text-center mt-auto lg:text-lg xl:text-xl 2xl:text-2xl w-full">
+      <p className="font-roboto font-bold text-center mt-auto lg:text-lg xl:text-xl 2xl:text-2xl w-full">
         Drag input file here or click to open file explorer
       </p>
     </button>

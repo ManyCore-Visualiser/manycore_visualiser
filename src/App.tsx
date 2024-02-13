@@ -1,4 +1,4 @@
-import "@fontsource/roboto-mono/700.css";
+import "@fontsource/roboto-mono/400.css";
 import React, { createContext, useContext, useState } from "react";
 import Controls from "./components/Controls";
 import FileLoader from "./components/FileLoader";

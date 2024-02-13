@@ -50,7 +50,7 @@ const Graph: React.FunctionComponent = () => {
 
   return (
     <div
-      className="py-1 w-full max-h-full aspect-square m-auto overflow-hidden block"
+      className="py-1 w-full max-h-full aspect-square m-auto block"
       ref={graphParentRef}
     ></div>
   );
