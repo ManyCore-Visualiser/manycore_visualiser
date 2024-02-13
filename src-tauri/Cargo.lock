@@ -939,6 +939,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "getset"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e45727250e75cc04ff2846a66397da8ef2b3db8e40e0cef4df67950a07621eb9"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "gimli"
 version = "0.28.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1466,18 +1478,20 @@ dependencies = [
 
 [[package]]
 name = "manycore_parser"
-version = "0.1.1"
-source = "git+https://github.com/joe2k01/manycore_parser.git#57cc1340c11ad170d07708e387f79ff4511d8362"
+version = "0.1.2"
+source = "git+https://github.com/joe2k01/manycore_parser.git#0d8304fa7e5cb5ea1fbf0e3b6990242d1121cdd1"
 dependencies = [
+ "getset",
  "quick-xml",
  "serde",
 ]
 
 [[package]]
 name = "manycore_svg"
-version = "0.1.2"
-source = "git+https://github.com/joe2k01/manycore_svg.git#0092df211c5b725a6283b15ea76fe4770ebea101"
+version = "0.1.6"
+source = "git+https://github.com/joe2k01/manycore_svg.git#e78c7af34695319ed7a7a763513a6815b02ef8d7"
 dependencies = [
+ "getset",
  "manycore_parser",
  "quick-xml",
  "serde",
