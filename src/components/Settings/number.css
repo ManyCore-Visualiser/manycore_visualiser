@@ -1,0 +1,19 @@
+.number {
+  -moz-appearance: textfield;
+  background-color: transparent;
+  border-bottom: 0.15em solid theme(colors.white);
+  margin: auto;
+  margin-top: 0.5em;
+  text-align: center;
+  width: min-content;
+}
+
+.number:focus {
+    outline: 1px solid theme(colors.indigo.500);
+}
+
+.number::-webkit-outer-spin-button,
+.number::-webkit-inner-spin-button {
+  appearance: none;
+  -webkit-appearance: none;
+}

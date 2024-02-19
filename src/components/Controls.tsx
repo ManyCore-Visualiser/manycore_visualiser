@@ -7,7 +7,9 @@ import TwotoneSettings from "./icons/TwotoneSettings";
 const Controls: React.FunctionComponent = () => {
   const ctx = useAppContext();
 
-  const handleSettings = () => {};
+  const handleSettings = () => {
+    ctx.showSettings(true);
+  };
 
   const handleExport = () => {};
 

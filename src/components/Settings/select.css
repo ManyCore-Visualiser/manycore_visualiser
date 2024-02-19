@@ -1,0 +1,36 @@
+.dropdown {
+  background-color: transparent;
+  border: none;
+  border-bottom: 0.15em solid theme(colors.white);
+  border-radius: 0;
+  text-align: center;
+  text-align-last: center;
+  -ms-text-align-last: center;
+  -moz-text-align-last: center;
+  cursor: pointer;
+  padding-right: 15px;
+}
+
+.dropdown-wrapper {
+    position: relative;
+}
+
+.dropdown-wrapper::after {
+  content: "";
+  height: 10px;
+  width: 10px;
+  aspect-ratio:  1 / 1;
+  background-color: theme(colors.white);
+  clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+  position: absolute;
+  display: block;
+  top: 50%;
+  translate: 0 -50%;
+  right: 0;
+}
+
+.dropdown:disabled {
+  color: theme(colors.zinc.500);
+  border-color: theme(colors.zinc.500);
+  cursor: default;
+}

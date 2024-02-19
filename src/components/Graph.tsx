@@ -10,6 +10,7 @@ const Graph: React.FunctionComponent = () => {
 
   // Render SVG when updated
   useEffect(() => {
+    console.log("Re render svg")
     if (ctx.svg && graphParentRef.current) {
       const svgDocument = parser.parseFromString(ctx.svg, "image/svg+xml");
       if (svgDocument.documentElement) {

@@ -1,4 +1,4 @@
-use manycore_svg::SVG;
+use manycore_svg::{Configuration, SVG};
 use serde::Serialize;
 
 use crate::{result_status::ResultStatus, State};
@@ -11,7 +11,7 @@ pub struct SVGResult {
 }
 
 #[tauri::command]
-pub fn get_svg(state: tauri::State<State>) -> SVGResult {
+pub fn get_svg(configuration: Option<Configuration>, state: tauri::State<State>) -> SVGResult {
     let mut ret = SVGResult {
         status: ResultStatus::Error,
         message: String::from("Something went wrong, please try again."),
@@ -23,7 +23,13 @@ pub fn get_svg(state: tauri::State<State>) -> SVGResult {
         // Value in option is preserved.
         match &*manycore_mutex {
             Some(manycore) => {
-                let svg = SVG::from(manycore);
+                let svg;
+                if let Some(conf) = configuration {
+                    svg = SVG::from_manycore_with_configuration(manycore, &conf);
+                } else {
+                    svg =
+                        SVG::from_manycore_with_configuration(manycore, &Configuration::default());
+                }
 
                 if let Ok(mut svg_mutex) = state.svg.lock() {
                     match String::try_from(&svg) {
@@ -32,12 +38,13 @@ pub fn get_svg(state: tauri::State<State>) -> SVGResult {
 
                             ret.status = ResultStatus::Ok;
                             ret.message = String::from("Successfully generated SVG");
-                            ret.svg = Some(svg_string);
+                            ret.svg = Some(svg_string.clone());
                         }
                         Err(e) => {
                             ret.message = e.to_string();
                         }
                     }
+                    return ret;
                 }
 
                 ret.message = String::from("Could not update render, please try again.")
