@@ -1,0 +1,12 @@
+.modal::backdrop {
+  background-color: theme(colors.zinc.950);
+  opacity: 0.8;
+}
+
+.modal {
+    background-color: theme(colors.zinc.950);
+    color: theme(colors.white);
+    padding: 15px;
+    border: 2px solid theme(colors.indigo.700);
+    border-radius: 15px;
+}

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { ProcessedAttributesGroupT } from "../../types/configuration";
 import Input from "./Input";
+import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
 
 type ElementSettings = {
   attributes: ProcessedAttributesGroupT;
@@ -17,6 +18,11 @@ const ElementSettings: React.FunctionComponent<ElementSettings> = ({
 }) => {
   let config: any = {};
   const [orderedAttributes, setOrderedAttributes] = useState<string[]>([]);
+
+  const displayReducer: React.Reducer<DisplayMapT, DisplayMapDispatchActionT> = (state, action) => {
+    return { ...state, [action.attribute]: action.display };
+  };
+  const [displayMap, dispatchDisplayMap] = useReducer(displayReducer, {});
 
   useEffect(() => {
     setOrderedAttributes(Object.keys(attributes).sort());
@@ -53,12 +59,13 @@ const ElementSettings: React.FunctionComponent<ElementSettings> = ({
             attrConf["Fill"] = colourConf;
           } else {
             attrConf["ColouredText"] = [
-              attributes[attribute].display,
+              displayMap[attribute] ?? attributes[attribute].display,
               colourConf,
             ];
           }
         } else {
-          attrConf["Text"] = attributes[attribute].display;
+          attrConf["Text"] =
+            displayMap[attribute] ?? attributes[attribute].display;
         }
 
         config[attribute] = attrConf;
@@ -77,7 +84,12 @@ const ElementSettings: React.FunctionComponent<ElementSettings> = ({
         {orderedAttributes.map((key) => {
           return (
             <div key={key}>
-              <Input attribute={key} info={attributes[key]} variant={variant} />
+              <Input
+                attribute={key}
+                info={attributes[key]}
+                variant={variant}
+                dispatchDisplayMap={dispatchDisplayMap}
+              />
             </div>
           );
         })}

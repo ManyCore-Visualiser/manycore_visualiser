@@ -3,10 +3,10 @@ import { useAppContext } from "../../App";
 import SettingsButton from "./SettingsButton";
 import { getSVG } from "../../utils/loadUtils";
 import ElementSettings from "./ElementSettings";
-import "./checkbox.css"
-import "./select.css"
-import "./number.css"
-import "./colour.css"
+import "./checkbox.css";
+import "./select.css";
+import "./number.css";
+import "./colour.css";
 
 const Settings: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -36,7 +36,7 @@ const Settings: React.FunctionComponent = () => {
 
   return (
     <div
-      className={`fixed z-50 bg-black text-white flex flex-col h-screen transition-transform duration-200 ease-in-out justify-between w-96 ${
+      className={`fixed z-20 bg-black text-white flex flex-col h-screen transition-transform duration-200 ease-in-out justify-between w-96 ${
         ctx.settings ? "translate-x-0" : "-translate-x-full"
       }`}
     >
