@@ -1,0 +1,15 @@
+.graph-parent {
+    user-select: none;
+}
+
+.graph-parent g {
+    will-change: transform;
+}
+
+.graph-parent g:hover {
+    cursor: help;
+}
+
+.graph-parent svg:hover {
+    cursor: move;
+}

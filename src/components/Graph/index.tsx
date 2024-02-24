@@ -1,6 +1,11 @@
 import { useEffect, useRef } from "react";
-import { useAppContext } from "../App";
-import { D3ZoomEvent, select, zoom } from "d3";
+import { useAppContext } from "../../App";
+import {
+  applyMatrix,
+  cleanUpPanZoom,
+  registerPanZoom,
+} from "../../utils/svgPanZoom";
+import "./style.css";
 
 const Graph: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -10,29 +15,25 @@ const Graph: React.FunctionComponent = () => {
 
   // Render SVG when updated
   useEffect(() => {
-    console.log("Re render svg")
+    console.log("Re render svg");
     if (ctx.svg && graphParentRef.current) {
+      const currentSVG = graphParentRef.current.querySelector("svg");
+      if (currentSVG) {
+        cleanUpPanZoom(currentSVG);
+      }
+
       const svgDocument = parser.parseFromString(ctx.svg, "image/svg+xml");
       if (svgDocument.documentElement) {
         // Clear current content
         graphParentRef.current.innerHTML = "";
 
-        const svgElement = svgDocument.documentElement;
+        const svgElement =
+          svgDocument.documentElement as unknown as SVGSVGElement;
         graphParentRef.current.appendChild(svgElement);
-        exportingAidRef.current = svgElement.querySelector("rect");
-        const svg = select<SVGSVGElement, unknown>("svg");
-        const graphRoot = svgElement.querySelector("g");
 
-        if (svg && graphRoot) {
-          svg.call(
-            zoom<SVGSVGElement, unknown>().on(
-              "zoom",
-              (ev: D3ZoomEvent<SVGSVGElement, unknown>) => {
-                graphRoot.setAttribute("transform", ev.transform.toString());
-              }
-            )
-          );
-        }
+        exportingAidRef.current = svgElement.querySelector("rect");
+
+        registerPanZoom(svgElement);
       } else {
         // TODO: Propagate error
       }
@@ -51,7 +52,7 @@ const Graph: React.FunctionComponent = () => {
 
   return (
     <div
-      className="py-1 w-full max-h-full aspect-square m-auto block"
+      className="py-1 w-full max-h-full aspect-square m-auto block graph-parent"
       ref={graphParentRef}
     ></div>
   );
