@@ -18,10 +18,10 @@ pub fn get_svg(configuration: Option<Configuration>, state: tauri::State<State>)
         svg: None,
     };
 
-    if let Ok(manycore_mutex) = state.manycore.lock() {
+    if let Ok(mut manycore_mutex) = state.manycore.lock() {
         // Reference inner value of mutex without taking ownership.
         // Value in option is preserved.
-        match &*manycore_mutex {
+        match &mut *manycore_mutex {
             Some(manycore) => {
                 let svg;
                 if let Some(conf) = configuration {
@@ -31,23 +31,29 @@ pub fn get_svg(configuration: Option<Configuration>, state: tauri::State<State>)
                         SVG::from_manycore_with_configuration(manycore, &Configuration::default());
                 }
 
-                if let Ok(mut svg_mutex) = state.svg.lock() {
-                    match String::try_from(&svg) {
-                        Ok(svg_string) => {
-                            let _ = svg_mutex.insert(svg);
+                match svg {
+                    Ok(svg) => {
+                        if let Ok(mut svg_mutex) = state.svg.lock() {
+                            match String::try_from(&svg) {
+                                Ok(svg_string) => {
+                                    let _ = svg_mutex.insert(svg);
 
-                            ret.status = ResultStatus::Ok;
-                            ret.message = String::from("Successfully generated SVG");
-                            ret.svg = Some(svg_string.clone());
+                                    ret.status = ResultStatus::Ok;
+                                    ret.message = String::from("Successfully generated SVG");
+                                    ret.svg = Some(svg_string.clone());
+                                }
+                                Err(e) => {
+                                    ret.message = e.to_string();
+                                }
+                            }
+
+                            return ret;
                         }
-                        Err(e) => {
-                            ret.message = e.to_string();
-                        }
+                        // Couldn't lock mutex
+                        ret.message = String::from("Could not update render, please try again.");
                     }
-                    return ret;
-                }
-
-                ret.message = String::from("Could not update render, please try again.")
+                    Err(e) => ret.message = e.to_string(),
+                };
             }
             None => {
                 ret.message = String::from("Load a system before generating a render.");

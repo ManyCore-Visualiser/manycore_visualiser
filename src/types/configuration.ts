@@ -14,6 +14,7 @@ export type ProcessedAttributesGroupT = {
 export type ProcessedAttributesT = {
   core: ProcessedAttributesGroupT;
   router: ProcessedAttributesGroupT;
+  algorithms: string[];
 };
 
 export type AttributesGroupT = {
@@ -24,5 +25,24 @@ export interface AttributesResponseT extends BaseResponseT {
   attributes?: {
     core: AttributesGroupT;
     router: AttributesGroupT;
+    algorithms: string[];
   };
 }
+
+export type ColourConfig = {
+  bounds: [number, number, number, number];
+  colours: [string, string, string, string];
+};
+
+export type CoreRouterConfiguration = {
+  [key: string]:
+    | { Text: string }
+    | { Fill: ColourConfig }
+    | { ColouredText: [string, ColourConfig] };
+};
+
+export type Configuration = {
+  coreConfig: CoreRouterConfiguration;
+  routerConfig: CoreRouterConfiguration;
+  routingConfig?: string;
+};

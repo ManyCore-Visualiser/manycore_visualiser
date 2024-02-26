@@ -21,7 +21,9 @@ export type AppState = {
   settings: boolean;
   showSettings: React.Dispatch<React.SetStateAction<boolean>>;
   attributes: ProcessedAttributesT | undefined;
-  setAttributes: React.Dispatch<React.SetStateAction<ProcessedAttributesT | undefined>>
+  setAttributes: React.Dispatch<
+    React.SetStateAction<ProcessedAttributesT | undefined>
+  >;
 };
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -35,10 +37,6 @@ function App() {
   const [attributes, setAttributes] = useState<
     ProcessedAttributesT | undefined
   >(undefined);
-
-  useEffect(() => {
-    console.log(attributes);
-  }, [attributes])
 
   return (
     <AppStateContext.Provider
@@ -54,7 +52,7 @@ function App() {
         settings,
         showSettings,
         attributes,
-        setAttributes
+        setAttributes,
       }}
     >
       <div className="w-full h-full flex flex-col">

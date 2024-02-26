@@ -1,38 +1,26 @@
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useRef, useState } from "react";
 import { useAppContext } from "../../App";
-import SettingsButton from "./SettingsButton";
+import { CoreRouterConfiguration } from "../../types/configuration";
 import { getSVG } from "../../utils/loadUtils";
 import ElementSettings from "./ElementSettings";
+import RoutingSettings from "./RoutingSettings";
+import SettingsButton from "./SettingsButton";
 import "./checkbox.css";
-import "./select.css";
-import "./number.css";
 import "./colour.css";
+import "./number.css";
+import "./select.css";
 
 const Settings: React.FunctionComponent = () => {
   const ctx = useAppContext();
-  const coresRef = useRef<HTMLFormElement>(null);
-  const routersRef = useRef<HTMLFormElement>(null);
-  const [coreConfig, setCoreConfig] = useState({});
-  const [routerConfig, setRouterConfig] = useState({});
-  let coreCounter = 0;
-  let routerCounter = 0;
-
-  useEffect(() => {
-    coreCounter++;
-  }, [coreConfig]);
-
-  useEffect(() => {
-    routerCounter++;
-  }, [routerConfig]);
-
-  useEffect(() => {
-    if (coreCounter === routerCounter) {
-      getSVG(ctx.setSVG, {
-        coreConfig,
-        routerConfig,
-      });
-    }
-  }, [coreConfig, routerConfig]);
+  const coresRef = useRef<(() => Promise<CoreRouterConfiguration>) | undefined>(
+    undefined
+  );
+  const routersRef = useRef<
+    (() => Promise<CoreRouterConfiguration>) | undefined
+  >(undefined);
+  const routingRef = useRef<(() => Promise<string | undefined>) | undefined>(
+    undefined
+  );
 
   return (
     <div
@@ -48,15 +36,17 @@ const Settings: React.FunctionComponent = () => {
           <>
             <ElementSettings
               attributes={ctx.attributes.core}
-              mref={coresRef}
-              setConfig={setCoreConfig}
+              promiseRef={coresRef}
               variant="Cores"
             />
             <ElementSettings
               attributes={ctx.attributes.router}
-              mref={routersRef}
-              setConfig={setRouterConfig}
+              promiseRef={routersRef}
               variant="Routers"
+            />
+            <RoutingSettings
+              promiseRef={routingRef}
+              algorithms={ctx.attributes.algorithms}
             />
           </>
         )}
@@ -65,17 +55,22 @@ const Settings: React.FunctionComponent = () => {
         <SettingsButton text="Load new Graph" action={() => {}} fullSize />
         <SettingsButton
           text="Apply"
-          action={() => {
-            if (coresRef.current) {
-              coresRef.current.dispatchEvent(
-                new Event("submit", { cancelable: true, bubbles: true })
-              );
-            }
-
-            if (routersRef.current) {
-              routersRef.current.dispatchEvent(
-                new Event("submit", { cancelable: true, bubbles: true })
-              );
+          action={async () => {
+            if (coresRef.current && routersRef.current && routingRef.current) {
+              try {
+                const coreConfig = await coresRef.current();
+                const routerConfig = await routersRef.current();
+                const routingConfig = await routingRef.current();
+                getSVG(ctx.setSVG, {
+                  coreConfig,
+                  routerConfig,
+                  routingConfig,
+                });
+              } catch (e) {
+                // TODO: Handle error
+              }
+            } else {
+              // TODO: Something went seriously wrong
             }
           }}
         />

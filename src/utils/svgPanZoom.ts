@@ -176,4 +176,4 @@ function cleanUpPanZoom(svg: SVGSVGElement) {
   svg.removeEventListener("wheel", zoom);
 }
 
-export { registerPanZoom, cleanUpPanZoom, applyMatrix };
+export { registerPanZoom, cleanUpPanZoom };

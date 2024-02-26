@@ -1,10 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useAppContext } from "../../App";
-import {
-  applyMatrix,
-  cleanUpPanZoom,
-  registerPanZoom,
-} from "../../utils/svgPanZoom";
+import { cleanUpPanZoom, registerPanZoom } from "../../utils/svgPanZoom";
 import "./style.css";
 
 const Graph: React.FunctionComponent = () => {

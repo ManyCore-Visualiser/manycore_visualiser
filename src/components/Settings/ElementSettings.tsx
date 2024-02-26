@@ -1,25 +1,38 @@
-import React, { useEffect, useReducer, useState } from "react";
-import { ProcessedAttributesGroupT } from "../../types/configuration";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
+import {
+  CoreRouterConfiguration,
+  ProcessedAttributesGroupT,
+} from "../../types/configuration";
 import Input from "./Input";
 import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
 
-type ElementSettings = {
+type ElementSettingsT = {
   attributes: ProcessedAttributesGroupT;
-  mref: React.RefObject<HTMLFormElement>;
-  setConfig: any;
+  promiseRef: React.MutableRefObject<
+    (() => Promise<CoreRouterConfiguration>) | undefined
+  >;
   variant: "Cores" | "Routers";
 };
 
-const ElementSettings: React.FunctionComponent<ElementSettings> = ({
+const ElementSettings: React.FunctionComponent<ElementSettingsT> = ({
   attributes,
-  mref,
-  setConfig,
+  promiseRef,
   variant,
 }) => {
-  let config: any = {};
+  const formRef = useRef<HTMLFormElement>(null);
   const [orderedAttributes, setOrderedAttributes] = useState<string[]>([]);
 
-  const displayReducer: React.Reducer<DisplayMapT, DisplayMapDispatchActionT> = (state, action) => {
+  const displayReducer: React.Reducer<
+    DisplayMapT,
+    DisplayMapDispatchActionT
+  > = (state, action) => {
     return { ...state, [action.attribute]: action.display };
   };
   const [displayMap, dispatchDisplayMap] = useReducer(displayReducer, {});
@@ -28,59 +41,81 @@ const ElementSettings: React.FunctionComponent<ElementSettings> = ({
     setOrderedAttributes(Object.keys(attributes).sort());
   }, [attributes]);
 
-  const generateConfig: React.FormEventHandler<HTMLFormElement> = (ev) => {
-    ev.preventDefault();
-    const form = ev.target as HTMLFormElement;
-    config = {};
+  const generateConfig = (): CoreRouterConfiguration | null => {
+    if (formRef.current) {
+      const form = formRef.current;
+      const config: CoreRouterConfiguration = {};
 
-    for (const attribute of orderedAttributes) {
-      const elem = form[attribute] as HTMLInputElement | undefined;
-      if (elem && elem.checked) {
-        const attrConf: any = {};
-        const select = form[`${attribute}-select`] as
-          | HTMLSelectElement
-          | undefined;
-        if (
-          attributes[attribute].type === "number" &&
-          select &&
-          select.value !== "Text"
-        ) {
-          let colourConf: any = { bounds: [], colours: [] };
+      for (const attribute of orderedAttributes) {
+        const elem = form[attribute] as HTMLInputElement | undefined;
+        if (elem && elem.checked) {
+          const attrConf: any = {};
+          const select = form[`${attribute}-select`] as
+            | HTMLSelectElement
+            | undefined;
+          if (
+            attributes[attribute].type === "number" &&
+            select &&
+            select.value !== "Text"
+          ) {
+            let colourConf: any = { bounds: [], colours: [] };
 
-          for (let i = 0; i < 4; i++) {
-            const c = form[`${attribute}-${i}c`].value;
-            const v = form[`${attribute}-${i}v`].value;
+            for (let i = 0; i < 4; i++) {
+              const c = form[`${attribute}-${i}c`].value;
+              const v = form[`${attribute}-${i}v`].value;
 
-            colourConf.bounds.push(parseInt(v));
-            colourConf.colours.push(c);
-          }
+              colourConf.bounds.push(parseInt(v));
+              colourConf.colours.push(c);
+            }
 
-          if (select.value === "Fill") {
-            attrConf["Fill"] = colourConf;
+            if (select.value === "Fill") {
+              attrConf["Fill"] = colourConf;
+            } else {
+              attrConf["ColouredText"] = [
+                displayMap[attribute] ?? attributes[attribute].display,
+                colourConf,
+              ];
+            }
           } else {
-            attrConf["ColouredText"] = [
-              displayMap[attribute] ?? attributes[attribute].display,
-              colourConf,
-            ];
+            attrConf["Text"] =
+              displayMap[attribute] ?? attributes[attribute].display;
           }
-        } else {
-          attrConf["Text"] =
-            displayMap[attribute] ?? attributes[attribute].display;
-        }
 
-        config[attribute] = attrConf;
+          config[attribute] = attrConf;
+        }
       }
+
+      return config;
     }
 
-    setConfig(config);
+    return null;
   };
+
+  const generatePromise = () =>
+    new Promise<CoreRouterConfiguration>((resolve, reject) => {
+      const ret = generateConfig();
+
+      if (ret) {
+        resolve(ret);
+      } else {
+        reject("Something went wrong extracting the input. Please try again.");
+      }
+    });
+
+  useEffect(() => {
+    promiseRef.current = generatePromise;
+  }, [orderedAttributes, displayMap, formRef]);
 
   return (
     <div className="flex flex-col mt-10 px-2">
       <span className="text-indigo-500 w-full text-2xl border-b-2 border-indigo-500">
         <h4>{variant} information</h4>
       </span>
-      <form className="mt-2" onSubmit={generateConfig} ref={mref}>
+      <form
+        className="mt-2"
+        onSubmit={(ev) => ev.preventDefault()}
+        ref={formRef}
+      >
         {orderedAttributes.map((key) => {
           return (
             <div key={key}>

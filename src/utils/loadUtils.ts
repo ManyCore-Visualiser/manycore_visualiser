@@ -6,6 +6,7 @@ import { open } from "@tauri-apps/api/dialog";
 import {
   AttributesGroupT,
   AttributesResponseT,
+  Configuration,
   ProcessedAttributesGroupT,
   ProcessedAttributesT,
 } from "../types/configuration";
@@ -36,15 +37,14 @@ function startProcessing(filePath: string, ctx: AppState) {
 
 function getSVG(
   setSVG: React.Dispatch<React.SetStateAction<SVGT>>,
-  configuration?: any
+  configuration?: Configuration
 ) {
   invoke<SVGResponseT>("get_svg", { configuration }).then((res) => {
     if (res.status === "ok") {
-        console.log(res)
       setSVG(res.svg!);
     } else {
       // TODO: Propagate error
-      console.log("Error")
+      console.log("Error");
     }
   });
 }
@@ -73,6 +73,7 @@ function getAttributes(
       const processedAttributes: ProcessedAttributesT = {
         core: populateAttributesGroup(res.attributes.core),
         router: populateAttributesGroup(res.attributes.router),
+        algorithms: res.attributes.algorithms,
       };
 
       setAttributes(processedAttributes);
