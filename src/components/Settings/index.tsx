@@ -47,6 +47,7 @@ const Settings: React.FunctionComponent = () => {
             <RoutingSettings
               promiseRef={routingRef}
               algorithms={ctx.attributes.algorithms}
+              observedAlgorithm={ctx.attributes.observedAlgorithm}
             />
           </>
         )}

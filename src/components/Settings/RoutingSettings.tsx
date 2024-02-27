@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 
 type RoutingSettingsT = {
+  observedAlgorithm: string | undefined;
   algorithms: string[];
   promiseRef: React.MutableRefObject<
     (() => Promise<string | undefined>) | undefined
@@ -8,6 +9,7 @@ type RoutingSettingsT = {
 };
 
 const RoutingSettings: React.FunctionComponent<RoutingSettingsT> = ({
+  observedAlgorithm,
   algorithms,
   promiseRef,
 }) => {
@@ -60,7 +62,9 @@ const RoutingSettings: React.FunctionComponent<RoutingSettingsT> = ({
               <option>None</option>
               {algorithms.map((algorithm) => (
                 <option key={algorithm} value={algorithm}>
-                  {algorithm}
+                  {algorithm === "Observed" && observedAlgorithm
+                    ? `${algorithm} (${observedAlgorithm})`
+                    : algorithm}
                 </option>
               ))}
             </select>

@@ -15,6 +15,7 @@ export type ProcessedAttributesT = {
   core: ProcessedAttributesGroupT;
   router: ProcessedAttributesGroupT;
   algorithms: string[];
+  observedAlgorithm: string | undefined;
 };
 
 export type AttributesGroupT = {
@@ -26,6 +27,7 @@ export interface AttributesResponseT extends BaseResponseT {
     core: AttributesGroupT;
     router: AttributesGroupT;
     algorithms: string[];
+    observedAlgorithm?: string;
   };
 }
 

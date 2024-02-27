@@ -44,7 +44,7 @@ function getSVG(
       setSVG(res.svg!);
     } else {
       // TODO: Propagate error
-      console.log("Error");
+      console.log(`Error: ${res.message}`);
     }
   });
 }
@@ -70,11 +70,19 @@ function getAttributes(
 ) {
   invoke<AttributesResponseT>("get_attributes").then((res) => {
     if (res.status === "ok" && res.attributes) {
+      console.log(res);
       const processedAttributes: ProcessedAttributesT = {
         core: populateAttributesGroup(res.attributes.core),
         router: populateAttributesGroup(res.attributes.router),
         algorithms: res.attributes.algorithms,
+        observedAlgorithm: res.attributes.observedAlgorithm,
       };
+
+      if (!processedAttributes.observedAlgorithm) {
+        processedAttributes.algorithms = processedAttributes.algorithms.filter(
+          (algorithm) => algorithm !== "Observed"
+        );
+      }
 
       setAttributes(processedAttributes);
     } else {
