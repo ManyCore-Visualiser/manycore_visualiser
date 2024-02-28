@@ -28,7 +28,7 @@ const Settings: React.FunctionComponent = () => {
         ctx.settings ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <div>
+      <div className="overflow-y-scroll px-2">
         <h3 className="block text-indigo-400 text-2xl">
           Visualisation Settings
         </h3>
