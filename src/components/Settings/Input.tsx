@@ -69,6 +69,23 @@ const Input: React.FunctionComponent<InputT> = ({
               </div>
             </>
           )}
+          {attribute === "@coordinates" && (
+            <>
+              <span className="whitespace-pre-wrap"> from </span>
+              <div className="content dropdown-wrapper">
+                <select
+                  name={`${attribute}-select`}
+                  id={`${attribute}-select`}
+                  disabled={!checked}
+                  defaultValue="T"
+                  className="appearance-none dropdown"
+                >
+                  <option value="T">Top left</option>
+                  <option value="B">Bottom left</option>
+                </select>
+              </div>
+            </>
+          )}
           {attribute != "@coordinates" && type !== "Fill" && checked && (
             <button onClick={showModal}>
               <TwotoneTextFields width="1em" height="1em" className="ml-4" />

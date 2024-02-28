@@ -5,3 +5,14 @@
 #root {
   @apply w-[100dvw] h-[100dvh];
 }
+
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

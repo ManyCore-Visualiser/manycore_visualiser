@@ -1,17 +1,10 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import {
   CoreRouterConfiguration,
   ProcessedAttributesGroupT,
 } from "../../types/configuration";
-import Input from "./Input";
 import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
+import Input from "./Input";
 
 type ElementSettingsT = {
   attributes: ProcessedAttributesGroupT;
@@ -77,8 +70,19 @@ const ElementSettings: React.FunctionComponent<ElementSettingsT> = ({
               ];
             }
           } else {
-            attrConf["Text"] =
-              displayMap[attribute] ?? attributes[attribute].display;
+            if (attribute === "@coordinates") {
+              const coordinatesSelect = form["@coordinates-select"] as
+                | HTMLInputElement
+                | undefined;
+              if (coordinatesSelect) {
+                attrConf["Text"] = coordinatesSelect.value;
+              } else {
+                attrConf["Text"] = "T";
+              }
+            } else {
+              attrConf["Text"] =
+                displayMap[attribute] ?? attributes[attribute].display;
+            }
           }
 
           config[attribute] = attrConf;

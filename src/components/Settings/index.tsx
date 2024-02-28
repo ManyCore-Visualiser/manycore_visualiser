@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState } from "react";
+import { useRef } from "react";
 import { useAppContext } from "../../App";
 import { CoreRouterConfiguration } from "../../types/configuration";
 import { getSVG } from "../../utils/loadUtils";
@@ -28,7 +28,7 @@ const Settings: React.FunctionComponent = () => {
         ctx.settings ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <div className="overflow-y-scroll px-2">
+      <div className="overflow-y-scroll no-scrollbar px-2">
         <h3 className="block text-indigo-400 text-2xl">
           Visualisation Settings
         </h3>
