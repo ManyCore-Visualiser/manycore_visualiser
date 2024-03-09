@@ -23,6 +23,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             parse::parse,
             svg::get_svg,
+            svg::update_svg,
             configuration::get_attributes
         ])
         .run(tauri::generate_context!())

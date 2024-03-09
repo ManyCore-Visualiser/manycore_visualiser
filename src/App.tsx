@@ -1,19 +1,23 @@
 import "@fontsource/roboto-mono/400.css";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import Controls from "./components/Controls";
 import FileLoader from "./components/FileLoader";
 import Graph from "./components/Graph";
 import Loading from "./components/Loading";
-import type { SVGT } from "./types/svg";
-import { TransformT } from "./types/transform";
 import Settings from "./components/Settings";
 import { ProcessedAttributesT } from "./types/configuration";
+import type { SVGT } from "./types/svg";
+import { TransformT } from "./types/transform";
 
 export type AppState = {
   processingInput: boolean;
   setProcessingInput: React.Dispatch<React.SetStateAction<boolean>>;
   svg: SVGT;
   setSVG: React.Dispatch<React.SetStateAction<SVGT>>;
+  svgStyle: SVGT;
+  setSVGStyle: React.Dispatch<React.SetStateAction<SVGT>>;
+  svgInformation: SVGT;
+  setSVGInformation: React.Dispatch<React.SetStateAction<SVGT>>;
   aidOpacity: boolean;
   setAidOpacity: React.Dispatch<React.SetStateAction<boolean>>;
   transform: TransformT;
@@ -31,6 +35,8 @@ const AppStateContext = createContext<AppState | null>(null);
 function App() {
   const [processingInput, setProcessingInput] = useState(false);
   const [svg, setSVG] = useState<SVGT>(null);
+  const [svgStyle, setSVGStyle] = useState<SVGT>(null);
+  const [svgInformation, setSVGInformation] = useState<SVGT>(null);
   const [aidOpacity, setAidOpacity] = useState(false);
   const [transform, setTransform] = useState<TransformT>(undefined);
   const [settings, showSettings] = useState(false);
@@ -45,6 +51,10 @@ function App() {
         setProcessingInput,
         svg,
         setSVG,
+        svgStyle,
+        setSVGStyle,
+        svgInformation,
+        setSVGInformation,
         aidOpacity,
         setAidOpacity,
         transform,

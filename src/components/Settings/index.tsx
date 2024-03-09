@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useAppContext } from "../../App";
 import { CoreRouterConfiguration } from "../../types/configuration";
-import { getSVG } from "../../utils/loadUtils";
+import { updateSVG } from "../../utils/loadUtils";
 import ElementSettings from "./ElementSettings";
 import RoutingSettings from "./RoutingSettings";
 import SettingsButton from "./SettingsButton";
@@ -62,11 +62,15 @@ const Settings: React.FunctionComponent = () => {
                 const coreConfig = await coresRef.current();
                 const routerConfig = await routersRef.current();
                 const routingConfig = await routingRef.current();
-                getSVG(ctx.setSVG, {
-                  coreConfig,
-                  routerConfig,
-                  routingConfig,
-                });
+                updateSVG(
+                  {
+                    coreConfig,
+                    routerConfig,
+                    routingConfig,
+                  },
+                  ctx.setSVGStyle,
+                  ctx.setSVGInformation
+                );
               } catch (e) {
                 // TODO: Handle error
               }

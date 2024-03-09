@@ -1,5 +1,3 @@
-import React from "react";
-import type { SVGProps } from "react";
 import { SVGFunctionComponentT } from "../SVGFunctionComponentType";
 
 const TwotoneMemory: SVGFunctionComponentT = (props) => {

@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api";
-import { SVGResponseT, SVGT } from "../types/svg";
+import { SVGResponseT, SVGT, SVGUpdateResponseT } from "../types/svg";
 import { AppState } from "../App";
 import { BaseResponseT } from "../types/baseResponse";
 import { open } from "@tauri-apps/api/dialog";
@@ -35,13 +35,30 @@ function startProcessing(filePath: string, ctx: AppState) {
   });
 }
 
-function getSVG(
-  setSVG: React.Dispatch<React.SetStateAction<SVGT>>,
-  configuration?: Configuration
-) {
-  invoke<SVGResponseT>("get_svg", { configuration }).then((res) => {
+function getSVG(setSVG: React.Dispatch<React.SetStateAction<SVGT>>) {
+  invoke<SVGResponseT>("get_svg").then((res) => {
     if (res.status === "ok") {
       setSVG(res.svg!);
+    } else {
+      // TODO: Propagate error
+      console.log(`Error: ${res.message}`);
+    }
+  });
+}
+
+function updateSVG(
+  configuration: Configuration,
+  setSVGStyle: React.Dispatch<React.SetStateAction<SVGT>>,
+  setSVGInformation: React.Dispatch<React.SetStateAction<SVGT>>
+) {
+  invoke<SVGUpdateResponseT>("update_svg", { configuration }).then((res) => {
+    if (res.status === "ok") {
+      if (res.update!.style) {
+        setSVGStyle(res.update!.style);
+      }
+      if (res.update!.informationGroup) {
+        setSVGInformation(res.update!.informationGroup);
+      }
     } else {
       // TODO: Propagate error
       console.log(`Error: ${res.message}`);
@@ -91,4 +108,4 @@ function getAttributes(
   });
 }
 
-export { openFilePickerDialog, startProcessing, getSVG };
+export { openFilePickerDialog, startProcessing, getSVG, updateSVG };

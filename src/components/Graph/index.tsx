@@ -7,11 +7,11 @@ const Graph: React.FunctionComponent = () => {
   const ctx = useAppContext();
   const graphParentRef = useRef<HTMLDivElement | null>(null);
   const exportingAidRef = useRef<SVGRectElement | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const parser = new DOMParser();
 
   // Render SVG when updated
   useEffect(() => {
-    console.log("Re render svg");
     if (ctx.svg && graphParentRef.current) {
       const currentSVG = graphParentRef.current.querySelector("svg");
       if (currentSVG) {
@@ -27,6 +27,7 @@ const Graph: React.FunctionComponent = () => {
           svgDocument.documentElement as unknown as SVGSVGElement;
         graphParentRef.current.appendChild(svgElement);
 
+        svgRef.current = svgElement;
         exportingAidRef.current = svgElement.querySelector("rect");
 
         registerPanZoom(svgElement);
@@ -35,6 +36,35 @@ const Graph: React.FunctionComponent = () => {
       }
     }
   }, [ctx.svg, graphParentRef]);
+
+  // Update SVG style when an update is dispatched
+  useEffect(() => {
+    if (svgRef.current && ctx.svgStyle) {
+      const currentStyle = svgRef.current.querySelector("style");
+      if (currentStyle) {
+        currentStyle.remove();
+      }
+
+      svgRef.current.innerHTML += ctx.svgStyle;
+    }
+  }, [ctx.svgStyle, svgRef]);
+
+  // Update SVG information group when an update is dispatched
+  useEffect(() => {
+    if (svgRef.current && ctx.svgInformation) {      
+      const mainGroup = svgRef.current.getElementById("mainGroup") as SVGGElement | null;
+      
+      if (mainGroup) {
+        const currentInformation = document.getElementById("information");
+        
+        if (currentInformation) {
+          currentInformation.remove();
+        }
+
+        mainGroup.innerHTML += ctx.svgInformation;
+      }
+    }
+  }, [ctx.svgInformation, svgRef]);
 
   // Toggle Exporting aid
   useEffect(() => {

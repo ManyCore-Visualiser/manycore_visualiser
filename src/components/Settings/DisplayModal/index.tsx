@@ -24,7 +24,6 @@ const DisplayModal: React.FunctionComponent<DisplayModalT> = ({
   }
 
   function handleSave() {
-    console.log(inputRef.current?.value)
     if (inputRef.current && inputRef.current.value.length > 0) {
       dispatchDisplayMap({ attribute, display: inputRef.current.value });
     }
