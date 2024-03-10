@@ -12,3 +12,5 @@ export interface SVGUpdateResponseT extends BaseResponseT {
     informationGroup?: string;
   };
 }
+
+export interface SVGRenderResponseT extends BaseResponseT {}

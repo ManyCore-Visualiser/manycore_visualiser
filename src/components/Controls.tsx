@@ -1,8 +1,10 @@
+import { invoke } from "@tauri-apps/api";
 import { useAppContext } from "../App";
 import ControlButton from "./ControlButton";
 import RoundBorderOuter from "./icons/RoundBorderOuter";
 import TwotoneCameraEnhance from "./icons/TwotoneCameraEnhance";
 import TwotoneSettings from "./icons/TwotoneSettings";
+import { SVGRenderResponseT } from "../types/svg";
 
 const Controls: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -11,7 +13,14 @@ const Controls: React.FunctionComponent = () => {
     ctx.showSettings(true);
   };
 
-  const handleExport = () => {};
+  const handleExport = () => {
+    invoke<SVGRenderResponseT>("render_svg").then((res) => {
+      if (res.status === "error") {
+        // TODO: Handle error
+        console.log(res.message);
+      }
+    });
+  };
 
   const handleAid = () => {
     ctx.setAidOpacity((curr) => !curr);

@@ -10,6 +10,10 @@
     cursor: help;
 }
 
+#information {
+    pointer-events: none;
+}
+
 .graph-parent svg:hover {
     cursor: move;
 }
