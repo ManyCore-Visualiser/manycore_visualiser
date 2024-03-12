@@ -16,6 +16,7 @@ export type ProcessedAttributesT = {
   router: ProcessedAttributesGroupT;
   algorithms: string[];
   observedAlgorithm: string | undefined;
+  sinksSources: boolean;
 };
 
 export type AttributesGroupT = {
@@ -28,6 +29,7 @@ export interface AttributesResponseT extends BaseResponseT {
     router: AttributesGroupT;
     algorithms: string[];
     observedAlgorithm?: string;
+    sinksSources: boolean;
   };
 }
 
@@ -43,8 +45,14 @@ export type CoreRouterConfiguration = {
     | { ColouredText: [string, ColourConfig] };
 };
 
+export type RoutingConfigT = {
+  routingConfig?: string;
+  sinksSources: boolean;
+};
+
 export type Configuration = {
   coreConfig: CoreRouterConfiguration;
   routerConfig: CoreRouterConfiguration;
   routingConfig?: string;
+  sinksSources: boolean;
 };

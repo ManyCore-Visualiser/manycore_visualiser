@@ -1,6 +1,9 @@
 import { useRef } from "react";
 import { useAppContext } from "../../App";
-import { CoreRouterConfiguration } from "../../types/configuration";
+import {
+  CoreRouterConfiguration,
+  RoutingConfigT,
+} from "../../types/configuration";
 import { updateSVG } from "../../utils/loadUtils";
 import ElementSettings from "./ElementSettings";
 import RoutingSettings from "./RoutingSettings";
@@ -18,7 +21,7 @@ const Settings: React.FunctionComponent = () => {
   const routersRef = useRef<
     (() => Promise<CoreRouterConfiguration>) | undefined
   >(undefined);
-  const routingRef = useRef<(() => Promise<string | undefined>) | undefined>(
+  const routingRef = useRef<(() => Promise<RoutingConfigT>) | undefined>(
     undefined
   );
 
@@ -66,10 +69,12 @@ const Settings: React.FunctionComponent = () => {
                   {
                     coreConfig,
                     routerConfig,
-                    routingConfig,
+                    ...routingConfig,
                   },
                   ctx.setSVGStyle,
-                  ctx.setSVGInformation
+                  ctx.setSVGInformation,
+                  ctx.setSVGSinksSources,
+                  ctx.setSVGViewbox
                 );
               } catch (e) {
                 // TODO: Handle error

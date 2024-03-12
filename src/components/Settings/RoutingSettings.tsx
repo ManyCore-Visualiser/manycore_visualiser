@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from "react";
+import { RoutingConfigT } from "../../types/configuration";
 
 type RoutingSettingsT = {
   observedAlgorithm: string | undefined;
   algorithms: string[];
   promiseRef: React.MutableRefObject<
-    (() => Promise<string | undefined>) | undefined
+    (() => Promise<RoutingConfigT>) | undefined
   >;
 };
 
@@ -15,18 +16,23 @@ const RoutingSettings: React.FunctionComponent<RoutingSettingsT> = ({
 }) => {
   const formRef = useRef<HTMLFormElement>(null);
   const selectName = "algorithm-select";
+  const sinksSourcesName = "sinks-sources-checkbox";
 
   const generatePromise = () =>
-    new Promise<string | undefined>((resolve, reject) => {
+    new Promise<RoutingConfigT>((resolve, reject) => {
       if (formRef.current) {
         const form = formRef.current;
 
         const select = form[selectName] as HTMLInputElement | null;
+        const sinksSources = form[sinksSourcesName] as HTMLInputElement | null;
 
-        if (select && select.value !== "None") {
-          resolve(select.value);
+        if (select && sinksSources) {
+          resolve({
+            routingConfig: select.value === "None" ? undefined : select.value,
+            sinksSources: sinksSources.checked,
+          });
         } else {
-          resolve(undefined);
+          resolve({ sinksSources: false });
         }
       }
 
@@ -47,27 +53,38 @@ const RoutingSettings: React.FunctionComponent<RoutingSettingsT> = ({
         onSubmit={(ev) => ev.preventDefault()}
         ref={formRef}
       >
-        <div className="flex">
-          <label htmlFor={selectName} className="whitespace-pre-wrap">
-            Routing algorithm{" "}
-          </label>
-          <div className="content dropdown-wrapper">
-            <select
-              name={selectName}
-              id={selectName}
-              disabled={!algorithms}
-              className="appearance-none dropdown"
-              defaultValue={undefined}
-            >
-              <option>None</option>
-              {algorithms.map((algorithm) => (
-                <option key={algorithm} value={algorithm}>
-                  {algorithm === "Observed" && observedAlgorithm
-                    ? `${algorithm} (${observedAlgorithm})`
-                    : algorithm}
-                </option>
-              ))}
-            </select>
+        <div>
+          <div className="flex items-center pb-4">
+            <label htmlFor={selectName} className="whitespace-pre-wrap">
+              Routing algorithm{" "}
+            </label>
+            <div className="content dropdown-wrapper">
+              <select
+                name={selectName}
+                id={selectName}
+                disabled={!algorithms}
+                className="appearance-none dropdown"
+                defaultValue={undefined}
+              >
+                <option>None</option>
+                {algorithms.map((algorithm) => (
+                  <option key={algorithm} value={algorithm}>
+                    {algorithm === "Observed" && observedAlgorithm
+                      ? `${algorithm} (${observedAlgorithm})`
+                      : algorithm}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="flex items-center checkbox-container pb-4">
+            <input
+              id={sinksSourcesName}
+              type="checkbox"
+              name={sinksSourcesName}
+              className="checkbox"
+            ></input>
+            <label htmlFor={sinksSourcesName}>Show sinks/sources</label>
           </div>
         </div>
       </form>

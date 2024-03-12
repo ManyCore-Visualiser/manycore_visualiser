@@ -18,6 +18,10 @@ export type AppState = {
   setSVGStyle: React.Dispatch<React.SetStateAction<SVGT>>;
   svgInformation: SVGT;
   setSVGInformation: React.Dispatch<React.SetStateAction<SVGT>>;
+  svgSinksSources: SVGT;
+  setSVGSinksSources: React.Dispatch<React.SetStateAction<SVGT>>;
+  svgViewbox: SVGT;
+  setSVGViewbox: React.Dispatch<React.SetStateAction<SVGT>>;
   aidOpacity: boolean;
   setAidOpacity: React.Dispatch<React.SetStateAction<boolean>>;
   transform: TransformT;
@@ -37,6 +41,8 @@ function App() {
   const [svg, setSVG] = useState<SVGT>(null);
   const [svgStyle, setSVGStyle] = useState<SVGT>(null);
   const [svgInformation, setSVGInformation] = useState<SVGT>(null);
+  const [svgSinksSources, setSVGSinksSources] = useState<SVGT>(null);
+  const [svgViewbox, setSVGViewbox] = useState<SVGT>(null);
   const [aidOpacity, setAidOpacity] = useState(false);
   const [transform, setTransform] = useState<TransformT>(undefined);
   const [settings, showSettings] = useState(false);
@@ -55,6 +61,10 @@ function App() {
         setSVGStyle,
         svgInformation,
         setSVGInformation,
+        svgSinksSources,
+        setSVGSinksSources,
+        svgViewbox,
+        setSVGViewbox,
         aidOpacity,
         setAidOpacity,
         transform,

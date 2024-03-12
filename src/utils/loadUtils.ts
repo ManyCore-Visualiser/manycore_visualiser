@@ -49,7 +49,9 @@ function getSVG(setSVG: React.Dispatch<React.SetStateAction<SVGT>>) {
 function updateSVG(
   configuration: Configuration,
   setSVGStyle: React.Dispatch<React.SetStateAction<SVGT>>,
-  setSVGInformation: React.Dispatch<React.SetStateAction<SVGT>>
+  setSVGInformation: React.Dispatch<React.SetStateAction<SVGT>>,
+  setSVGSinksSources: React.Dispatch<React.SetStateAction<SVGT>>,
+  setSVGViewbox: React.Dispatch<React.SetStateAction<SVGT>>
 ) {
   invoke<SVGUpdateResponseT>("update_svg", { configuration }).then((res) => {
     if (res.status === "ok") {
@@ -58,6 +60,12 @@ function updateSVG(
       }
       if (res.update!.informationGroup) {
         setSVGInformation(res.update!.informationGroup);
+      }
+      if (res.update!.viewBox) {
+        setSVGViewbox(res.update!.viewBox);
+      }
+      if (res.update!.sinksSourcesGroup) {
+        setSVGSinksSources(res.update!.sinksSourcesGroup);
       }
     } else {
       // TODO: Propagate error
@@ -93,6 +101,7 @@ function getAttributes(
         router: populateAttributesGroup(res.attributes.router),
         algorithms: res.attributes.algorithms,
         observedAlgorithm: res.attributes.observedAlgorithm,
+        sinksSources: res.attributes.sinksSources,
       };
 
       if (!processedAttributes.observedAlgorithm) {

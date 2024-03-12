@@ -1586,8 +1586,8 @@ dependencies = [
 
 [[package]]
 name = "manycore_parser"
-version = "0.2.7"
-source = "git+https://github.com/joe2k01/manycore_parser.git#aca8ae6845cabc2f4ea5465cef06eaf7f8c71778"
+version = "0.3.4"
+source = "git+https://github.com/joe2k01/manycore_parser.git#63cd452076ca7293c18d071113d5c49fe0c2f41a"
 dependencies = [
  "getset",
  "quick-xml",
@@ -1596,8 +1596,8 @@ dependencies = [
 
 [[package]]
 name = "manycore_svg"
-version = "0.3.1"
-source = "git+https://github.com/joe2k01/manycore_svg.git#e785922bd5aa9993e85d4939969b334f75d1e0c4"
+version = "0.3.6"
+source = "git+https://github.com/joe2k01/manycore_svg.git#9567ff0dc1f3e5d3c52c4b33662b3cd4a662bb38"
 dependencies = [
  "const_format",
  "getset",

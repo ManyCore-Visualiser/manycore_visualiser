@@ -109,12 +109,16 @@ pub async fn render_svg(state: tauri::State<'_, State>) -> Result<SVGRenderResul
         message: String::from("Successfully rendered SVG."),
     };
 
-    if let (Ok(svg_string_mutex), Ok(font_database_mutex)) =
-        (state.svg_string.lock(), state.font_database.lock())
-    {
-        if let (Some(svg_string), font_database) = (&*svg_string_mutex, &*font_database_mutex) {
+    if let (Ok(svg_string_mutex), Ok(font_database_mutex), Ok(svg_mutex)) = (
+        state.svg_string.lock(),
+        state.font_database.lock(),
+        state.svg.lock(),
+    ) {
+        if let (Some(svg_string), font_database, Some(svg)) =
+            (&*svg_string_mutex, &*font_database_mutex, &*svg_mutex)
+        {
             let tree = Tree::from_str(svg_string, &Options::default(), font_database).unwrap();
-            let target_image = Pixmap::new(1500, 1500);
+            let target_image = Pixmap::new((*svg.width()).into(), (*svg.height()).into());
 
             if let Some(mut img_buf) = target_image {
                 render(&tree, Transform::default(), &mut img_buf.as_mut());

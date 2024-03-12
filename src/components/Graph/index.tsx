@@ -51,12 +51,14 @@ const Graph: React.FunctionComponent = () => {
 
   // Update SVG information group when an update is dispatched
   useEffect(() => {
-    if (svgRef.current && ctx.svgInformation) {      
-      const mainGroup = svgRef.current.getElementById("mainGroup") as SVGGElement | null;
-      
+    if (svgRef.current && ctx.svgInformation) {
+      const mainGroup = svgRef.current.getElementById(
+        "mainGroup"
+      ) as SVGGElement | null;
+
       if (mainGroup) {
         const currentInformation = document.getElementById("information");
-        
+
         if (currentInformation) {
           currentInformation.remove();
         }
@@ -65,6 +67,32 @@ const Graph: React.FunctionComponent = () => {
       }
     }
   }, [ctx.svgInformation, svgRef]);
+
+  // Update SVG viewBox when an update is dispatched
+  useEffect(() => {
+    if (svgRef.current && ctx.svgViewbox) {
+      svgRef.current.setAttribute("viewBox", ctx.svgViewbox);
+    }
+  }, [ctx.svgViewbox, svgRef]);
+
+  // Update SVG sinks/sources group when an update is dispatched
+  useEffect(() => {
+    if (svgRef.current && ctx.svgSinksSources) {
+      const mainGroup = svgRef.current.getElementById(
+        "mainGroup"
+      ) as SVGGElement | null;
+
+      if (mainGroup) {
+        const currentSinksSources = document.getElementById("sinksSources");
+
+        if (currentSinksSources) {
+          currentSinksSources.remove();
+        }
+
+        mainGroup.innerHTML += ctx.svgSinksSources;
+      }
+    }
+  }, [ctx.svgSinksSources, svgRef]);
 
   // Toggle Exporting aid
   useEffect(() => {
