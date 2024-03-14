@@ -5,6 +5,7 @@ mod configuration;
 mod parse;
 mod result_status;
 mod svg;
+mod info;
 
 use std::sync::{Arc, Mutex};
 
@@ -44,7 +45,8 @@ fn main() {
             svg::get_svg,
             svg::update_svg,
             svg::render_svg,
-            configuration::get_attributes
+            configuration::get_attributes,
+            info::get_info
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -6,7 +6,11 @@
     will-change: transform;
 }
 
-.graph-parent g:hover {
+/* .graph-parent g:hover {
+    cursor: help;
+} */
+
+#processingGroup path:hover {
     cursor: help;
 }
 

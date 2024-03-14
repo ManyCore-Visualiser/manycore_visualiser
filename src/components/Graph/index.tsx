@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useAppContext } from "../../App";
 import { cleanUpPanZoom, registerPanZoom } from "../../utils/svgPanZoom";
 import "./style.css";
+import { registerHoveringEvents } from "./hovering";
 
 const Graph: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -29,6 +30,12 @@ const Graph: React.FunctionComponent = () => {
 
         svgRef.current = svgElement;
         exportingAidRef.current = svgElement.querySelector("rect");
+
+        const processingGroup = svgElement.getElementById(
+          "processingGroup"
+        ) as SVGGElement | null;
+
+        registerHoveringEvents(processingGroup);
 
         registerPanZoom(svgElement);
       } else {

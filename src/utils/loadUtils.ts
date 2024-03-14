@@ -95,7 +95,6 @@ function getAttributes(
 ) {
   invoke<AttributesResponseT>("get_attributes").then((res) => {
     if (res.status === "ok" && res.attributes) {
-      console.log(res);
       const processedAttributes: ProcessedAttributesT = {
         core: populateAttributesGroup(res.attributes.core),
         router: populateAttributesGroup(res.attributes.router),

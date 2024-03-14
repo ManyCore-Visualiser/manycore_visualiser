@@ -8,6 +8,7 @@ import Settings from "./components/Settings";
 import { ProcessedAttributesT } from "./types/configuration";
 import type { SVGT } from "./types/svg";
 import { TransformT } from "./types/transform";
+import HoverInfo from "./components/HoverInfo";
 
 export type AppState = {
   processingInput: boolean;
@@ -75,6 +76,7 @@ function App() {
         setAttributes,
       }}
     >
+      <HoverInfo />
       <div className="w-full h-full flex flex-col">
         {processingInput && <Loading />}
         {!svg && <FileLoader />}

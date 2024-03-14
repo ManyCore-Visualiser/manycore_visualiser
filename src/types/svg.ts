@@ -16,3 +16,7 @@ export interface SVGUpdateResponseT extends BaseResponseT {
 }
 
 export interface SVGRenderResponseT extends BaseResponseT {}
+
+export interface InfoResponseT extends BaseResponseT {
+  info?: Object;
+}
