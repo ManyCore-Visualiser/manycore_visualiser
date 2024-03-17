@@ -16,7 +16,6 @@ use resvg::usvg::fontdb::Database;
 pub struct State {
     pub manycore: Arc<Mutex<Option<ManycoreSystem>>>,
     pub svg: Arc<Mutex<Option<SVG>>>,
-    pub svg_string: Arc<Mutex<Option<String>>>,
     pub font_database: Arc<Mutex<Database>>,
 }
 
@@ -31,7 +30,6 @@ impl State {
         Self {
             manycore: Arc::default(),
             svg: Arc::default(),
-            svg_string: Arc::default(),
             font_database: font_database_arc,
         }
     }

@@ -44,13 +44,10 @@ pub fn get_svg(state: tauri::State<State>) -> SVGResult {
             Some(manycore) => {
                 let svg: SVG = manycore.into();
 
-                if let (Ok(mut svg_mutex), Ok(mut svg_string_mutex)) =
-                    (state.svg.lock(), state.svg_string.lock())
-                {
+                if let Ok(mut svg_mutex) = state.svg.lock() {
                     match String::try_from(&svg) {
                         Ok(svg_string) => {
                             let _ = svg_mutex.insert(svg);
-                            let _ = svg_string_mutex.insert(svg_string.clone());
 
                             ret.status = ResultStatus::Ok;
                             ret.message = String::from("Successfully generated SVG");
@@ -105,44 +102,46 @@ pub fn update_svg(configuration: Configuration, state: tauri::State<State>) -> S
 #[tauri::command]
 pub async fn render_svg(state: tauri::State<'_, State>) -> Result<SVGRenderResult, ()> {
     let mut ret = SVGRenderResult {
-        status: ResultStatus::Ok,
-        message: String::from("Successfully rendered SVG."),
+        status: ResultStatus::Error,
+        message: String::from("Something went wrong, please try again."),
     };
 
-    if let (Ok(svg_string_mutex), Ok(font_database_mutex), Ok(svg_mutex)) = (
-        state.svg_string.lock(),
-        state.font_database.lock(),
-        state.svg.lock(),
-    ) {
-        if let (Some(svg_string), font_database, Some(svg)) =
-            (&*svg_string_mutex, &*font_database_mutex, &*svg_mutex)
-        {
-            let tree = Tree::from_str(svg_string, &Options::default(), font_database).unwrap();
-            let target_image = Pixmap::new((*svg.width()).into(), (*svg.height()).into());
+    if let (Ok(font_database_mutex), Ok(svg_mutex)) = (state.font_database.lock(), state.svg.lock())
+    {
+        if let (font_database, Some(svg)) = (&*font_database_mutex, &*svg_mutex) {
+            match String::try_from(svg) {
+                Ok(svg_string) => {
+                    let tree =
+                        Tree::from_str(svg_string.as_str(), &Options::default(), font_database)
+                            .unwrap();
+                    
+                    let view_box = svg.view_box();
+                    let target_height = u32::from(*view_box.height());
+                    let target_width = u32::from(*view_box.width());
+                    let target_image = Pixmap::new(target_width, target_height);
 
-            if let Some(mut img_buf) = target_image {
-                render(&tree, Transform::default(), &mut img_buf.as_mut());
-                if let Some(path) = FileDialogBuilder::new().save_file() {
-                    match img_buf.save_png(path.as_os_str()) {
-                        Ok(_) => {
-                            return Ok(ret);
-                        }
-                        Err(e) => {
-                            ret.status = ResultStatus::Error;
-                            ret.message = e.to_string();
+                    if let Some(mut img_buf) = target_image {
+                        render(&tree, Transform::default(), &mut img_buf.as_mut());
+                        if let Some(path) = FileDialogBuilder::new().save_file() {
+                            match img_buf.save_png(path.as_os_str()) {
+                                Ok(_) => {
+                                    ret.status = ResultStatus::Ok;
+                                    ret.message = String::from("Successfully rendered SVG.");
+
+                                    return Ok(ret);
+                                }
+                                Err(e) => ret.message = e.to_string(),
+                            }
                         }
                     }
                 }
+                Err(e) => ret.message = e.to_string(),
             }
+        } else {
+            ret.status = ResultStatus::Error;
+            ret.message = String::from("Generate SVG before rendering to PNG.")
         }
-
-        ret.status = ResultStatus::Error;
-        ret.message = String::from("Generate SVG before rendering to PNG.")
     }
-
-    // Couldn't lock mutexes
-    ret.status = ResultStatus::Error;
-    ret.message = String::from("Something went wrong, please try again.");
 
     return Ok(ret);
 }
