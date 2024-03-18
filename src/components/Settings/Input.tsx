@@ -9,6 +9,8 @@ type InputT = {
   info: ProcessedAttributesGroupContentT;
   variant: "Cores" | "Routers";
   dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>;
+  fillSelected: string | undefined;
+  setFillSelected: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
 type AttributeVariantsT = "Text" | "ColouredText" | "Fill";
@@ -18,6 +20,8 @@ const Input: React.FunctionComponent<InputT> = ({
   info,
   variant,
   dispatchDisplayMap,
+  fillSelected,
+  setFillSelected,
 }) => {
   const [checked, setChecked] = useState(false);
   const [type, setType] = useState<AttributeVariantsT>("Text");
@@ -57,14 +61,27 @@ const Input: React.FunctionComponent<InputT> = ({
                   name={`${variant}-${attribute}-select`}
                   id={`${variant}-${attribute}-select`}
                   disabled={!checked}
-                  onChange={(ev) =>
-                    setType(ev.target.value as AttributeVariantsT)
-                  }
+                  onChange={(ev) => {
+                    setType(ev.target.value as AttributeVariantsT);
+
+                    if (ev.target.value === "Fill") {
+                      setFillSelected(attribute);
+                    } else if (fillSelected === attribute) {
+                      setFillSelected(undefined);
+                    }
+                  }}
                   className="appearance-none dropdown"
                 >
                   <option value="Text">Text</option>
                   <option value="ColouredText">Coloured text</option>
-                  <option value="Fill">Fill colour</option>
+                  <option
+                    value="Fill"
+                    disabled={
+                      fillSelected !== undefined && fillSelected !== attribute
+                    }
+                  >
+                    Fill colour
+                  </option>
                 </select>
               </div>
             </>

@@ -7,12 +7,16 @@ type ElementSettingsT = {
   attributes: ProcessedAttributesGroupT;
   variant: "Cores" | "Routers";
   dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>;
+  fillSelected: string | undefined;
+  setFillSelected: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
 const ElementSettings: React.FunctionComponent<ElementSettingsT> = ({
   attributes,
   variant,
-  dispatchDisplayMap
+  dispatchDisplayMap,
+  fillSelected,
+  setFillSelected,
 }) => {
   const [orderedAttributes, setOrderedAttributes] = useState<string[]>([]);
 
@@ -33,6 +37,8 @@ const ElementSettings: React.FunctionComponent<ElementSettingsT> = ({
               info={attributes[key]}
               variant={variant}
               dispatchDisplayMap={dispatchDisplayMap}
+              fillSelected={fillSelected}
+              setFillSelected={setFillSelected}
             />
           </div>
         );

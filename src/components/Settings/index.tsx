@@ -1,4 +1,4 @@
-import { useCallback, useReducer, useRef } from "react";
+import { useCallback, useReducer, useRef, useState } from "react";
 import { useAppContext } from "../../App";
 import { RoutingConfigT } from "../../types/configuration";
 import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
@@ -26,6 +26,8 @@ const Settings: React.FunctionComponent = () => {
     return { ...state, [action.attribute]: action.display };
   };
   const [displayMap, dispatchDisplayMap] = useReducer(displayReducer, {});
+  const [coreFillSelected, setCoreFillSelected] = useState<string>();
+  const [routerFillSelected, setRouterFillSelected] = useState<string>();
 
   const handleSubmit = useCallback(
     ((ev) => {
@@ -99,11 +101,15 @@ const Settings: React.FunctionComponent = () => {
               attributes={ctx.attributes.core}
               variant="Cores"
               dispatchDisplayMap={dispatchDisplayMap}
+              fillSelected={coreFillSelected}
+              setFillSelected={setCoreFillSelected}
             />
             <ElementSettings
               dispatchDisplayMap={dispatchDisplayMap}
               attributes={ctx.attributes.router}
               variant="Routers"
+              fillSelected={routerFillSelected}
+              setFillSelected={setRouterFillSelected}
             />
             <RoutingSettings
               algorithms={ctx.attributes.algorithms}
