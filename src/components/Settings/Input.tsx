@@ -32,7 +32,7 @@ const Input: React.FunctionComponent<InputT> = ({
   return (
     <>
       <div
-        className={`grid grid-cols-1 text-lg pb-4 ${
+        className={`grid grid-cols-1 text-lg py-2 ${
           checked && info.type === "number" && type !== "Text"
             ? "grid-rows-2"
             : "grid-rows-1"
@@ -41,21 +41,21 @@ const Input: React.FunctionComponent<InputT> = ({
         <div className="flex flex-row items-center">
           <div className="flex items-center checkbox-container">
             <input
-              id={`${attribute}-${variant}`}
+              id={`${variant}-${attribute}`}
               type="checkbox"
-              name={`${attribute}`}
+              name={`${variant}-${attribute}`}
               className="checkbox"
               onChange={(ev) => setChecked(ev.target.checked)}
             ></input>
-            <label htmlFor={`${attribute}-${variant}`}>{info.display}</label>
+            <label htmlFor={`${variant}-${attribute}`}>{info.display}</label>
           </div>
           {info.type === "number" && (
             <>
               <span className="whitespace-pre-wrap"> as </span>
               <div className="content dropdown-wrapper">
                 <select
-                  name={`${attribute}-select`}
-                  id={`${attribute}-select`}
+                  name={`${variant}-${attribute}-select`}
+                  id={`${variant}-${attribute}-select`}
                   disabled={!checked}
                   onChange={(ev) =>
                     setType(ev.target.value as AttributeVariantsT)
@@ -69,13 +69,14 @@ const Input: React.FunctionComponent<InputT> = ({
               </div>
             </>
           )}
+          {/* Coordinates is cores only */}
           {attribute === "@coordinates" && (
             <>
               <span className="whitespace-pre-wrap"> from </span>
               <div className="content dropdown-wrapper">
                 <select
-                  name={`${attribute}-select`}
-                  id={`${attribute}-select`}
+                  name={`Cores-${attribute}-select`}
+                  id={`Cores-${attribute}-select`}
                   disabled={!checked}
                   defaultValue="T"
                   className="appearance-none dropdown"
@@ -87,7 +88,7 @@ const Input: React.FunctionComponent<InputT> = ({
             </>
           )}
           {attribute != "@coordinates" && type !== "Fill" && checked && (
-            <button onClick={showModal}>
+            <button onClick={showModal} type="button">
               <TwotoneTextFields width="1em" height="1em" className="ml-4" />
             </button>
           )}
@@ -97,12 +98,12 @@ const Input: React.FunctionComponent<InputT> = ({
             <div className="grid grid-rows-1 grid-cols-4 gap-2">
               <div className="col-span-1 flex flex-col">
                 <input
-                  name={`${attribute}-0c`}
+                  name={`${variant}-${attribute}-0c`}
                   type="color"
                   className="min-w-0 colour colour-left"
                 />
                 <input
-                  name={`${attribute}-0v`}
+                  name={`${variant}-${attribute}-0v`}
                   type="number"
                   className="min-w-0 number"
                   defaultValue={0}
@@ -112,12 +113,12 @@ const Input: React.FunctionComponent<InputT> = ({
               </div>
               <div className="col-span-1 flex flex-col">
                 <input
-                  name={`${attribute}-1c`}
+                  name={`${variant}-${attribute}-1c`}
                   type="color"
                   className="min-w-0 colour"
                 />
                 <input
-                  name={`${attribute}-1v`}
+                  name={`${variant}-${attribute}-1v`}
                   type="number"
                   className="min-w-0 number"
                   defaultValue={0}
@@ -127,12 +128,12 @@ const Input: React.FunctionComponent<InputT> = ({
               </div>
               <div className="col-span-1 flex flex-col">
                 <input
-                  name={`${attribute}-2c`}
+                  name={`${variant}-${attribute}-2c`}
                   type="color"
                   className="min-w-0 colour"
                 />
                 <input
-                  name={`${attribute}-2v`}
+                  name={`${variant}-${attribute}-2v`}
                   type="number"
                   className="min-w-0 number"
                   defaultValue={0}
@@ -142,12 +143,12 @@ const Input: React.FunctionComponent<InputT> = ({
               </div>
               <div className="col-span-1 flex flex-col">
                 <input
-                  name={`${attribute}-3c`}
+                  name={`${variant}-${attribute}-3c`}
                   type="color"
                   className="min-w-0 colour colour-right"
                 />
                 <input
-                  name={`${attribute}-3v`}
+                  name={`${variant}-${attribute}-3v`}
                   type="number"
                   className="min-w-0 number"
                   defaultValue={0}
@@ -160,6 +161,7 @@ const Input: React.FunctionComponent<InputT> = ({
         )}
       </div>
       <DisplayModal
+        variant={variant}
         mref={modalRef}
         attributeDisplay={info.display}
         dispatchDisplayMap={dispatchDisplayMap}

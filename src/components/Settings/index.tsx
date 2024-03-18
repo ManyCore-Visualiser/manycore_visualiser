@@ -1,11 +1,10 @@
-import { useRef } from "react";
+import { useCallback, useReducer, useRef } from "react";
 import { useAppContext } from "../../App";
-import {
-  CoreRouterConfiguration,
-  RoutingConfigT,
-} from "../../types/configuration";
+import { RoutingConfigT } from "../../types/configuration";
+import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
 import { updateSVG } from "../../utils/loadUtils";
 import ElementSettings from "./ElementSettings";
+import generateConfig from "./ElementSettings/generateConfig";
 import RoutingSettings from "./RoutingSettings";
 import SettingsButton from "./SettingsButton";
 import "./checkbox.css";
@@ -15,14 +14,73 @@ import "./select.css";
 
 const Settings: React.FunctionComponent = () => {
   const ctx = useAppContext();
-  const coresRef = useRef<(() => Promise<CoreRouterConfiguration>) | undefined>(
-    undefined
-  );
-  const routersRef = useRef<
-    (() => Promise<CoreRouterConfiguration>) | undefined
-  >(undefined);
-  const routingRef = useRef<(() => Promise<RoutingConfigT>) | undefined>(
-    undefined
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const algorithmSelectName = "algorithm-select";
+  const sinksSourcesName = "sinks-sources-checkbox";
+
+  const displayReducer: React.Reducer<
+    DisplayMapT,
+    DisplayMapDispatchActionT
+  > = (state, action) => {
+    return { ...state, [action.attribute]: action.display };
+  };
+  const [displayMap, dispatchDisplayMap] = useReducer(displayReducer, {});
+
+  const handleSubmit = useCallback(
+    ((ev) => {
+      ev.preventDefault();
+
+      if (formRef.current && ctx.attributes) {
+        const coreConfig = generateConfig(
+          formRef.current,
+          "Cores",
+          ctx.attributes.core,
+          displayMap
+        );
+
+        const routerConfig = generateConfig(
+          formRef.current,
+          "Routers",
+          ctx.attributes.router,
+          displayMap
+        );
+
+        // Routing config is different from core/router so needs
+        // to be handled with its own specific case.
+        let routingConfig: RoutingConfigT = { sinksSources: false };
+        const algorithmSelect = formRef.current[
+          algorithmSelectName
+        ] as HTMLInputElement | null;
+        const sinksSources = formRef.current[
+          sinksSourcesName
+        ] as HTMLInputElement | null;
+
+        if (algorithmSelect) {
+          routingConfig.routingConfig =
+            algorithmSelect.value === "None"
+              ? undefined
+              : algorithmSelect.value;
+        }
+
+        if (sinksSources) {
+          routingConfig.sinksSources = sinksSources.checked;
+        }
+
+        updateSVG(
+          {
+            coreConfig,
+            routerConfig,
+            ...routingConfig,
+          },
+          ctx.setSVGStyle,
+          ctx.setSVGInformation,
+          ctx.setSVGSinksSources,
+          ctx.setSVGViewbox
+        );
+      }
+    }) as React.FormEventHandler<HTMLFormElement>,
+    [formRef, ctx.attributes, displayMap]
   );
 
   return (
@@ -36,51 +94,35 @@ const Settings: React.FunctionComponent = () => {
           Visualisation Settings
         </h3>
         {ctx.attributes && (
-          <>
+          <form ref={formRef} onSubmit={handleSubmit}>
             <ElementSettings
               attributes={ctx.attributes.core}
-              promiseRef={coresRef}
               variant="Cores"
+              dispatchDisplayMap={dispatchDisplayMap}
             />
             <ElementSettings
+              dispatchDisplayMap={dispatchDisplayMap}
               attributes={ctx.attributes.router}
-              promiseRef={routersRef}
               variant="Routers"
             />
             <RoutingSettings
-              promiseRef={routingRef}
               algorithms={ctx.attributes.algorithms}
               observedAlgorithm={ctx.attributes.observedAlgorithm}
+              algorithmSelectName={algorithmSelectName}
+              sinksSourcesName={sinksSourcesName}
             />
-          </>
+          </form>
         )}
       </div>
       <div className="w-full grid grid-cols-2 grid-rows-2 gap-2 px-2 pb-2 pt-4">
         <SettingsButton text="Load new Graph" action={() => {}} fullSize />
         <SettingsButton
           text="Apply"
-          action={async () => {
-            if (coresRef.current && routersRef.current && routingRef.current) {
-              try {
-                const coreConfig = await coresRef.current();
-                const routerConfig = await routersRef.current();
-                const routingConfig = await routingRef.current();
-                updateSVG(
-                  {
-                    coreConfig,
-                    routerConfig,
-                    ...routingConfig,
-                  },
-                  ctx.setSVGStyle,
-                  ctx.setSVGInformation,
-                  ctx.setSVGSinksSources,
-                  ctx.setSVGViewbox
-                );
-              } catch (e) {
-                // TODO: Handle error
-              }
-            } else {
-              // TODO: Something went seriously wrong
+          action={() => {
+            if (formRef.current) {
+              formRef.current.dispatchEvent(
+                new Event("submit", { cancelable: false, bubbles: true })
+              );
             }
           }}
         />
