@@ -18,6 +18,9 @@ manycore_parser = { git = "https://github.com/joe2k01/manycore_parser.git", vers
 manycore_svg = { git = "https://github.com/joe2k01/manycore_svg.git", version = "0.4.0" }
 # TODO: Optimise what resvg features are included. Don't think we need raster-images and system-fonts
 resvg = "0.40.0"
+quick-xml = { version = "0.31.0", features = ["serialize"] }
+uuid = { version = "1.7.0", features = ["v4"] }
+which = "6.0.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

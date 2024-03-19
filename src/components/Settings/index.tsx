@@ -11,6 +11,8 @@ import "./checkbox.css";
 import "./colour.css";
 import "./number.css";
 import "./select.css";
+import { invoke } from "@tauri-apps/api";
+import { open } from "@tauri-apps/api/dialog";
 
 const Settings: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -121,7 +123,13 @@ const Settings: React.FunctionComponent = () => {
         )}
       </div>
       <div className="w-full grid grid-cols-2 grid-rows-2 gap-2 px-2 pb-2 pt-4">
-        <SettingsButton text="Load new Graph" action={() => {}} fullSize />
+        <SettingsButton text="Load new system" action={() => {}} />
+        <SettingsButton
+          text="Edit system"
+          action={() => {
+            invoke("initiate_edit");
+          }}
+        />
         <SettingsButton
           text="Apply"
           action={() => {
