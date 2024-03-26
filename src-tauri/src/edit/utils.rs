@@ -5,12 +5,12 @@ use which::which;
 // Linux
 #[cfg(not(any(target_os = "windows", target_os = "macos")))]
 #[rustfmt::skip]
-static EDITORS: &[&str] = &["codium -w", "code -w", "atom -w", "subl -w", "gedit", "gvim"];
+static EDITORS: &[&str] = &["codium -w -n", "code -w -n", "atom -w", "subl -w", "gedit", "gvim"];
 
 // Macos
 #[cfg(target_os = "macos")]
 #[rustfmt::skip]
-static EDITORS: &[&str] = &["code -w", "atom -w", "subl -w", "gvim", "mate","open -Wt", "open -a TextEdit"];
+static EDITORS: &[&str] = &["codium -w -n", "code -w -n", "atom -w", "subl -w", "gvim", "mate","open -Wt", "open -a TextEdit"];
 
 #[cfg(target_os = "windows")]
 #[rustfmt::skip]

@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api";
-import { SVGResponseT, SVGT, SVGUpdateResponseT } from "../types/svg";
+import { SVGResponseT, SVGT, SVGUpdateResponseT, SVGUpdateT } from "../types/svg";
 import { AppState } from "../App";
 import { BaseResponseT } from "../types/baseResponse";
 import { open } from "@tauri-apps/api/dialog";
@@ -48,10 +48,10 @@ function getSVG(setSVG: React.Dispatch<React.SetStateAction<SVGT>>) {
 
 function updateSVG(
   configuration: Configuration,
-  setSVGStyle: React.Dispatch<React.SetStateAction<SVGT>>,
-  setSVGInformation: React.Dispatch<React.SetStateAction<SVGT>>,
-  setSVGSinksSources: React.Dispatch<React.SetStateAction<SVGT>>,
-  setSVGViewbox: React.Dispatch<React.SetStateAction<SVGT>>
+  setSVGStyle: React.Dispatch<React.SetStateAction<SVGUpdateT>>,
+  setSVGInformation: React.Dispatch<React.SetStateAction<SVGUpdateT>>,
+  setSVGSinksSources: React.Dispatch<React.SetStateAction<SVGUpdateT>>,
+  setSVGViewbox: React.Dispatch<React.SetStateAction<SVGUpdateT>>
 ) {
   invoke<SVGUpdateResponseT>("update_svg", { configuration }).then((res) => {
     if (res.status === "ok") {
@@ -116,4 +116,30 @@ function getAttributes(
   });
 }
 
-export { openFilePickerDialog, startProcessing, getSVG, updateSVG };
+function editSystem(ctx: AppState) {
+  ctx.setEditing(true);
+  console.log("Invoked")
+  invoke<SVGResponseT>("initiate_edit")
+    .then((res) => {
+      console.log("RES: ", res)
+      if (res.status === "ok") {
+        // Reset all customisations
+        ctx.setSVGViewbox(null);
+        ctx.setSVGStyle(null);
+        ctx.setSVGInformation(null);
+        ctx.setSVGSinksSources(null);
+
+        // Apply new SVG
+        ctx.setSVG(res.svg!);
+        // Get updated attributes
+        getAttributes(ctx.setAttributes);
+      } else {
+        // TODO: Propagate error
+      }
+    })
+    .finally(() => {
+      ctx.setEditing(false);
+    });
+}
+
+export { openFilePickerDialog, startProcessing, getSVG, updateSVG, editSystem };

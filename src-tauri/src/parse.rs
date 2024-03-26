@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use manycore_parser::ManycoreSystem;
 use serde::Serialize;
 
@@ -5,8 +7,8 @@ use crate::{result_status::ResultStatus, State};
 
 #[derive(Serialize, Debug)]
 pub struct ParseResult {
-    status: ResultStatus,
-    message: String,
+    pub status: ResultStatus,
+    pub message: String,
 }
 
 fn format_error_response(ret: &mut ParseResult, msg: String) {

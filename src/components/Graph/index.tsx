@@ -13,13 +13,17 @@ const Graph: React.FunctionComponent = () => {
 
   // Render SVG when updated
   useEffect(() => {
+    console.log("svg");
     if (ctx.svg && graphParentRef.current) {
       const currentSVG = graphParentRef.current.querySelector("svg");
       if (currentSVG) {
         cleanUpPanZoom(currentSVG);
       }
 
-      const svgDocument = parser.parseFromString(ctx.svg, "image/svg+xml");
+      const svgDocument = parser.parseFromString(
+        ctx.svg.content,
+        "image/svg+xml"
+      );
       if (svgDocument.documentElement) {
         // Clear current content
         graphParentRef.current.innerHTML = "";
@@ -58,7 +62,7 @@ const Graph: React.FunctionComponent = () => {
 
   // Update SVG information group when an update is dispatched
   useEffect(() => {
-    if (svgRef.current && ctx.svgInformation) {
+    if (svgRef.current) {
       const mainGroup = svgRef.current.getElementById(
         "mainGroup"
       ) as SVGGElement | null;
@@ -70,7 +74,7 @@ const Graph: React.FunctionComponent = () => {
           currentInformation.remove();
         }
 
-        mainGroup.innerHTML += ctx.svgInformation;
+        if (ctx.svgInformation) mainGroup.innerHTML += ctx.svgInformation;
       }
     }
   }, [ctx.svgInformation, svgRef]);
@@ -84,7 +88,7 @@ const Graph: React.FunctionComponent = () => {
 
   // Update SVG sinks/sources group when an update is dispatched
   useEffect(() => {
-    if (svgRef.current && ctx.svgSinksSources) {
+    if (svgRef.current) {
       const mainGroup = svgRef.current.getElementById(
         "mainGroup"
       ) as SVGGElement | null;
@@ -96,7 +100,7 @@ const Graph: React.FunctionComponent = () => {
           currentSinksSources.remove();
         }
 
-        mainGroup.innerHTML += ctx.svgSinksSources;
+        if (ctx.svgSinksSources) mainGroup.innerHTML += ctx.svgSinksSources;
       }
     }
   }, [ctx.svgSinksSources, svgRef]);

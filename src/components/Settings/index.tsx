@@ -2,7 +2,7 @@ import { useCallback, useReducer, useRef, useState } from "react";
 import { useAppContext } from "../../App";
 import { RoutingConfigT } from "../../types/configuration";
 import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
-import { updateSVG } from "../../utils/loadUtils";
+import { editSystem, updateSVG } from "../../utils/loadUtils";
 import ElementSettings from "./ElementSettings";
 import generateConfig from "./ElementSettings/generateConfig";
 import RoutingSettings from "./RoutingSettings";
@@ -11,8 +11,6 @@ import "./checkbox.css";
 import "./colour.css";
 import "./number.css";
 import "./select.css";
-import { invoke } from "@tauri-apps/api";
-import { open } from "@tauri-apps/api/dialog";
 
 const Settings: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -127,7 +125,7 @@ const Settings: React.FunctionComponent = () => {
         <SettingsButton
           text="Edit system"
           action={() => {
-            invoke("initiate_edit");
+            editSystem(ctx);
           }}
         />
         <SettingsButton

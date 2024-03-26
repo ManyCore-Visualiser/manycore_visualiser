@@ -1,9 +1,12 @@
 import { BaseResponseT } from "./baseResponse";
 
-export type SVGT = string | null;
+type SVGObject = { content: string; timestamp: string };
+
+export type SVGUpdateT = string | null;
+export type SVGT = SVGObject | null;
 
 export interface SVGResponseT extends BaseResponseT {
-  svg?: string;
+  svg?: SVGObject;
 }
 
 export interface SVGUpdateResponseT extends BaseResponseT {

@@ -1,3 +1,5 @@
+use chrono::Utc;
+use manycore_parser::ManycoreSystem;
 use manycore_svg::{Configuration, UpdateResult, SVG};
 use resvg::{
     render,
@@ -10,10 +12,16 @@ use tauri::api::dialog::blocking::FileDialogBuilder;
 use crate::{result_status::ResultStatus, State};
 
 #[derive(Serialize)]
+pub struct SVGObject {
+    content: String,
+    timestamp: String,
+}
+
+#[derive(Serialize)]
 pub struct SVGResult {
-    status: ResultStatus,
-    message: String,
-    svg: Option<String>,
+    pub status: ResultStatus,
+    pub message: String,
+    pub svg: Option<SVGObject>,
 }
 
 #[derive(Serialize)]
@@ -29,6 +37,32 @@ pub struct SVGRenderResult {
     message: String,
 }
 
+pub fn generate_svg(ret: &mut SVGResult, state: &tauri::State<State>, manycore: &ManycoreSystem) {
+    let svg: SVG = manycore.into();
+
+    if let Ok(mut svg_mutex) = state.svg.lock() {
+        match String::try_from(&svg) {
+            Ok(svg_string) => {
+                let _ = svg_mutex.insert(svg);
+
+                ret.status = ResultStatus::Ok;
+                ret.message = String::from("Successfully generated SVG");
+                ret.svg = Some(SVGObject {
+                    content: svg_string,
+                    timestamp: Utc::now().to_string(),
+                });
+            }
+            Err(e) => {
+                ret.message = e.to_string();
+            }
+        }
+
+        return;
+    }
+    // Couldn't lock mutex
+    ret.message = String::from("Could not update render, please try again.");
+}
+
 #[tauri::command]
 pub fn get_svg(state: tauri::State<State>) -> SVGResult {
     let mut ret = SVGResult {
@@ -42,26 +76,7 @@ pub fn get_svg(state: tauri::State<State>) -> SVGResult {
         // Value in option is preserved.
         match &*manycore_mutex {
             Some(manycore) => {
-                let svg: SVG = manycore.into();
-
-                if let Ok(mut svg_mutex) = state.svg.lock() {
-                    match String::try_from(&svg) {
-                        Ok(svg_string) => {
-                            let _ = svg_mutex.insert(svg);
-
-                            ret.status = ResultStatus::Ok;
-                            ret.message = String::from("Successfully generated SVG");
-                            ret.svg = Some(svg_string);
-                        }
-                        Err(e) => {
-                            ret.message = e.to_string();
-                        }
-                    }
-
-                    return ret;
-                }
-                // Couldn't lock mutex
-                ret.message = String::from("Could not update render, please try again.");
+                generate_svg(&mut ret, &state, manycore);
             }
             None => {
                 ret.message = String::from("Load a system before generating a render.");
@@ -114,7 +129,7 @@ pub async fn render_svg(state: tauri::State<'_, State>) -> Result<SVGRenderResul
                     let tree =
                         Tree::from_str(svg_string.as_str(), &Options::default(), font_database)
                             .unwrap();
-                    
+
                     let view_box = svg.view_box();
                     let target_height = u32::from(*view_box.height());
                     let target_width = u32::from(*view_box.width());
