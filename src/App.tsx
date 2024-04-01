@@ -31,6 +31,8 @@ export type AppState = {
   >;
   editing: boolean;
   setEditing: React.Dispatch<React.SetStateAction<boolean>>;
+  freeForm: boolean;
+  setFreeForm: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -47,6 +49,7 @@ function App() {
     ProcessedAttributesT | undefined
   >(undefined);
   const [editing, setEditing] = useState(false);
+  const [freeForm, setFreeForm] = useState(false);
 
   return (
     <AppStateContext.Provider
@@ -68,7 +71,9 @@ function App() {
         attributes,
         setAttributes,
         editing,
-        setEditing
+        setEditing,
+        freeForm,
+        setFreeForm,
       }}
     >
       <HoverInfo />

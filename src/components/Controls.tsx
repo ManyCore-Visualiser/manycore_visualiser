@@ -22,15 +22,18 @@ const Controls: React.FunctionComponent = () => {
     });
   };
 
-  const handleAid = () => {
-    ctx.setAidOpacity((curr) => !curr);
+  // const handleAid = () => {
+  //   ctx.setAidOpacity((curr) => !curr);
+  // };
+  const handleFreeForm = () => {
+    ctx.setFreeForm(true);
   };
 
   return (
     <div className="fixed bottom-7 left-0">
       <ControlButton Icon={TwotoneSettings} action={handleSettings} />
       <ControlButton Icon={TwotoneCameraEnhance} action={handleExport} />
-      <ControlButton Icon={RoundBorderOuter} action={handleAid} />
+      <ControlButton Icon={RoundBorderOuter} action={handleFreeForm} />
     </div>
   );
 };

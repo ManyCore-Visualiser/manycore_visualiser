@@ -7,6 +7,7 @@ import {
 } from "../../utils/svgPanZoom";
 import "./style.css";
 import { registerHoveringEvents } from "./hovering";
+import FreeForm from "./FreeForm";
 
 const Graph: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -90,9 +91,11 @@ const Graph: React.FunctionComponent = () => {
 
   return (
     <div
-      className="py-1 w-full max-h-full aspect-square m-auto block graph-parent"
+      className="py-1 w-full max-h-full aspect-square m-auto block graph-parent overflow-hidden"
       ref={graphParentRef}
-    ></div>
+    >
+      {ctx.freeForm && <FreeForm svgRef={svgRef} />}
+    </div>
   );
 };
 
