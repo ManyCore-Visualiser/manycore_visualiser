@@ -1,23 +1,27 @@
 .graph-parent {
-    user-select: none;
+  user-select: none;
 }
 
 .graph-parent g {
-    will-change: transform;
+  will-change: transform;
 }
 
 /* .graph-parent g:hover {
     cursor: help;
 } */
 
-#processingGroup path:hover {
-    cursor: help;
+#processingGroup {
+  pointer-events: all;
 }
 
-#information {
+#processingGroup path:hover {
+  cursor: help;
+}
+
+#information, #sinksSources {
     pointer-events: none;
 }
 
 .graph-parent svg:hover {
-    cursor: move;
+  cursor: move;
 }

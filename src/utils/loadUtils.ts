@@ -1,5 +1,10 @@
 import { invoke } from "@tauri-apps/api";
-import { SVGResponseT, SVGT, SVGUpdateResponseT, SVGUpdateT } from "../types/svg";
+import {
+  SVGResponseT,
+  SVGT,
+  SVGUpdateResponseT,
+  SVGUpdateT,
+} from "../types/svg";
 import { AppState } from "../App";
 import { BaseResponseT } from "../types/baseResponse";
 import { open } from "@tauri-apps/api/dialog";
@@ -50,23 +55,13 @@ function updateSVG(
   configuration: Configuration,
   setSVGStyle: React.Dispatch<React.SetStateAction<SVGUpdateT>>,
   setSVGInformation: React.Dispatch<React.SetStateAction<SVGUpdateT>>,
-  setSVGSinksSources: React.Dispatch<React.SetStateAction<SVGUpdateT>>,
   setSVGViewbox: React.Dispatch<React.SetStateAction<SVGUpdateT>>
 ) {
   invoke<SVGUpdateResponseT>("update_svg", { configuration }).then((res) => {
-    if (res.status === "ok") {
-      if (res.update!.style) {
-        setSVGStyle(res.update!.style);
-      }
-      if (res.update!.informationGroup) {
-        setSVGInformation(res.update!.informationGroup);
-      }
-      if (res.update!.viewBox) {
-        setSVGViewbox(res.update!.viewBox);
-      }
-      if (res.update!.sinksSourcesGroup) {
-        setSVGSinksSources(res.update!.sinksSourcesGroup);
-      }
+    if (res.status === "ok" && res.update) {
+      setSVGStyle(res.update.style);
+      setSVGInformation(res.update.informationGroup);
+      setSVGViewbox(res.update.viewBox);
     } else {
       // TODO: Propagate error
       console.log(`Error: ${res.message}`);
@@ -118,16 +113,13 @@ function getAttributes(
 
 function editSystem(ctx: AppState) {
   ctx.setEditing(true);
-  console.log("Invoked")
   invoke<SVGResponseT>("initiate_edit")
     .then((res) => {
-      console.log("RES: ", res)
       if (res.status === "ok") {
         // Reset all customisations
         ctx.setSVGViewbox(null);
         ctx.setSVGStyle(null);
         ctx.setSVGInformation(null);
-        ctx.setSVGSinksSources(null);
 
         // Apply new SVG
         ctx.setSVG(res.svg!);

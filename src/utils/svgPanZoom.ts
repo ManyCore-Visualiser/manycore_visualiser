@@ -37,8 +37,8 @@ const zoomOut = 1 / 1.1;
  * @throws A generic error if the target is not an element or it doesn't contain an SVG group.
  */
 function getDOMElements(ev: Event) {
-  if (ev.target instanceof Element) {
-    const g = ev.target.querySelector("g");
+  if (ev.target instanceof SVGSVGElement) {
+    const g = ev.target.getElementById("mainGroup") as SVGGElement | null;
 
     if (!g) {
       throw new Error("Could not grab main SVG group from event target");
@@ -62,19 +62,19 @@ function applyMatrix(g: SVGGElement) {
  * Calculates the ratio between the SVG viewbox and the group dimensions.
  * These values help to avoid the group drifting when zooming/panning.
  *
- * @param viewBoxWidth SVG viewbox width.
- * @param viewBoxHeight SVG viewbox height.
- * @param width SVG group width.
- * @param height SVG group height.
- * @returns \{xRatio: Scale adjusted x ratio, yRatio: Scale adjusted y ratio}
+ * @param svg The SVG element.
  */
-function updateRatios(element: SVGSVGElement, g: SVGGElement) {
-  const { width: viewBoxWidth, height: viewBoxHeight } =
-    element.viewBox.baseVal;
-  const { width, height } = g.getBoundingClientRect();
+function updateRatios(svg: SVGSVGElement) {
+  const g = svg.getElementById("mainGroup") as SVGGElement | null;
 
-  ratios.xRatio = (viewBoxWidth * matrix.scale) / width;
-  ratios.yRatio = (viewBoxHeight * matrix.scale) / height;
+  if (g) {
+    const { width: viewBoxWidth, height: viewBoxHeight } = svg.viewBox.baseVal;
+
+    const { width, height } = g.getBoundingClientRect();
+
+    ratios.xRatio = (viewBoxWidth * matrix.scale) / width;
+    ratios.yRatio = (viewBoxHeight * matrix.scale) / height;
+  }
 }
 
 // Zoom handler
@@ -94,13 +94,13 @@ function zoom(ev: WheelEvent) {
 
   const { x, y } = g.getBoundingClientRect();
 
-  matrix.scale = matrix.scale * zoomDirection;
+  matrix.scale *= zoomDirection;
 
   // Mouse coordinates relative to SVG group
   const mx = ev.clientX - x;
   const my = ev.clientY - y;
   // As we zoom into/away from a point we need to translate
-  // the the group according to the newly scaled coordinates.
+  // the group according to the newly scaled coordinates.
   const dx = mx - mx * zoomDirection;
   const dy = my - my * zoomDirection;
 
@@ -109,7 +109,7 @@ function zoom(ev: WheelEvent) {
 
   applyMatrix(g);
 
-  updateRatios(element, g);
+  updateRatios(element);
 }
 
 // Pan handler
@@ -148,7 +148,7 @@ function blockMotion() {
  * @param svg The target SVG element.
  */
 function registerPanZoom(svg: SVGSVGElement) {
-  const g = svg.querySelector("g");
+  const g = svg.getElementById("mainGroup") as SVGGElement | null;
 
   if (!g) {
     throw new Error("The provided SVG does not contain a main group");
@@ -160,7 +160,7 @@ function registerPanZoom(svg: SVGSVGElement) {
   svg.addEventListener("wheel", zoom, { passive: false });
 
   applyMatrix(g);
-  updateRatios(svg, g);
+  updateRatios(svg);
 }
 
 /**
@@ -176,4 +176,4 @@ function cleanUpPanZoom(svg: SVGSVGElement) {
   svg.removeEventListener("wheel", zoom);
 }
 
-export { registerPanZoom, cleanUpPanZoom };
+export { registerPanZoom, cleanUpPanZoom, updateRatios };

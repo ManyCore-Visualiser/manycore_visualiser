@@ -77,7 +77,6 @@ const Settings: React.FunctionComponent = () => {
           },
           ctx.setSVGStyle,
           ctx.setSVGInformation,
-          ctx.setSVGSinksSources,
           ctx.setSVGViewbox
         );
       }
