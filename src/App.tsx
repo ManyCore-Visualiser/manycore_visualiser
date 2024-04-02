@@ -1,5 +1,5 @@
 import "@fontsource/roboto-mono/400.css";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useRef, useState } from "react";
 import Controls from "./components/Controls";
 import FileLoader from "./components/FileLoader";
 import Graph from "./components/Graph";
@@ -9,8 +9,10 @@ import { ProcessedAttributesT } from "./types/configuration";
 import type { SVGT, SVGUpdateT } from "./types/svg";
 import { TransformT } from "./types/transform";
 import HoverInfo from "./components/HoverInfo";
+import { Point } from "./types/freeForm";
 
 export type AppState = {
+  svgRef: React.MutableRefObject<SVGSVGElement | undefined>;
   processingInput: boolean;
   setProcessingInput: React.Dispatch<React.SetStateAction<boolean>>;
   svg: SVGT;
@@ -33,6 +35,8 @@ export type AppState = {
   setEditing: React.Dispatch<React.SetStateAction<boolean>>;
   freeForm: boolean;
   setFreeForm: React.Dispatch<React.SetStateAction<boolean>>;
+  freeFormPoints: Point[];
+  setFreeFormPoints: React.Dispatch<React.SetStateAction<Point[]>>;
 };
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -50,10 +54,13 @@ function App() {
   >(undefined);
   const [editing, setEditing] = useState(false);
   const [freeForm, setFreeForm] = useState(false);
+  const [freeFormPoints, setFreeFormPoints] = useState<Point[]>([]);
+  const svgRef = useRef<SVGSVGElement>();
 
   return (
     <AppStateContext.Provider
       value={{
+        svgRef,
         processingInput,
         setProcessingInput,
         svg,
@@ -74,6 +81,8 @@ function App() {
         setEditing,
         freeForm,
         setFreeForm,
+        freeFormPoints,
+        setFreeFormPoints,
       }}
     >
       <HoverInfo />

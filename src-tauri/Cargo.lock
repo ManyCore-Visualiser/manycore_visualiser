@@ -1618,7 +1618,7 @@ dependencies = [
 [[package]]
 name = "manycore_svg"
 version = "0.4.2"
-source = "git+https://github.com/joe2k01/manycore_svg.git#993a839e13c66b0cb8203199c515425d2af3378b"
+source = "git+https://github.com/joe2k01/manycore_svg.git#21f5fa55a711278ab6dc4ebfa78158ebef6446c2"
 dependencies = [
  "const_format",
  "getset",

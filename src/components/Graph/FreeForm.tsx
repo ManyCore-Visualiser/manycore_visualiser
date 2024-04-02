@@ -1,14 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Point } from "../../types/freeForm";
+import { useAppContext } from "../../App";
 
 type FreeFormProps = {
-  svgRef: React.MutableRefObject<SVGSVGElement | null>;
-};
-
-type Point = {
-  x: number;
-  y: number;
-  clientX: number;
-  clientY: number;
+  svgRef: React.MutableRefObject<SVGSVGElement | undefined>;
 };
 
 /**
@@ -35,11 +30,71 @@ function calculatePoint(
   return undefined;
 }
 
+function calculateDeltas(
+  x: number,
+  y: number,
+  altKey: boolean,
+  points: Point[]
+): [number, number, Point] {
+  let prevPoint;
+
+  // Allow user to select alignment first first or last point
+  if (altKey) {
+    prevPoint = points[0];
+  } else {
+    prevPoint = points[points.length - 1];
+  }
+
+  // Calculate closest coordinate
+  let dx = Math.abs(prevPoint.clientX - x);
+  let dy = Math.abs(prevPoint.clientY - y);
+
+  return [dx, dy, prevPoint];
+}
+
 const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
-  const [points, setPoints] = useState<Point[]>([]);
+  const { freeFormPoints: points, setFreeFormPoints: setPoints } =
+    useAppContext();
   const [containerData, setContainerData] = useState<DOMRect>();
   const [drag, setDrag] = useState<Point | undefined>();
   const freeFormRef = useRef<HTMLDivElement>(null);
+  const hLine = useRef<HTMLDivElement>(null);
+  const vLine = useRef<HTMLDivElement>(null);
+  const lineSize = "0.125rem";
+
+  function handleLines(ev: React.MouseEvent<HTMLDivElement>) {
+    if (hLine.current && vLine.current && points.length > 0) {
+      if (ev.shiftKey) {
+        const point = calculatePoint(ev.clientX, ev.clientY, containerData);
+
+        if (point) {
+          const [dx, dy, prevPoint] = calculateDeltas(
+            ev.clientX,
+            ev.clientY,
+            ev.altKey,
+            points
+          );
+
+          if (dx < dy) {
+            hLine.current.classList.remove("hidden");
+            vLine.current.classList.remove("hidden");
+
+            vLine.current.style.left = `calc(${prevPoint.x}% - ${lineSize})`;
+            hLine.current.style.top = `calc(${point.y}% - ${lineSize})`;
+          } else {
+            vLine.current.classList.remove("hidden");
+            hLine.current.classList.remove("hidden");
+
+            hLine.current.style.top = `calc(${prevPoint.y}% - ${lineSize})`;
+            vLine.current.style.left = `calc(${point.x}% - ${lineSize})`;
+          }
+        }
+      } else {
+        hLine.current.classList.add("hidden");
+        vLine.current.classList.add("hidden");
+      }
+    }
+  }
 
   // This is called any time the free form component is mounted
   const freeFormRefCallback = useCallback((node: HTMLDivElement | null) => {
@@ -64,14 +119,20 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
   useEffect(() => {
     // Format clip path
     if (freeFormRef.current) {
-      const pathEntries = [];
+      if (points.length > 0) {
+        const pathEntries = [];
 
-      for (let i = 0; i < points.length; i++) {
-        const { x, y } = points[i];
+        for (let i = 0; i < points.length; i++) {
+          const { x, y } = points[i];
 
-        pathEntries.push(`${x}% ${y}%`);
+          pathEntries.push(`${x}% ${y}%`);
+        }
+        freeFormRef.current.style.clipPath = `polygon(${pathEntries.join(
+          ", "
+        )})`;
+      } else {
+        freeFormRef.current.style.clipPath = "";
       }
-      freeFormRef.current.style.clipPath = `polygon(${pathEntries.join(", ")})`;
     }
   }, [points]);
 
@@ -84,19 +145,7 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
 
     // Determine if user is asking for a straight line
     if (ev.shiftKey && points.length > 0) {
-      let prevPoint;
-
-      // Allow user to select alignment first first or last point
-      if (ev.altKey) {
-        prevPoint = points[0];
-      } else {
-        prevPoint = points[points.length - 1];
-      }
-
-      // Calculate closes coordinate
-      let dx = Math.abs(prevPoint.clientX - x);
-      let dy = Math.abs(prevPoint.clientY - y);
-
+      const [dx, dy, prevPoint] = calculateDeltas(x, y, ev.altKey, points);
       if (dx < dy) {
         x = prevPoint.clientX;
       } else {
@@ -116,7 +165,16 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
       ref={freeFormRefCallback}
       className="absolute hover:cursor-cell"
       onClick={addPoint}
+      onMouseMove={handleLines}
     >
+      <div
+        className="hidden absolute w-full h-1 freeFormLine freeFormLineH z-40"
+        ref={hLine}
+      />
+      <div
+        className="hidden absolute w-1 h-full freeFormLine freeFormLineV z-50"
+        ref={vLine}
+      />
       <div
         className="relative w-full h-full bg-gray-500/40"
         ref={freeFormRef}

@@ -22,3 +22,11 @@ export interface SVGRenderResponseT extends BaseResponseT {}
 export interface InfoResponseT extends BaseResponseT {
   info?: Object;
 }
+
+export type ClipPathInput = {
+  clipPath: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};

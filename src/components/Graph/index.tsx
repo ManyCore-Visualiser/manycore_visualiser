@@ -12,7 +12,6 @@ import FreeForm from "./FreeForm";
 const Graph: React.FunctionComponent = () => {
   const ctx = useAppContext();
   const graphParentRef = useRef<HTMLDivElement | null>(null);
-  const svgRef = useRef<SVGSVGElement | null>(null);
   const parser = new DOMParser();
 
   // Render SVG when updated
@@ -35,7 +34,7 @@ const Graph: React.FunctionComponent = () => {
           svgDocument.documentElement as unknown as SVGSVGElement;
         graphParentRef.current.appendChild(svgElement);
 
-        svgRef.current = svgElement;
+        ctx.svgRef.current = svgElement;
 
         const processingGroup = svgElement.getElementById(
           "processingGroup"
@@ -48,53 +47,44 @@ const Graph: React.FunctionComponent = () => {
         // TODO: Propagate error
       }
     }
-  }, [ctx.svg, graphParentRef]);
+  }, [ctx.svg]);
 
   // Update SVG style when an update is dispatched
   useEffect(() => {
-    if (svgRef.current && ctx.svgStyle) {
-      const currentStyle = svgRef.current.querySelector("style");
+    if (ctx.svgRef.current && ctx.svgStyle) {
+      const currentStyle = ctx.svgRef.current.querySelector("style");
       if (currentStyle) {
         currentStyle.innerHTML = ctx.svgStyle;
       }
     }
-  }, [ctx.svgStyle, svgRef]);
+  }, [ctx.svgStyle]);
 
   // Update SVG information group when an update is dispatched
   useEffect(() => {
-    if (svgRef.current) {
-      const currentInformation = svgRef.current.getElementById("information");
+    if (ctx.svgRef.current) {
+      const currentInformation =
+        ctx.svgRef.current.getElementById("information");
       if (currentInformation) {
         currentInformation.innerHTML = ctx.svgInformation ?? "";
       }
     }
-  }, [ctx.svgInformation, svgRef]);
+  }, [ctx.svgInformation]);
 
   // Update SVG viewBox when an update is dispatched
   useEffect(() => {
-    if (svgRef.current && ctx.svgViewbox) {
-      svgRef.current.setAttribute("viewBox", ctx.svgViewbox);
+    if (ctx.svgRef.current && ctx.svgViewbox) {
+      ctx.svgRef.current.setAttribute("viewBox", ctx.svgViewbox);
 
-      updateRatios(svgRef.current);
+      updateRatios(ctx.svgRef.current);
     }
-  }, [ctx.svgViewbox, svgRef]);
-
-  // Toggle Exporting aid
-  // useEffect(() => {
-  //   if (exportingAidRef.current) {
-  //     exportingAidRef.current.setAttribute(
-  //       "opacity",
-  //       ctx.aidOpacity ? "1" : "0"
-  //     );
-  //   }
-  // }, [ctx.aidOpacity]);
+  }, [ctx.svgViewbox]);
 
   return (
     <div
       className="py-1 w-full max-h-full aspect-square m-auto block graph-parent overflow-hidden"
       ref={graphParentRef}
     >
-      {ctx.freeForm && <FreeForm svgRef={svgRef} />}
+      {ctx.freeForm && <FreeForm svgRef={ctx.svgRef} />}
     </div>
   );
 };

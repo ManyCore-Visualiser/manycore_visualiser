@@ -6,7 +6,7 @@ use resvg::{
     tiny_skia::Pixmap,
     usvg::{Options, Transform, Tree},
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tauri::api::dialog::blocking::FileDialogBuilder;
 
 use crate::{result_status::ResultStatus, State};
@@ -113,26 +113,64 @@ pub fn update_svg(configuration: Configuration, state: tauri::State<State>) -> S
     ret
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClipPathInput {
+    clip_path: String,
+    x: i16,
+    y: i16,
+    width: u16,
+    height: u16,
+}
+
 // This is async because we use the blocking file dialog builder api
 #[tauri::command]
-pub async fn render_svg(state: tauri::State<'_, State>) -> Result<SVGRenderResult, ()> {
+pub async fn render_svg(
+    clip_path: Option<ClipPathInput>,
+    state: tauri::State<'_, State>,
+) -> Result<SVGRenderResult, ()> {
     let mut ret = SVGRenderResult {
         status: ResultStatus::Error,
         message: String::from("Something went wrong, please try again."),
     };
 
-    if let (Ok(font_database_mutex), Ok(svg_mutex)) = (state.font_database.lock(), state.svg.lock())
+    if let (Ok(font_database_mutex), Ok(mut svg_mutex)) =
+        (state.font_database.lock(), state.svg.lock())
     {
-        if let (font_database, Some(svg)) = (&*font_database_mutex, &*svg_mutex) {
-            match String::try_from(svg) {
+        if let (font_database, Some(svg)) = (&*font_database_mutex, &mut *svg_mutex) {
+            let (svg_string_res, width, height) = match clip_path {
+                Some(clip_path) => {
+                    let view_box = svg.view_box_mut().swap(
+                        clip_path.x,
+                        clip_path.y,
+                        clip_path.width,
+                        clip_path.height,
+                    );
+
+                    svg.add_clip_path(clip_path.clip_path);
+                    let res = String::try_from(svg as &SVG);
+
+                    svg.view_box_mut().restore_from(&view_box);
+                    svg.clear_clip_path();
+
+                    (res, clip_path.width, clip_path.height)
+                }
+                None => (
+                    String::try_from(svg as &SVG),
+                    *svg.view_box().width(),
+                    *svg.view_box().height(),
+                ),
+            };
+
+            // Downgrade reference to unmutable
+            match svg_string_res {
                 Ok(svg_string) => {
                     let tree =
                         Tree::from_str(svg_string.as_str(), &Options::default(), font_database)
                             .unwrap();
 
-                    let view_box = svg.view_box();
-                    let target_height = u32::from(*view_box.height());
-                    let target_width = u32::from(*view_box.width());
+                    let target_height = u32::from(height);
+                    let target_width = u32::from(width);
                     let target_image = Pixmap::new(target_width, target_height);
 
                     if let Some(mut img_buf) = target_image {
