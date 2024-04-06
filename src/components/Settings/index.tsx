@@ -1,11 +1,9 @@
 import { useCallback, useReducer, useRef, useState } from "react";
 import { useAppContext } from "../../App";
-import { RoutingConfigT } from "../../types/configuration";
 import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
-import { editSystem, updateSVG } from "../../utils/loadUtils";
+import { editSystem } from "../../utils/loadUtils";
 import ElementSettings from "./ElementSettings";
 import generateConfig from "./ElementSettings/generateConfig";
-import RoutingSettings from "./RoutingSettings";
 import SettingsButton from "./SettingsButton";
 import "./checkbox.css";
 import "./colour.css";
@@ -15,9 +13,6 @@ import "./select.css";
 const Settings: React.FunctionComponent = () => {
   const ctx = useAppContext();
   const formRef = useRef<HTMLFormElement>(null);
-
-  const algorithmSelectName = "algorithm-select";
-  const sinksSourcesName = "sinks-sources-checkbox";
 
   const displayReducer: React.Reducer<
     DisplayMapT,
@@ -48,37 +43,27 @@ const Settings: React.FunctionComponent = () => {
           displayMap
         );
 
-        // Routing config is different from core/router so needs
-        // to be handled with its own specific case.
-        let routingConfig: RoutingConfigT = { sinksSources: false };
-        const algorithmSelect = formRef.current[
-          algorithmSelectName
-        ] as HTMLInputElement | null;
-        const sinksSources = formRef.current[
-          sinksSourcesName
-        ] as HTMLInputElement | null;
-
-        if (algorithmSelect) {
-          routingConfig.routingConfig =
-            algorithmSelect.value === "None"
-              ? undefined
-              : algorithmSelect.value;
-        }
-
-        if (sinksSources) {
-          routingConfig.sinksSources = sinksSources.checked;
-        }
-
-        updateSVG(
-          {
-            coreConfig,
-            routerConfig,
-            ...routingConfig,
-          },
-          ctx.setSVGStyle,
-          ctx.setSVGInformation,
-          ctx.setSVGViewbox
+        const channelConfig = generateConfig(
+          formRef.current,
+          "Channels",
+          ctx.attributes.channel,
+          displayMap
         );
+
+        // updateSVG(
+        //   {
+        //     coreConfig,
+        //     routerConfig,
+        //     channelConfig,
+        //   },
+        //   ctx.setSVGStyle,
+        //   ctx.setSVGInformation,
+        //   ctx.setSVGViewbox
+        // );
+
+        console.log("Core", coreConfig);
+        console.log("Router", routerConfig);
+        console.log("Channel", channelConfig);
       }
     }) as React.FormEventHandler<HTMLFormElement>,
     [formRef, ctx.attributes, displayMap]
@@ -110,11 +95,14 @@ const Settings: React.FunctionComponent = () => {
               fillSelected={routerFillSelected}
               setFillSelected={setRouterFillSelected}
             />
-            <RoutingSettings
+            <ElementSettings
+              dispatchDisplayMap={dispatchDisplayMap}
+              attributes={ctx.attributes.channel}
+              variant="Channels"
+              fillSelected={routerFillSelected}
+              setFillSelected={setRouterFillSelected}
               algorithms={ctx.attributes.algorithms}
               observedAlgorithm={ctx.attributes.observedAlgorithm}
-              algorithmSelectName={algorithmSelectName}
-              sinksSourcesName={sinksSourcesName}
             />
           </form>
         )}

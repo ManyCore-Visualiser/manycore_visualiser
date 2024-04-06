@@ -1,6 +1,9 @@
 import { BaseResponseT } from "./baseResponse";
 
-type AttributeTypeT = "number" | "text";
+export type ConfigurationVariantsT = "Cores" | "Routers" | "Channels";
+
+type AttributeTypeT = "number" | "text" | "boolean" | "routing" | "coordinates";
+export type AttributeVariantsT = "Text" | "ColouredText" | "Fill";
 
 export type ProcessedAttributesGroupContentT = {
   display: string;
@@ -14,23 +17,13 @@ export type ProcessedAttributesGroupT = {
 export type ProcessedAttributesT = {
   core: ProcessedAttributesGroupT;
   router: ProcessedAttributesGroupT;
+  channel: ProcessedAttributesGroupT;
   algorithms: string[];
   observedAlgorithm: string | undefined;
-  sinksSources: boolean;
-};
-
-export type AttributesGroupT = {
-  [key: string]: AttributeTypeT;
 };
 
 export interface AttributesResponseT extends BaseResponseT {
-  attributes?: {
-    core: AttributesGroupT;
-    router: AttributesGroupT;
-    algorithms: string[];
-    observedAlgorithm?: string;
-    sinksSources: boolean;
-  };
+  attributes?: ProcessedAttributesT;
 }
 
 export type ColourConfig = {
@@ -38,21 +31,34 @@ export type ColourConfig = {
   colours: [string, string, string, string];
 };
 
-export type CoreRouterConfiguration = {
-  [key: string]:
-    | { Text: string }
-    | { Fill: ColourConfig }
-    | { ColouredText: [string, ColourConfig] };
+export type ItemConfiguration = {
+  [key: string]: ItemArgumentConfiguration;
 };
 
-export type RoutingConfigT = {
-  routingConfig?: string;
-  sinksSources: boolean;
-};
+type CoordinatesValuesT = "T" | "B";
+export interface CoordinatesHTMLSelectElement extends HTMLSelectElement {
+  value: CoordinatesValuesT;
+}
+type LoadConfigurationT = "Percentage" | "Fraction";
+export interface LoadHTMLSelectElement extends HTMLSelectElement {
+  value: LoadConfigurationT;
+}
+export type ItemArgumentConfiguration =
+  | { Text: string }
+  | { Fill: ColourConfig }
+  | { ColouredText: [string, ColourConfig] }
+  | { Boolean: true }
+  | { Coordinates: CoordinatesValuesT }
+  | {
+      Routing: {
+        algorithm: string;
+        loadConfiguration: LoadConfigurationT;
+        loadColours: ColourConfig;
+      };
+    };
 
 export type Configuration = {
-  coreConfig: CoreRouterConfiguration;
-  routerConfig: CoreRouterConfiguration;
-  routingConfig?: string;
-  sinksSources: boolean;
+  coreConfig: ItemConfiguration;
+  routerConfig: ItemConfiguration;
+  channelConfig: ItemConfiguration;
 };

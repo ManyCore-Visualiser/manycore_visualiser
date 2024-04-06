@@ -2,13 +2,14 @@ import { useRef } from "react";
 import "./style.css";
 import { DisplayMapDispatchActionT } from "../../../types/displayMap";
 import { createPortal } from "react-dom";
+import { ConfigurationVariantsT } from "../../../types/configuration";
 
 type DisplayModalT = {
   mref: React.RefObject<HTMLDialogElement>;
   attributeDisplay: string;
   attribute: string;
   dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>;
-  variant: "Cores" | "Routers";
+  variant: ConfigurationVariantsT;
 };
 
 const DisplayModal: React.FunctionComponent<DisplayModalT> = ({

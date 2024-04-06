@@ -9,10 +9,8 @@ import { AppState } from "../App";
 import { BaseResponseT } from "../types/baseResponse";
 import { open } from "@tauri-apps/api/dialog";
 import {
-  AttributesGroupT,
   AttributesResponseT,
   Configuration,
-  ProcessedAttributesGroupT,
   ProcessedAttributesT,
 } from "../types/configuration";
 
@@ -69,20 +67,6 @@ function updateSVG(
   });
 }
 
-function populateAttributesGroup(
-  group: AttributesGroupT
-): ProcessedAttributesGroupT {
-  return Object.entries(group).reduce((acc, [key, type]) => {
-    acc[key] = {
-      // Skip @ at index 0
-      display: key.charAt(1).toLocaleUpperCase() + key.slice(2),
-      type,
-    };
-
-    return acc;
-  }, {} as ProcessedAttributesGroupT);
-}
-
 function getAttributes(
   setAttributes: React.Dispatch<
     React.SetStateAction<ProcessedAttributesT | undefined>
@@ -90,21 +74,13 @@ function getAttributes(
 ) {
   invoke<AttributesResponseT>("get_attributes").then((res) => {
     if (res.status === "ok" && res.attributes) {
-      const processedAttributes: ProcessedAttributesT = {
-        core: populateAttributesGroup(res.attributes.core),
-        router: populateAttributesGroup(res.attributes.router),
-        algorithms: res.attributes.algorithms,
-        observedAlgorithm: res.attributes.observedAlgorithm,
-        sinksSources: res.attributes.sinksSources,
-      };
-
-      if (!processedAttributes.observedAlgorithm) {
-        processedAttributes.algorithms = processedAttributes.algorithms.filter(
+      if (!res.attributes.observedAlgorithm) {
+        res.attributes.algorithms = res.attributes.algorithms.filter(
           (algorithm) => algorithm !== "Observed"
         );
       }
 
-      setAttributes(processedAttributes);
+      setAttributes(res.attributes);
     } else {
       // TODO: Propagate error
     }
