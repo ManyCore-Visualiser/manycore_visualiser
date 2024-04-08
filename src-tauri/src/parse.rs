@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use manycore_parser::ManycoreSystem;
 use serde::Serialize;
 

@@ -88,7 +88,7 @@ pub fn get_svg(state: tauri::State<State>) -> SVGResult {
 }
 
 #[tauri::command]
-pub fn update_svg(configuration: Configuration, state: tauri::State<State>) -> SVGUpdateResult {
+pub fn update_svg(mut configuration: Configuration, state: tauri::State<State>) -> SVGUpdateResult {
     let mut ret = SVGUpdateResult {
         status: ResultStatus::Error,
         message: String::from("Something went wrong, please try again."),
@@ -97,7 +97,7 @@ pub fn update_svg(configuration: Configuration, state: tauri::State<State>) -> S
 
     if let (Ok(mut manycore_mutex), Ok(mut svg_mutex)) = (state.manycore.lock(), state.svg.lock()) {
         if let (Some(manycore), Some(svg)) = (&mut *manycore_mutex, &mut *svg_mutex) {
-            match svg.update_configurable_information(manycore, &configuration) {
+            match svg.update_configurable_information(manycore, &mut configuration) {
                 Ok(update) => {
                     ret.status = ResultStatus::Ok;
                     ret.message = String::from("Successfully generated SVG");

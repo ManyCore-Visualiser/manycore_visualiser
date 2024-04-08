@@ -1,7 +1,7 @@
 import { useCallback, useReducer, useRef, useState } from "react";
 import { useAppContext } from "../../App";
 import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
-import { editSystem } from "../../utils/loadUtils";
+import { editSystem, updateSVG } from "../../utils/loadUtils";
 import ElementSettings from "./ElementSettings";
 import generateConfig from "./ElementSettings/generateConfig";
 import SettingsButton from "./SettingsButton";
@@ -50,20 +50,16 @@ const Settings: React.FunctionComponent = () => {
           displayMap
         );
 
-        // updateSVG(
-        //   {
-        //     coreConfig,
-        //     routerConfig,
-        //     channelConfig,
-        //   },
-        //   ctx.setSVGStyle,
-        //   ctx.setSVGInformation,
-        //   ctx.setSVGViewbox
-        // );
-
-        console.log("Core", coreConfig);
-        console.log("Router", routerConfig);
-        console.log("Channel", channelConfig);
+        updateSVG(
+          {
+            coreConfig,
+            routerConfig,
+            channelConfig,
+          },
+          ctx.setSVGStyle,
+          ctx.setSVGInformation,
+          ctx.setSVGViewbox
+        );
       }
     }) as React.FormEventHandler<HTMLFormElement>,
     [formRef, ctx.attributes, displayMap]

@@ -188,6 +188,11 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
             left: `calc(${x}% - 1rem)`,
           }}
           className="absolute rounded-full w-8 h-8 bg-indigo-500 hover:cursor-move"
+          onDragStart={(ev) =>
+            // https://bugs.webkit.org/show_bug.cgi?id=265857
+            // WebKit GTK needs drag transfer data for the drag event to fire.
+            ev.dataTransfer.setData("text/plain", `point-${i}`)
+          }
           onDrag={(ev) => {
             // On Drag End reports incorrect values so we track the drag throughout and use the last value.
             ev.preventDefault();
@@ -195,7 +200,6 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
           }}
           onDragEnd={(ev) => {
             ev.preventDefault();
-
             // If we stored a valid point, replace the current point
             if (drag) {
               const newPoints = [...points];
