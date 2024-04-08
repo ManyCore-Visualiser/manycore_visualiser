@@ -24,15 +24,14 @@ function calculatePoint(
     const px = (100 * (clientX - x)) / width;
     const py = (100 * (clientY - y)) / height;
 
-    return { x: px, y: py, clientX, clientY };
+    return { x: px, y: py };
   }
 
   return undefined;
 }
 
 function calculateDeltas(
-  x: number,
-  y: number,
+  point: Point,
   altKey: boolean,
   points: Point[]
 ): [number, number, Point] {
@@ -46,8 +45,8 @@ function calculateDeltas(
   }
 
   // Calculate closest coordinate
-  let dx = Math.abs(prevPoint.clientX - x);
-  let dy = Math.abs(prevPoint.clientY - y);
+  let dx = Math.abs(prevPoint.x - point.x);
+  let dy = Math.abs(prevPoint.y - point.y);
 
   return [dx, dy, prevPoint];
 }
@@ -58,9 +57,11 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
   const [containerData, setContainerData] = useState<DOMRect>();
   const [drag, setDrag] = useState<Point | undefined>();
   const freeFormRef = useRef<HTMLDivElement>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const hLine = useRef<HTMLDivElement>(null);
   const vLine = useRef<HTMLDivElement>(null);
   const lineSize = "0.125rem";
+  const freeFormId = "freeFormContainer";
 
   function handleLines(ev: React.MouseEvent<HTMLDivElement>) {
     if (hLine.current && vLine.current && points.length > 0) {
@@ -68,12 +69,7 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
         const point = calculatePoint(ev.clientX, ev.clientY, containerData);
 
         if (point) {
-          const [dx, dy, prevPoint] = calculateDeltas(
-            ev.clientX,
-            ev.clientY,
-            ev.altKey,
-            points
-          );
+          const [dx, dy, prevPoint] = calculateDeltas(point, ev.altKey, points);
 
           if (dx < dy) {
             hLine.current.classList.remove("hidden");
@@ -96,22 +92,55 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
     }
   }
 
+  function resizeFreeForm(freeForm: HTMLDivElement, domRect: DOMRect) {
+    setContainerData(domRect);
+
+    // We are copying the main group's bounding box onto our free form container
+    const { top, left, width, height } = domRect;
+    freeForm.style.top = `${top}px`;
+    freeForm.style.left = `${left}px`;
+    freeForm.style.width = `${width}px`;
+    freeForm.style.height = `${height}px`;
+  }
+
+  const handleResize: ResizeObserverCallback = (entries) => {
+    if (!entries.length || entries.length > 1) {
+      console.error("FreeForm Resize Observer is observing invalid elements.");
+    } else {
+      const mainGroup = (entries[0].target as SVGSVGElement).getElementById(
+        "mainGroup"
+      );
+      const freeForm = document.getElementById(
+        freeFormId
+      ) as HTMLDivElement | null;
+
+      if (freeForm && mainGroup) {
+        resizeFreeForm(freeForm, mainGroup.getBoundingClientRect());
+      }
+    }
+  };
+
   // This is called any time the free form component is mounted
   const freeFormRefCallback = useCallback((node: HTMLDivElement | null) => {
+    if (!resizeObserverRef.current) {
+      // Initialise resize observer
+      resizeObserverRef.current = new ResizeObserver(handleResize);
+    } else {
+      // Main group shouldn't be removed from the DOM while we are here,
+      // but just in case we "reset" the resize observer to prevent
+      // memory leaks.
+      resizeObserverRef.current.disconnect();
+    }
+
     if (svgRef.current && node) {
       const mainGroup = svgRef.current.getElementById("mainGroup");
       if (mainGroup) {
+        resizeObserverRef.current.observe(svgRef.current);
+
         // We are going to copy the main group's bounding box
         const domRect = mainGroup.getBoundingClientRect();
 
-        setContainerData(domRect);
-
-        // We are copying the main group's bounding box onto our free form container
-        const { top, left, width, height } = domRect;
-        node.style.top = `${top}px`;
-        node.style.left = `${left}px`;
-        node.style.width = `${width}px`;
-        node.style.height = `${height}px`;
+        resizeFreeForm(node, domRect);
       }
     }
   }, []);
@@ -143,19 +172,18 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
     let x = ev.clientX;
     let y = ev.clientY;
 
-    // Determine if user is asking for a straight line
-    if (ev.shiftKey && points.length > 0) {
-      const [dx, dy, prevPoint] = calculateDeltas(x, y, ev.altKey, points);
-      if (dx < dy) {
-        x = prevPoint.clientX;
-      } else {
-        y = prevPoint.clientY;
-      }
-    }
-
     const point = calculatePoint(x, y, containerData);
 
     if (point) {
+      // Determine if user is asking for a straight line
+      if (ev.shiftKey && points.length > 0) {
+        const [dx, dy, prevPoint] = calculateDeltas(point, ev.altKey, points);
+        if (dx < dy) {
+          point.x = prevPoint.x;
+        } else {
+          point.y = prevPoint.y;
+        }
+      }
       setPoints([...points, point]);
     }
   }
@@ -166,6 +194,7 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
       className="absolute hover:cursor-cell"
       onClick={addPoint}
       onMouseMove={handleLines}
+      id={freeFormId}
     >
       <div
         className="hidden absolute w-full h-1 freeFormLine freeFormLineH z-40"
