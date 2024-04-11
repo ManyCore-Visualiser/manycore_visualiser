@@ -14,8 +14,6 @@ type ElementSettingsT = {
   setFillSelected: React.Dispatch<React.SetStateAction<string | undefined>>;
   observedAlgorithm?: string | undefined;
   algorithms?: string[];
-  algorithmSelectName?: string;
-  loadSelectName?: string;
 };
 
 const ElementSettings: React.FunctionComponent<ElementSettingsT> = ({
@@ -24,8 +22,6 @@ const ElementSettings: React.FunctionComponent<ElementSettingsT> = ({
   dispatchDisplayMap,
   fillSelected,
   setFillSelected,
-  algorithmSelectName,
-  loadSelectName,
   algorithms,
   observedAlgorithm,
 }) => {
@@ -43,8 +39,6 @@ const ElementSettings: React.FunctionComponent<ElementSettingsT> = ({
             dispatchDisplayMap={dispatchDisplayMap}
             fillSelected={fillSelected}
             setFillSelected={setFillSelected}
-            algorithmSelectName={algorithmSelectName}
-            loadSelectName={loadSelectName}
             algorithms={algorithms}
             observedAlgorithm={observedAlgorithm}
             key={key}

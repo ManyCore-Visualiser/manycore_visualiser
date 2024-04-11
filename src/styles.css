@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-#root {
-  @apply w-[100dvw] h-[100dvh];
-}
-
 @layer utilities {
   .no-scrollbar {
     -ms-overflow-style: none;

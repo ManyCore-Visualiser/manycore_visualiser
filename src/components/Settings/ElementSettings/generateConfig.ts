@@ -127,7 +127,9 @@ function generateCoordinates(
 function generateRouting(
   form: HTMLFormElement,
   variant: ConfigurationVariantsT,
-  key: string
+  key: string,
+  display: string,
+  displayMap: DisplayMapT
 ): ItemArgumentConfiguration | undefined {
   const algorithmSelect = form[`${variant}-${key}-algo-select`] as
     | HTMLSelectElement
@@ -145,6 +147,7 @@ function generateRouting(
         algorithm: algorithmSelect.value,
         loadConfiguration: loadsSelect.value,
         loadColours: generateColours(form, variant, loadsKey),
+        display: displayMap[`${variant}-${key}`] ?? display,
       },
     };
   }
@@ -167,7 +170,8 @@ export default function generateConfig(
       attrConf = generateCoordinates(form, variant, key);
     else if (type === "number")
       attrConf = generateNumber(form, variant, key, display, displayMap);
-    else if (type === "routing") attrConf = generateRouting(form, variant, key);
+    else if (type === "routing")
+      attrConf = generateRouting(form, variant, key, display, displayMap);
     else if (type === "text")
       attrConf = generateText(form, variant, key, display, displayMap);
 

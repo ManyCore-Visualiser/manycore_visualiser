@@ -1,26 +1,18 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useAppContext } from "../../App";
-import {
-  cleanUpPanZoom,
-  registerPanZoom,
-  updateRatios,
-} from "../../utils/svgPanZoom";
+import { cleanUpPanZoom, registerPanZoom } from "../../utils/svgPanZoom";
 import "./style.css";
 import { registerHoveringEvents } from "./hovering";
 import FreeForm from "./FreeForm";
 
 const Graph: React.FunctionComponent = () => {
   const ctx = useAppContext();
-  const graphParentRef = useRef<HTMLDivElement | null>(null);
   const parser = new DOMParser();
 
   // Render SVG when updated
   useEffect(() => {
-    if (ctx.svg && graphParentRef.current) {
-      const currentSVG = graphParentRef.current.querySelector("svg");
-      if (currentSVG) {
-        cleanUpPanZoom(currentSVG);
-      }
+    if (ctx.svg && ctx.graphParentRef.current) {
+      cleanUpPanZoom(ctx.graphParentRef.current);
 
       const svgDocument = parser.parseFromString(
         ctx.svg.content,
@@ -28,11 +20,11 @@ const Graph: React.FunctionComponent = () => {
       );
       if (svgDocument.documentElement) {
         // Clear current content
-        graphParentRef.current.innerHTML = "";
+        ctx.graphParentRef.current.innerHTML = "";
 
         const svgElement =
           svgDocument.documentElement as unknown as SVGSVGElement;
-        graphParentRef.current.appendChild(svgElement);
+        ctx.graphParentRef.current.appendChild(svgElement);
 
         ctx.svgRef.current = svgElement;
 
@@ -42,7 +34,7 @@ const Graph: React.FunctionComponent = () => {
 
         registerHoveringEvents(processingGroup);
 
-        registerPanZoom(svgElement);
+        registerPanZoom(ctx.graphParentRef.current);
       } else {
         // TODO: Propagate error
       }
@@ -74,16 +66,11 @@ const Graph: React.FunctionComponent = () => {
   useEffect(() => {
     if (ctx.svgRef.current && ctx.svgViewbox) {
       ctx.svgRef.current.setAttribute("viewBox", ctx.svgViewbox);
-
-      updateRatios(ctx.svgRef.current);
     }
   }, [ctx.svgViewbox]);
 
   return (
-    <div
-      className="py-1 w-full max-h-full aspect-square m-auto block graph-parent overflow-hidden"
-      ref={graphParentRef}
-    >
+    <div className="h-full w-full py-4 graph-parent" ref={ctx.graphParentRef}>
       {ctx.freeForm && <FreeForm svgRef={ctx.svgRef} />}
     </div>
   );

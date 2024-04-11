@@ -45,7 +45,7 @@ const TextInput: React.FunctionComponent<TextInputProps> = ({
             ></input>
             <label htmlFor={`${variant}-${attribute}`}>{info.display}</label>
           </div>
-          {checked && variant !== "Channels" && (
+          {checked && (
             <button onClick={showModal} type="button">
               <TwotoneTextFields width="1em" height="1em" className="ml-4" />
             </button>

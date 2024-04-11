@@ -82,7 +82,7 @@ const NumberInput: React.FunctionComponent<NumberInputProps> = ({
               )}
             </select>
           </div>
-          {type !== "Fill" && variant !== "Channels" && checked && (
+          {type !== "Fill" && checked && (
             <button onClick={showModal} type="button">
               <TwotoneTextFields width="1em" height="1em" className="ml-4" />
             </button>

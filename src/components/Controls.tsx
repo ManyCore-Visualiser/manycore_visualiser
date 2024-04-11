@@ -77,12 +77,13 @@ const Controls: React.FunctionComponent = () => {
   const handleFreeForm = () => {
     ctx.setFreeForm((freeform) => {
       if (freeform) {
-        if (ctx.svgRef.current) registerPanZoom(ctx.svgRef.current);
+        if (ctx.graphParentRef.current)
+          registerPanZoom(ctx.graphParentRef.current);
 
         // Clear points
         ctx.setFreeFormPoints([]);
       } else {
-        if (ctx.svgRef.current) cleanUpPanZoom(ctx.svgRef.current);
+        if (ctx.graphParentRef.current) cleanUpPanZoom(ctx.graphParentRef.current);
       }
 
       return !freeform;

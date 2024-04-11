@@ -37,6 +37,7 @@ export type AppState = {
   setFreeForm: React.Dispatch<React.SetStateAction<boolean>>;
   freeFormPoints: Point[];
   setFreeFormPoints: React.Dispatch<React.SetStateAction<Point[]>>;
+  graphParentRef: React.MutableRefObject<HTMLDivElement | null>;
 };
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -56,6 +57,7 @@ function App() {
   const [freeForm, setFreeForm] = useState(false);
   const [freeFormPoints, setFreeFormPoints] = useState<Point[]>([]);
   const svgRef = useRef<SVGSVGElement>();
+  const graphParentRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <AppStateContext.Provider
@@ -83,20 +85,19 @@ function App() {
         setFreeForm,
         freeFormPoints,
         setFreeFormPoints,
+        graphParentRef,
       }}
     >
       <HoverInfo />
-      <div className="w-full h-full flex flex-col">
-        {(processingInput || editing) && <Loading />}
-        {!svg && <FileLoader />}
-        {svg && (
-          <>
-            <Settings />
-            <Graph />
-            <Controls />
-          </>
-        )}
-      </div>
+      {(processingInput || editing) && <Loading />}
+      {!svg && <FileLoader />}
+      {svg && (
+        <>
+          <Settings />
+          <Graph />
+          <Controls />
+        </>
+      )}
     </AppStateContext.Provider>
   );
 }

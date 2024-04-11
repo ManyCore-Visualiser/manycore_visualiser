@@ -70,6 +70,8 @@ const Input: React.FunctionComponent<InputT> = ({
               algorithms={algorithms}
               observedAlgorithm={observedAlgorithm}
               variant={variant}
+              info={info}
+              dispatchDisplayMap={dispatchDisplayMap}
             />
           )}
         </>

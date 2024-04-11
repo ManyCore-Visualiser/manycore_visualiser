@@ -19,12 +19,6 @@ const matrix = {
   ty: 0,
 };
 
-// Ratios to avoid drifting while panning/zooming
-const ratios = {
-  xRatio: 1,
-  yRatio: 1,
-};
-
 // Scale constants
 const zoomIn = 1.1;
 const zoomOut = 1 / 1.1;
@@ -33,54 +27,41 @@ const zoomOut = 1 / 1.1;
  * Grabs the main group of the SVG and the SVG itself from event target.
  *
  * @param ev Any event.
- * @returns \{element: the element, g: the group}.
+ * @returns \{svg: the svg element, g: the group}.
  * @throws A generic error if the target is not an element or it doesn't contain an SVG group.
  */
 function getDOMElements(ev: Event) {
-  if (ev.target instanceof SVGSVGElement) {
-    const g = ev.target.getElementById("mainGroup") as SVGGElement | null;
+  if (ev.currentTarget instanceof HTMLDivElement) {
+    const svg = ev.currentTarget.querySelector("svg");
 
-    if (!g) {
-      throw new Error("Could not grab main SVG group from event target");
+    if (!svg) {
+      throw new Error("Could not grab SVG from event target");
     }
 
-    return { element: ev.target as SVGSVGElement, g };
+    const g = svg.getElementById("mainGroup") as SVGGElement | null;
+
+    if (!g) {
+      throw new Error("Could not grab SVG main group from SVG");
+    }
+
+    return { svg, g };
   }
 
   throw new Error("Event target is not a valid element");
 }
 
 /**
- * Applies the current matrix to an SVG group element.
- * @param g The target SVG group element.
+ * Applies the current matrix to an SVG element.
+ * @param svg The target SVG element.
  */
-function applyMatrix(g: SVGGElement) {
-  g.style.transform = `matrix3d(${matrix.scale}, 0, 0, 0, 0, ${matrix.scale}, 0, 0, 0, 0, 1, 0, ${matrix.tx}, ${matrix.ty}, 0, 1)`;
-}
-
-/**
- * Calculates the ratio between the SVG viewbox and the group dimensions.
- * These values help to avoid the group drifting when zooming/panning.
- *
- * @param svg The SVG element.
- */
-function updateRatios(svg: SVGSVGElement) {
-  const g = svg.getElementById("mainGroup") as SVGGElement | null;
-
-  if (g) {
-    const { width: viewBoxWidth, height: viewBoxHeight } = svg.viewBox.baseVal;
-
-    const { width, height } = g.getBoundingClientRect();
-
-    ratios.xRatio = (viewBoxWidth * matrix.scale) / width;
-    ratios.yRatio = (viewBoxHeight * matrix.scale) / height;
-  }
+function applyMatrix(svg: SVGSVGElement) {
+  svg.style.transform = `matrix3d(${matrix.scale}, 0, 0, 0, 0, ${matrix.scale}, 0, 0, 0, 0, 1, 0, ${matrix.tx}, ${matrix.ty}, 0, 1)`;
 }
 
 // Zoom handler
 function zoom(ev: WheelEvent) {
   ev.preventDefault();
-  const { element, g } = getDOMElements(ev);
+  const { svg } = getDOMElements(ev);
 
   let zoomDirection;
 
@@ -92,41 +73,32 @@ function zoom(ev: WheelEvent) {
     zoomDirection = zoomIn;
   }
 
-  const { x, y } = g.getBoundingClientRect();
+  const { x, y } = svg.getBoundingClientRect();
+  const dx = (ev.clientX - x) * (zoomDirection - 1);
+  const dy = (ev.clientY - y) * (zoomDirection - 1);
 
   matrix.scale *= zoomDirection;
+  matrix.tx -= dx;
+  matrix.ty -= dy;
 
-  // Mouse coordinates relative to SVG group
-  const mx = ev.clientX - x;
-  const my = ev.clientY - y;
-  // As we zoom into/away from a point we need to translate
-  // the group according to the newly scaled coordinates.
-  const dx = mx - mx * zoomDirection;
-  const dy = my - my * zoomDirection;
-
-  matrix.tx += dx * ratios.xRatio;
-  matrix.ty += dy * ratios.yRatio;
-
-  applyMatrix(g);
-
-  updateRatios(element);
+  applyMatrix(svg);
 }
 
 // Pan handler
 function move(ev: MouseEvent) {
   ev.preventDefault();
   if (motion) {
-    const { g } = getDOMElements(ev);
+    const { svg } = getDOMElements(ev);
 
     const dx = ev.clientX - from.x;
     const dy = ev.clientY - from.y;
-    matrix.tx += dx * ratios.xRatio;
-    matrix.ty += dy * ratios.yRatio;
+    matrix.tx += dx;
+    matrix.ty += dy;
 
     from.x = ev.clientX;
     from.y = ev.clientY;
 
-    applyMatrix(g);
+    applyMatrix(svg);
   }
 }
 
@@ -147,33 +119,24 @@ function blockMotion() {
  * Registers all required event handlers for zooming and panning.
  * @param svg The target SVG element.
  */
-function registerPanZoom(svg: SVGSVGElement) {
-  const g = svg.getElementById("mainGroup") as SVGGElement | null;
-
-  if (!g) {
-    throw new Error("The provided SVG does not contain a main group");
-  }
-
-  svg.addEventListener("mousedown", enableMotion, { passive: false });
-  svg.addEventListener("mouseup", blockMotion, { passive: false });
-  svg.addEventListener("mousemove", move, { passive: false });
-  svg.addEventListener("wheel", zoom, { passive: false });
-
-  applyMatrix(g);
-  updateRatios(svg);
+function registerPanZoom(graphParent: HTMLDivElement) {
+  graphParent.addEventListener("mousedown", enableMotion, { passive: false });
+  graphParent.addEventListener("mouseup", blockMotion, { passive: false });
+  graphParent.addEventListener("mousemove", move, { passive: false });
+  graphParent.addEventListener("wheel", zoom, { passive: false });
 }
 
 /**
  * Removes all the registered handlers for zooming and panning.
  * @param svg The target SVG element.
  */
-function cleanUpPanZoom(svg: SVGSVGElement) {
+function cleanUpPanZoom(graphParent: HTMLDivElement) {
   motion = false;
 
-  svg.removeEventListener("mousedown", enableMotion);
-  svg.removeEventListener("mouseup", blockMotion);
-  svg.removeEventListener("mousemove", move);
-  svg.removeEventListener("wheel", zoom);
+  graphParent.removeEventListener("mousedown", enableMotion);
+  graphParent.removeEventListener("mouseup", blockMotion);
+  graphParent.removeEventListener("mousemove", move);
+  graphParent.removeEventListener("wheel", zoom);
 }
 
-export { registerPanZoom, cleanUpPanZoom, updateRatios };
+export { registerPanZoom, cleanUpPanZoom };

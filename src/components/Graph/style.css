@@ -2,16 +2,10 @@
   user-select: none;
 }
 
-.graph-parent g {
+.graph-parent svg {
   will-change: transform;
-}
-
-/* .graph-parent g:hover {
-    cursor: help;
-} */
-
-#processingGroup {
-  pointer-events: all;
+  transform-origin: top left;
+  height: 100%;
 }
 
 #processingGroup path:hover {
@@ -23,7 +17,7 @@
   pointer-events: none;
 }
 
-.graph-parent svg:hover {
+.graph-parent:hover {
   cursor: move;
 }
 
@@ -36,6 +30,5 @@
 }
 
 .freeFormLineV {
-    @apply bg-gradient-to-b bg-[length:100%_1%];
-  }
-  
+  @apply bg-gradient-to-b bg-[length:100%_1%];
+}

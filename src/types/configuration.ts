@@ -54,6 +54,7 @@ export type ItemArgumentConfiguration =
         algorithm: string;
         loadConfiguration: LoadConfigurationT;
         loadColours: ColourConfig;
+        display: string;
       };
     };
 
