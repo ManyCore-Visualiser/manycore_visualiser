@@ -1,7 +1,11 @@
 import { useCallback, useReducer, useRef, useState } from "react";
 import { useAppContext } from "../../App";
 import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
-import { editSystem, updateSVG } from "../../utils/loadUtils";
+import {
+  editSystem,
+  openFilePickerDialog,
+  updateSVG,
+} from "../../utils/loadUtils";
 import ElementSettings from "./ElementSettings";
 import generateConfig from "./ElementSettings/generateConfig";
 import SettingsButton from "./SettingsButton";
@@ -9,6 +13,7 @@ import "./checkbox.css";
 import "./colour.css";
 import "./number.css";
 import "./select.css";
+import toast from "react-hot-toast";
 
 const Settings: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -51,11 +56,15 @@ const Settings: React.FunctionComponent = () => {
         );
 
         if (
-          Object.keys(channelConfig).filter(
-            (key) => key != "@routingAlgorithm" && key != "@borderRouters"
-          ).length > 1
+          Object.keys(channelConfig).filter((key) => key != "@borderRouters")
+            .length > 2
         ) {
-          throw new Error("Too many channel elements");
+          toast.error(
+            "You can only select two channel attributes on top of displaying border routers.",
+            { duration: 10000 }
+          );
+
+          return;
         }
 
         updateSVG(
@@ -112,7 +121,10 @@ const Settings: React.FunctionComponent = () => {
         )}
       </div>
       <div className="w-full grid grid-cols-2 grid-rows-2 gap-2 px-2 pb-2 pt-4">
-        <SettingsButton text="Load new system" action={() => {}} />
+        <SettingsButton
+          text="Load new system"
+          action={() => openFilePickerDialog(ctx)}
+        />
         <SettingsButton
           text="Edit system"
           action={() => {

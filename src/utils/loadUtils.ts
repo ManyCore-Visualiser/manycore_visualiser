@@ -13,6 +13,7 @@ import {
   Configuration,
   ProcessedAttributesT,
 } from "../types/configuration";
+import toast from "react-hot-toast";
 
 async function openFilePickerDialog(ctx: AppState) {
   const file = await open({
@@ -31,8 +32,10 @@ function startProcessing(filePath: string, ctx: AppState) {
     if (res.status === "ok") {
       getSVG(ctx.setSVG);
       getAttributes(ctx.setAttributes);
+
+      toast.success(res.message);
     } else {
-      // TODO: Propagate error
+      toast.error(res.message, { duration: 10000 });
     }
     ctx.setProcessingInput(false);
   });
@@ -42,9 +45,10 @@ function getSVG(setSVG: React.Dispatch<React.SetStateAction<SVGT>>) {
   invoke<SVGResponseT>("get_svg").then((res) => {
     if (res.status === "ok") {
       setSVG(res.svg!);
+
+      toast.success(res.message);
     } else {
-      // TODO: Propagate error
-      console.log(`Error: ${res.message}`);
+      toast.error(res.message, { duration: 10000 });
     }
   });
 }
@@ -60,9 +64,10 @@ function updateSVG(
       setSVGStyle(res.update.style);
       setSVGInformation(res.update.informationGroup);
       setSVGViewbox(res.update.viewBox);
+
+      toast.success(res.message);
     } else {
-      // TODO: Propagate error
-      console.log(`Error: ${res.message}`);
+      toast.error(res.message, { duration: 10000 });
     }
   });
 }
@@ -81,8 +86,9 @@ function getAttributes(
       }
 
       setAttributes(res.attributes);
+      toast.success(res.message);
     } else {
-      // TODO: Propagate error
+      toast.error(res.message, { duration: 10000 });
     }
   });
 }
@@ -101,8 +107,10 @@ function editSystem(ctx: AppState) {
         ctx.setSVG(res.svg!);
         // Get updated attributes
         getAttributes(ctx.setAttributes);
+
+        toast.success(res.message);
       } else {
-        // TODO: Propagate error
+        toast.error(res.message, { duration: 10000 });
       }
     })
     .finally(() => {

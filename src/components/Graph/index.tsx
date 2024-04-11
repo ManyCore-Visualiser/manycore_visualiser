@@ -4,6 +4,7 @@ import { cleanUpPanZoom, registerPanZoom } from "../../utils/svgPanZoom";
 import "./style.css";
 import { registerHoveringEvents } from "./hovering";
 import FreeForm from "./FreeForm";
+import toast from "react-hot-toast";
 
 const Graph: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -36,7 +37,9 @@ const Graph: React.FunctionComponent = () => {
 
         registerPanZoom(ctx.graphParentRef.current);
       } else {
-        // TODO: Propagate error
+        toast.error("Could not initialise rendering process.", {
+          duration: 10000,
+        });
       }
     }
   }, [ctx.svg]);

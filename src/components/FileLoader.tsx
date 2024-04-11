@@ -1,38 +1,9 @@
-import { UnlistenFn, listen } from "@tauri-apps/api/event";
-import { useEffect } from "react";
 import { useAppContext } from "../App";
-import { openFilePickerDialog, startProcessing } from "../utils/loadUtils";
+import { openFilePickerDialog } from "../utils/loadUtils";
 import TwotoneFileOpen from "./icons/TwotoneFileOpen";
 
 const FileLoader: React.FunctionComponent = () => {
   const ctx = useAppContext();
-
-  let unlisten: UnlistenFn | undefined;
-  let listenerStarted = false;
-
-  const startFileDropListener = async () => {
-    // TODO: Figure out dropping on actual button
-    unlisten = await listen("tauri://file-drop", (event) => {
-      const filePath = (event.payload as string[])[0];
-      if (filePath.endsWith(".xml")) {
-        startProcessing(filePath, ctx);
-      }
-    });
-  };
-
-  useEffect(() => {
-    if (!listenerStarted) {
-      startFileDropListener();
-      listenerStarted = true;
-    }
-
-    // Unregister Tauri listener when component unmounts
-    return () => {
-      if (unlisten) {
-        unlisten();
-      }
-    };
-  }, []);
 
   return (
     <button
@@ -45,7 +16,7 @@ const FileLoader: React.FunctionComponent = () => {
         height={"100%"}
       />
       <p className="font-roboto font-bold text-center mt-auto lg:text-lg xl:text-xl 2xl:text-2xl w-full">
-        Drag input file here or click to open file explorer
+        Click to select input file
       </p>
     </button>
   );

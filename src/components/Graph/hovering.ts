@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import { InfoResponseT } from "../../types/svg";
 import { HOVER_INFO_ID } from "../HoverInfo";
+import toast from "react-hot-toast";
 
 export const ELEMENT_INFO_EVENT = "elementinfo";
 export const ELEMENT_INFO_DESTROY_EVENT = "elementdestroy";
@@ -30,8 +31,7 @@ function handleMouseEnter(ev: MouseEvent) {
           if (target) target.dispatchEvent(event);
         }
       } else {
-        // TODO: Handle error
-        console.error(res.message);
+        toast.error(res.message, { duration: 10000 });
       }
     });
   }

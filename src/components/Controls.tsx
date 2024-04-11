@@ -7,6 +7,7 @@ import TwotoneSettings from "./icons/TwotoneSettings";
 import { ClipPathInput, SVGRenderResponseT } from "../types/svg";
 import { cleanUpPanZoom, registerPanZoom } from "../utils/svgPanZoom";
 import { Point } from "../types/freeForm";
+import toast from "react-hot-toast";
 
 function convertPoint(point: Point, viewBox: DOMRect): [number, number] {
   const x = viewBox.width * (point.x / 100) + viewBox.x;
@@ -68,8 +69,9 @@ const Controls: React.FunctionComponent = () => {
 
     invoke<SVGRenderResponseT>("render_svg", { clipPath }).then((res) => {
       if (res.status === "error") {
-        // TODO: Handle error
-        console.log(res.message);
+        toast.error(res.message, { duration: 10000 });
+      } else {
+        toast.success(res.message);
       }
     });
   };
@@ -83,7 +85,8 @@ const Controls: React.FunctionComponent = () => {
         // Clear points
         ctx.setFreeFormPoints([]);
       } else {
-        if (ctx.graphParentRef.current) cleanUpPanZoom(ctx.graphParentRef.current);
+        if (ctx.graphParentRef.current)
+          cleanUpPanZoom(ctx.graphParentRef.current);
       }
 
       return !freeform;
