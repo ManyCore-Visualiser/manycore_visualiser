@@ -50,6 +50,14 @@ const Settings: React.FunctionComponent = () => {
           displayMap
         );
 
+        if (
+          Object.keys(channelConfig).filter(
+            (key) => key != "@routingAlgorithm" && key != "@borderRouters"
+          ).length > 1
+        ) {
+          throw new Error("Too many channel elements");
+        }
+
         updateSVG(
           {
             coreConfig,
