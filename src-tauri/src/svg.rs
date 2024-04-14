@@ -1,6 +1,6 @@
 use chrono::Utc;
 use manycore_parser::ManycoreSystem;
-use manycore_svg::{Configuration, UpdateResult, SVG};
+use manycore_svg::{Configuration, CoordinateT, UpdateResult, SVG};
 use resvg::{
     render,
     tiny_skia::Pixmap,
@@ -38,29 +38,34 @@ pub struct SVGRenderResult {
 }
 
 pub fn generate_svg(ret: &mut SVGResult, state: &tauri::State<State>, manycore: &ManycoreSystem) {
-    let svg: SVG = manycore.into();
+    let svg = SVG::try_from(manycore);
 
-    if let Ok(mut svg_mutex) = state.svg.lock() {
-        match String::try_from(&svg) {
-            Ok(svg_string) => {
-                let _ = svg_mutex.insert(svg);
+    if let Ok(svg) = svg {
+        if let Ok(mut svg_mutex) = state.svg.lock() {
+            match String::try_from(&svg) {
+                Ok(svg_string) => {
+                    let _ = svg_mutex.insert(svg);
 
-                ret.status = ResultStatus::Ok;
-                ret.message = String::from("Successfully generated SVG");
-                ret.svg = Some(SVGObject {
-                    content: svg_string,
-                    timestamp: Utc::now().to_string(),
-                });
+                    ret.status = ResultStatus::Ok;
+                    ret.message = String::from("Successfully generated SVG");
+                    ret.svg = Some(SVGObject {
+                        content: svg_string,
+                        timestamp: Utc::now().to_string(),
+                    });
+                }
+                Err(e) => {
+                    ret.message = e.to_string();
+                }
             }
-            Err(e) => {
-                ret.message = e.to_string();
-            }
+
+            return;
         }
-
-        return;
+        // Couldn't lock mutex
+        ret.message = String::from("Could not update render, please try again.");
+    } else if let Err(svg_error) = svg {
+        // Couldn't convert svg
+        ret.message = svg_error.to_string();
     }
-    // Couldn't lock mutex
-    ret.message = String::from("Could not update render, please try again.");
 }
 
 #[tauri::command]
@@ -117,10 +122,10 @@ pub fn update_svg(mut configuration: Configuration, state: tauri::State<State>) 
 #[serde(rename_all = "camelCase")]
 pub struct ClipPathInput {
     clip_path: String,
-    x: i16,
-    y: i16,
-    width: u16,
-    height: u16,
+    x: CoordinateT,
+    y: CoordinateT,
+    width: CoordinateT,
+    height: CoordinateT,
 }
 
 // This is async because we use the blocking file dialog builder api
@@ -169,8 +174,8 @@ pub async fn render_svg(
                         Tree::from_str(svg_string.as_str(), &Options::default(), font_database)
                             .unwrap();
 
-                    let target_height = u32::from(height);
-                    let target_width = u32::from(width);
+                    let target_height = u32::try_from(height).unwrap();
+                    let target_width = u32::try_from(width).unwrap();
                     let target_image = Pixmap::new(target_width, target_height);
 
                     if let Some(mut img_buf) = target_image {
