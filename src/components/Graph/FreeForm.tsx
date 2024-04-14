@@ -225,7 +225,11 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
           onDrag={(ev) => {
             // On Drag End reports incorrect values so we track the drag throughout and use the last value.
             ev.preventDefault();
-            setDrag(calculatePoint(ev.clientX, ev.clientY, containerData));
+
+            // On windows these coordinates jump to zero when dragging sharply.
+            // Not sure if it's a virtual box problem or webview2.
+            if (ev.clientX !== 0 && ev.clientY !== 0)
+              setDrag(calculatePoint(ev.clientX, ev.clientY, containerData));
           }}
           onDragEnd={(ev) => {
             ev.preventDefault();
