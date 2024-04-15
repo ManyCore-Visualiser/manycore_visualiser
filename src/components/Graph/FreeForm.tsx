@@ -51,11 +51,27 @@ function calculateDeltas(
   return [dx, dy, prevPoint];
 }
 
+/**
+ * Checks if a point is within FreeForm container bounds.
+ * @param x The point x.
+ * @param y The point y.
+ * @param domRect The FreeForm container bounds.
+ * @returns Whether the point is in bounds.
+ */
+function isInBounds(x: number, y: number, domRect?: DOMRect) {
+  return (
+    domRect &&
+    x <= domRect.right &&
+    x >= domRect.left &&
+    y <= domRect.bottom &&
+    y >= domRect.top
+  );
+}
+
 const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
   const { freeFormPoints: points, setFreeFormPoints: setPoints } =
     useAppContext();
   const [containerData, setContainerData] = useState<DOMRect>();
-  const [drag, setDrag] = useState<Point | undefined>();
   const freeFormRef = useRef<HTMLDivElement>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const hLine = useRef<HTMLDivElement>(null);
@@ -65,11 +81,11 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
 
   function handleLines(ev: React.MouseEvent<HTMLDivElement>) {
     if (hLine.current && vLine.current && points.length > 0) {
-      if (ev.shiftKey) {
+      if (ev.shiftKey && isInBounds(ev.clientX, ev.clientY, containerData)) {
         const point = calculatePoint(ev.clientX, ev.clientY, containerData);
 
         if (point) {
-          const [dx, dy, prevPoint] = calculateDeltas(point, ev.altKey, points);
+          let [dx, dy, prevPoint] = calculateDeltas(point, ev.altKey, points);
 
           if (dx < dy) {
             hLine.current.classList.remove("hidden");
@@ -107,9 +123,7 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
     if (!entries.length || entries.length > 1) {
       console.error("FreeForm Resize Observer is observing invalid elements.");
     } else {
-      const mainGroup = (entries[0].target as SVGSVGElement).getElementById(
-        "mainGroup"
-      );
+      const mainGroup = document.getElementById("mainGroup");
       const freeForm = document.getElementById(
         freeFormId
       ) as HTMLDivElement | null;
@@ -126,16 +140,14 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
       // Initialise resize observer
       resizeObserverRef.current = new ResizeObserver(handleResize);
     } else {
-      // Main group shouldn't be removed from the DOM while we are here,
-      // but just in case we "reset" the resize observer to prevent
-      // memory leaks.
+      // Reset observer, just in case
       resizeObserverRef.current.disconnect();
     }
 
     if (svgRef.current && node) {
       const mainGroup = svgRef.current.getElementById("mainGroup");
       if (mainGroup) {
-        resizeObserverRef.current.observe(svgRef.current);
+        resizeObserverRef.current.observe(document.body);
 
         // We are going to copy the main group's bounding box
         const domRect = mainGroup.getBoundingClientRect();
@@ -172,6 +184,9 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
     let x = ev.clientX;
     let y = ev.clientY;
 
+    // Ensure point is whithin boundaries
+    if (!isInBounds(x, y, containerData)) return false;
+
     const point = calculatePoint(x, y, containerData);
 
     if (point) {
@@ -188,6 +203,30 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
     }
   }
 
+  // Moves the selected point when a drop event is fired
+  function movePoint(ev: React.DragEvent<HTMLDivElement>) {
+    ev.preventDefault();
+
+    const indexStr = ev.dataTransfer.getData("text/plain");
+    const index = parseInt(indexStr, 10);
+
+    if (!isNaN(index)) {
+      const newPoint = calculatePoint(ev.clientX, ev.clientY, containerData);
+
+      if (newPoint) {
+        const newPoints = [...points];
+        newPoints[index] = newPoint;
+
+        setPoints(newPoints);
+      }
+    }
+  }
+
+  // We just need to prevent the default event for dragOver/dragEnter to allow drag/drop
+  function allowDrag(ev: React.DragEvent<HTMLDivElement>) {
+    ev.preventDefault();
+  }
+
   return (
     <div
       ref={freeFormRefCallback}
@@ -195,6 +234,9 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
       onClick={addPoint}
       onMouseMove={handleLines}
       id={freeFormId}
+      onDrop={movePoint}
+      onDragEnter={allowDrag}
+      onDragOver={allowDrag}
     >
       <div
         className="hidden absolute w-full h-1 freeFormLine freeFormLineH z-40"
@@ -207,6 +249,9 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
       <div
         className="relative w-full h-full bg-gray-500/40"
         ref={freeFormRef}
+        onDrop={movePoint}
+        onDragEnter={allowDrag}
+        onDragOver={allowDrag}
       ></div>
       {points.map(({ x, y }, i) => (
         <div
@@ -218,31 +263,12 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
           }}
           className="absolute rounded-full w-8 h-8 bg-indigo-500 hover:cursor-move"
           onDragStart={(ev) =>
-            // https://bugs.webkit.org/show_bug.cgi?id=265857
-            // WebKit GTK needs drag transfer data for the drag event to fire.
-            ev.dataTransfer.setData("text/plain", `point-${i}`)
+            // Store index in drag event data
+            ev.dataTransfer.setData("text/plain", i.toString(10))
           }
-          onDrag={(ev) => {
-            // On Drag End reports incorrect values so we track the drag throughout and use the last value.
-            ev.preventDefault();
-
-            // On windows these coordinates jump to zero when dragging sharply.
-            // Not sure if it's a virtual box problem or webview2.
-            if (ev.clientX !== 0 && ev.clientY !== 0)
-              setDrag(calculatePoint(ev.clientX, ev.clientY, containerData));
-          }}
-          onDragEnd={(ev) => {
-            ev.preventDefault();
-            // If we stored a valid point, replace the current point
-            if (drag) {
-              const newPoints = [...points];
-              newPoints[i] = drag;
-
-              setPoints(newPoints);
-            }
-
-            setDrag(undefined);
-          }}
+          onDragEnter={allowDrag}
+          onDragOver={allowDrag}
+          onDrop={movePoint}
           onContextMenu={(ev) => {
             // Right click to delete
             ev.preventDefault();
