@@ -180,7 +180,10 @@ pub async fn render_svg(
 
                     if let Some(mut img_buf) = target_image {
                         render(&tree, Transform::default(), &mut img_buf.as_mut());
-                        if let Some(path) = FileDialogBuilder::new().save_file() {
+                        if let Some(path) = FileDialogBuilder::new()
+                            .add_filter("Portable Network Graphics (PNG)", &["png"])
+                            .save_file()
+                        {
                             match img_buf.save_png(path.as_os_str()) {
                                 Ok(_) => {
                                     ret.status = ResultStatus::Ok;

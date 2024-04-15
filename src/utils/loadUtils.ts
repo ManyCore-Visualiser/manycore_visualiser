@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
 
 async function openFilePickerDialog(ctx: AppState) {
   const file = await open({
-    filters: [{ name: "", extensions: ["xml"] }],
+    filters: [{ name: "ManyCore XML", extensions: ["xml"] }],
   });
 
   if (file) {
