@@ -4,6 +4,12 @@ var motion = false;
 // Initial pan coordinate
 const from = { x: 0, y: 0 };
 
+export type MatrixT = {
+  scale: number;
+  tx: number;
+  ty: number;
+};
+
 // Current group transform matrix
 // | a c tx |
 // | b d ty |
@@ -13,7 +19,7 @@ const from = { x: 0, y: 0 };
 // https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/matrix
 // In practice we use matrix3d: https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/matrix3d
 // as it tricks the webview into using the GPU to render the animation. Logic is the same.
-const matrix = {
+const matrix: MatrixT = {
   scale: 1,
   tx: 0,
   ty: 0,
@@ -139,4 +145,34 @@ function cleanUpPanZoom(graphParent: HTMLDivElement) {
   graphParent.removeEventListener("wheel", zoom);
 }
 
-export { registerPanZoom, cleanUpPanZoom };
+/**
+ * Resets the current matrix and returns the matrix prior to modification.
+ * @param svg The target SVG element.
+ * @returns The untouched matrix.
+ */
+function resetMatrix(svg: SVGSVGElement): MatrixT {
+  const matrixBackup = { ...matrix };
+
+  matrix.scale = 1;
+  matrix.ty = 0;
+  matrix.tx = 0;
+
+  applyMatrix(svg);
+
+  return matrixBackup;
+}
+
+/**
+ * Restores the provided matrix by replacing the current one.
+ * @param oldMatrix The matrix to be restored.
+ * @param svg The target SVG element.
+ */
+function restoreMatrix(oldMatrix: MatrixT, svg: SVGSVGElement) {
+  matrix.scale = oldMatrix.scale;
+  matrix.tx = oldMatrix.tx;
+  matrix.ty = oldMatrix.ty;
+
+  applyMatrix(svg);
+}
+
+export { registerPanZoom, cleanUpPanZoom, resetMatrix, restoreMatrix };

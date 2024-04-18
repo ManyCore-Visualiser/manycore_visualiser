@@ -6,6 +6,7 @@
   will-change: transform;
   transform-origin: top left;
   height: 100%;
+  max-width: 100%;
 }
 
 #processingGroup path:hover {

@@ -45,6 +45,7 @@ export type AppState = {
   freeFormPoints: Point[];
   setFreeFormPoints: React.Dispatch<React.SetStateAction<Point[]>>;
   graphParentRef: React.MutableRefObject<HTMLDivElement | null>;
+  settingsRef: React.MutableRefObject<HTMLDivElement | null>;
 };
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -65,6 +66,7 @@ function App() {
   const [freeFormPoints, setFreeFormPoints] = useState<Point[]>([]);
   const svgRef = useRef<SVGSVGElement>();
   const graphParentRef = useRef<HTMLDivElement | null>(null);
+  const settingsRef = useRef<HTMLDivElement | null>(null);
   const [configurableBaseConfiguration, setConfigurableBaseConfiguration] =
     useState<ConfigurableBaseConfigurationT | undefined>(undefined);
 
@@ -97,6 +99,7 @@ function App() {
         graphParentRef,
         configurableBaseConfiguration,
         setConfigurableBaseConfiguration,
+        settingsRef,
       }}
     >
       <HoverInfo />

@@ -95,6 +95,7 @@ const Settings: React.FunctionComponent = () => {
 
   return (
     <div
+      ref={ctx.settingsRef}
       className={`fixed z-20 bg-black text-white flex flex-col h-screen transition-transform duration-200 ease-in-out justify-between w-96 select-none ${
         ctx.settings ? "translate-x-0" : "-translate-x-full"
       }`}

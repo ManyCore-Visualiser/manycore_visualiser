@@ -1,6 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppContext } from "../../App";
-import { cleanUpPanZoom, registerPanZoom } from "../../utils/svgPanZoom";
+import {
+  MatrixT,
+  cleanUpPanZoom,
+  registerPanZoom,
+  resetMatrix,
+  restoreMatrix,
+} from "../../utils/svgPanZoom";
 import "./style.css";
 import { registerHoveringEvents } from "./hovering";
 import FreeForm from "./FreeForm";
@@ -9,6 +15,7 @@ import toast from "react-hot-toast";
 const Graph: React.FunctionComponent = () => {
   const ctx = useAppContext();
   const parser = new DOMParser();
+  const [oldMatrix, setOldMatrix] = useState<MatrixT | undefined>(undefined);
 
   // Render SVG when updated
   useEffect(() => {
@@ -71,6 +78,41 @@ const Graph: React.FunctionComponent = () => {
       ctx.svgRef.current.setAttribute("viewBox", ctx.svgViewbox);
     }
   }, [ctx.svgViewbox]);
+
+  // Move SVG when settings panel is open
+  useEffect(() => {
+    if (
+      ctx.graphParentRef.current &&
+      ctx.settingsRef.current &&
+      ctx.svgRef.current
+    ) {
+      if (ctx.settings) {
+        // If settings are open we want to reduce the size of the
+        // graph parent to the available remaining window size.
+        // We also resent the SVG matrix to maximise the visible svg part.
+        // We add some padding to the parent to avoid the SVG border
+        // overlapping with the window border.
+        const settingsWidth = ctx.settingsRef.current.clientWidth;
+
+        ctx.graphParentRef.current.classList.add("px-1");
+        ctx.graphParentRef.current.classList.remove("w-full");
+        ctx.graphParentRef.current.style.marginLeft = `${settingsWidth}px`;
+        ctx.graphParentRef.current.style.width = `calc(100% - ${settingsWidth}px)`;
+
+        setOldMatrix(resetMatrix(ctx.svgRef.current));
+      } else {
+        ctx.graphParentRef.current.style.marginLeft = "";
+        ctx.graphParentRef.current.style.width = "";
+        ctx.graphParentRef.current.classList.remove("px-1");
+        ctx.graphParentRef.current.classList.add("w-full");
+
+        if (oldMatrix) {
+          restoreMatrix(oldMatrix, ctx.svgRef.current);
+          setOldMatrix(undefined);
+        }
+      }
+    }
+  }, [ctx.settings]);
 
   return (
     <div className="h-full w-full py-4 graph-parent" ref={ctx.graphParentRef}>
