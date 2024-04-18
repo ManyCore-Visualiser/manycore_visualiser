@@ -1,6 +1,6 @@
 use chrono::Utc;
 use manycore_parser::ManycoreSystem;
-use manycore_svg::{Configuration, CoordinateT, UpdateResult, SVG};
+use manycore_svg::{BaseConfiguration, Configuration, CoordinateT, UpdateResult, SVG};
 use resvg::{
     render,
     tiny_skia::Pixmap,
@@ -93,7 +93,11 @@ pub fn get_svg(state: tauri::State<State>) -> SVGResult {
 }
 
 #[tauri::command]
-pub fn update_svg(mut configuration: Configuration, state: tauri::State<State>) -> SVGUpdateResult {
+pub fn update_svg(
+    mut configuration: Configuration,
+    base_configuration: BaseConfiguration,
+    state: tauri::State<State>,
+) -> SVGUpdateResult {
     let mut ret = SVGUpdateResult {
         status: ResultStatus::Error,
         message: String::from("Something went wrong, please try again."),
@@ -102,7 +106,11 @@ pub fn update_svg(mut configuration: Configuration, state: tauri::State<State>) 
 
     if let (Ok(mut manycore_mutex), Ok(mut svg_mutex)) = (state.manycore.lock(), state.svg.lock()) {
         if let (Some(manycore), Some(svg)) = (&mut *manycore_mutex, &mut *svg_mutex) {
-            match svg.update_configurable_information(manycore, &mut configuration) {
+            match svg.update_configurable_information(
+                manycore,
+                &mut configuration,
+                &base_configuration,
+            ) {
                 Ok(update) => {
                     ret.status = ResultStatus::Ok;
                     ret.message = String::from("Successfully generated SVG");

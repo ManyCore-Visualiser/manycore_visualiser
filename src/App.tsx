@@ -5,7 +5,10 @@ import FileLoader from "./components/FileLoader";
 import Graph from "./components/Graph";
 import Loading from "./components/Loading";
 import Settings from "./components/Settings";
-import { ProcessedAttributesT } from "./types/configuration";
+import {
+  ConfigurableBaseConfigurationT,
+  ProcessedAttributesT,
+} from "./types/configuration";
 import type { SVGT, SVGUpdateT } from "./types/svg";
 import { TransformT } from "./types/transform";
 import HoverInfo from "./components/HoverInfo";
@@ -30,6 +33,10 @@ export type AppState = {
   attributes: ProcessedAttributesT | undefined;
   setAttributes: React.Dispatch<
     React.SetStateAction<ProcessedAttributesT | undefined>
+  >;
+  configurableBaseConfiguration: ConfigurableBaseConfigurationT | undefined;
+  setConfigurableBaseConfiguration: React.Dispatch<
+    React.SetStateAction<ConfigurableBaseConfigurationT | undefined>
   >;
   editing: boolean;
   setEditing: React.Dispatch<React.SetStateAction<boolean>>;
@@ -58,6 +65,8 @@ function App() {
   const [freeFormPoints, setFreeFormPoints] = useState<Point[]>([]);
   const svgRef = useRef<SVGSVGElement>();
   const graphParentRef = useRef<HTMLDivElement | null>(null);
+  const [configurableBaseConfiguration, setConfigurableBaseConfiguration] =
+    useState<ConfigurableBaseConfigurationT | undefined>(undefined);
 
   return (
     <AppStateContext.Provider
@@ -86,6 +95,8 @@ function App() {
         freeFormPoints,
         setFreeFormPoints,
         graphParentRef,
+        configurableBaseConfiguration,
+        setConfigurableBaseConfiguration,
       }}
     >
       <HoverInfo />

@@ -1,0 +1,10 @@
+.slider {
+  @apply appearance-none w-full mx-[5%] rounded-full h-2 bg-indigo-500;
+
+  /* Saturate backgrround depending on value */
+  filter: saturate(calc(((var(--value) - var(--min)) / var(--range)) * 100%));
+}
+
+.slider::-webkit-slider-thumb {
+  @apply appearance-none w-4 h-4 bg-indigo-500 rounded-full border-2 border-solid border-white;
+}

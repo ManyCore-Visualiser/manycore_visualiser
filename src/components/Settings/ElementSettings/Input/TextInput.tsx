@@ -2,10 +2,10 @@ import { useRef, useState } from "react";
 import {
   ConfigurationVariantsT,
   ProcessedAttributesGroupContentT,
-} from "../../../types/configuration";
-import { DisplayMapDispatchActionT } from "../../../types/displayMap";
-import TwotoneTextFields from "../../icons/TwotoneTextFields";
-import DisplayModal from "../DisplayModal";
+} from "../../../../types/configuration";
+import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
+import TwotoneTextFields from "../../../icons/TwotoneTextFields";
+import DisplayModal from "../../DisplayModal";
 
 type TextInputProps = {
   attribute: string;

@@ -3,10 +3,10 @@ import {
   AttributeVariantsT,
   ConfigurationVariantsT,
   ProcessedAttributesGroupContentT,
-} from "../../../types/configuration";
-import DisplayModal from "../DisplayModal";
-import { DisplayMapDispatchActionT } from "../../../types/displayMap";
-import TwotoneTextFields from "../../icons/TwotoneTextFields";
+} from "../../../../types/configuration";
+import DisplayModal from "../../DisplayModal";
+import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
+import TwotoneTextFields from "../../../icons/TwotoneTextFields";
 import ColourBoundaries from "./ColourBoundaries";
 
 type NumberInputProps = {

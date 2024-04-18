@@ -14,6 +14,8 @@ import "./colour.css";
 import "./number.css";
 import "./select.css";
 import toast from "react-hot-toast";
+import BaseSettings from "./BaseSettings";
+import generateBaseConfig from "./BaseSettings/generateBaseConfig";
 
 const Settings: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -33,7 +35,17 @@ const Settings: React.FunctionComponent = () => {
     ((ev) => {
       ev.preventDefault();
 
-      if (formRef.current && ctx.attributes) {
+      if (
+        formRef.current &&
+        ctx.attributes &&
+        ctx.configurableBaseConfiguration
+      ) {
+        const baseConfiguration = generateBaseConfig(
+          formRef.current,
+          "SVG",
+          ctx.configurableBaseConfiguration
+        );
+
         const coreConfig = generateConfig(
           formRef.current,
           "Cores",
@@ -68,14 +80,13 @@ const Settings: React.FunctionComponent = () => {
         }
 
         updateSVG(
+          baseConfiguration,
           {
             coreConfig,
             routerConfig,
             channelConfig,
           },
-          ctx.setSVGStyle,
-          ctx.setSVGInformation,
-          ctx.setSVGViewbox
+          ctx
         );
       }
     }) as React.FormEventHandler<HTMLFormElement>,
@@ -92,33 +103,41 @@ const Settings: React.FunctionComponent = () => {
         <h3 className="block text-indigo-400 text-2xl">
           Visualisation Settings
         </h3>
-        {ctx.attributes && (
-          <form ref={formRef} onSubmit={handleSubmit}>
-            <ElementSettings
-              attributes={ctx.attributes.core}
-              variant="Cores"
-              dispatchDisplayMap={dispatchDisplayMap}
-              fillSelected={coreFillSelected}
-              setFillSelected={setCoreFillSelected}
+        <form ref={formRef} onSubmit={handleSubmit}>
+          {ctx.configurableBaseConfiguration && (
+            <BaseSettings
+              variant="SVG"
+              configurableBaseConfiguration={ctx.configurableBaseConfiguration}
             />
-            <ElementSettings
-              dispatchDisplayMap={dispatchDisplayMap}
-              attributes={ctx.attributes.router}
-              variant="Routers"
-              fillSelected={routerFillSelected}
-              setFillSelected={setRouterFillSelected}
-            />
-            <ElementSettings
-              dispatchDisplayMap={dispatchDisplayMap}
-              attributes={ctx.attributes.channel}
-              variant="Channels"
-              fillSelected={routerFillSelected}
-              setFillSelected={setRouterFillSelected}
-              algorithms={ctx.attributes.algorithms}
-              observedAlgorithm={ctx.attributes.observedAlgorithm}
-            />
-          </form>
-        )}
+          )}
+          {ctx.attributes && (
+            <>
+              <ElementSettings
+                attributes={ctx.attributes.core}
+                variant="Cores"
+                dispatchDisplayMap={dispatchDisplayMap}
+                fillSelected={coreFillSelected}
+                setFillSelected={setCoreFillSelected}
+              />
+              <ElementSettings
+                dispatchDisplayMap={dispatchDisplayMap}
+                attributes={ctx.attributes.router}
+                variant="Routers"
+                fillSelected={routerFillSelected}
+                setFillSelected={setRouterFillSelected}
+              />
+              <ElementSettings
+                dispatchDisplayMap={dispatchDisplayMap}
+                attributes={ctx.attributes.channel}
+                variant="Channels"
+                fillSelected={routerFillSelected}
+                setFillSelected={setRouterFillSelected}
+                algorithms={ctx.attributes.algorithms}
+                observedAlgorithm={ctx.attributes.observedAlgorithm}
+              />
+            </>
+          )}
+        </form>
       </div>
       <div className="w-full grid grid-cols-2 grid-rows-2 gap-2 px-2 pb-2 pt-4">
         <SettingsButton

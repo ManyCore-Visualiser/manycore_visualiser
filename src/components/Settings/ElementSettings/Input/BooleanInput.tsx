@@ -1,7 +1,7 @@
 import {
   ConfigurationVariantsT,
   ProcessedAttributesGroupContentT,
-} from "../../../types/configuration";
+} from "../../../../types/configuration";
 
 type BooleanInputProps = {
   attribute: string;

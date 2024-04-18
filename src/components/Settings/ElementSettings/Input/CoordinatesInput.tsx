@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   ConfigurationVariantsT,
   ProcessedAttributesGroupContentT,
-} from "../../../types/configuration";
+} from "../../../../types/configuration";
 
 type CoordinatesInputProps = {
   attribute: string;

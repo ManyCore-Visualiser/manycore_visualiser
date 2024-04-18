@@ -14,6 +14,7 @@ export interface SVGUpdateResponseT extends BaseResponseT {
     style: string;
     informationGroup: string;
     viewBox: string;
+    svg?: string;
   };
 }
 

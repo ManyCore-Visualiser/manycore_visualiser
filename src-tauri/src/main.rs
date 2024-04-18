@@ -45,6 +45,7 @@ fn main() {
             svg::update_svg,
             svg::render_svg,
             configuration::get_attributes,
+            configuration::get_base_configuration,
             info::get_info,
             edit::initiate_edit
         ])

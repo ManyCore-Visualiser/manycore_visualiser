@@ -1,4 +1,4 @@
-import { ConfigurationVariantsT } from "../../../types/configuration";
+import { ConfigurationVariantsT } from "../../../../types/configuration";
 
 type ColourBoundariesProps = {
   attribute: string;

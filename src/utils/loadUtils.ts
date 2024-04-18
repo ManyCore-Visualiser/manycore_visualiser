@@ -1,19 +1,18 @@
 import { invoke } from "@tauri-apps/api";
-import {
-  SVGResponseT,
-  SVGT,
-  SVGUpdateResponseT,
-  SVGUpdateT,
-} from "../types/svg";
+import { open } from "@tauri-apps/api/dialog";
+import React from "react";
+import toast from "react-hot-toast";
 import { AppState } from "../App";
 import { BaseResponseT } from "../types/baseResponse";
-import { open } from "@tauri-apps/api/dialog";
 import {
   AttributesResponseT,
-  Configuration,
+  BaseConfigurationResponseT,
+  BaseConfigurationT,
+  ConfigurableBaseConfigurationT,
+  ConfigurationT,
   ProcessedAttributesT,
 } from "../types/configuration";
-import toast from "react-hot-toast";
+import { SVGResponseT, SVGT, SVGUpdateResponseT } from "../types/svg";
 
 async function openFilePickerDialog(ctx: AppState) {
   const file = await open({
@@ -30,6 +29,7 @@ function startProcessing(filePath: string, ctx: AppState) {
   ctx.setTransform(undefined);
   invoke<BaseResponseT>("parse", { filePath }).then((res) => {
     if (res.status === "ok") {
+      getBaseConfiguration(ctx.setConfigurableBaseConfiguration);
       getSVG(ctx.setSVG);
       getAttributes(ctx.setAttributes);
 
@@ -38,6 +38,17 @@ function startProcessing(filePath: string, ctx: AppState) {
       toast.error(res.message, { duration: 10000 });
     }
     ctx.setProcessingInput(false);
+  });
+}
+
+function getBaseConfiguration(
+  setConfigurableBaseConfiguration: React.Dispatch<
+    React.SetStateAction<ConfigurableBaseConfigurationT | undefined>
+  >
+) {
+  invoke<BaseConfigurationResponseT>("get_base_configuration").then((res) => {
+    // This can only succeed
+    setConfigurableBaseConfiguration(res.baseConfiguration);
   });
 }
 
@@ -54,16 +65,30 @@ function getSVG(setSVG: React.Dispatch<React.SetStateAction<SVGT>>) {
 }
 
 function updateSVG(
-  configuration: Configuration,
-  setSVGStyle: React.Dispatch<React.SetStateAction<SVGUpdateT>>,
-  setSVGInformation: React.Dispatch<React.SetStateAction<SVGUpdateT>>,
-  setSVGViewbox: React.Dispatch<React.SetStateAction<SVGUpdateT>>
+  baseConfiguration: BaseConfigurationT,
+  configuration: ConfigurationT,
+  ctx: AppState
 ) {
-  invoke<SVGUpdateResponseT>("update_svg", { configuration }).then((res) => {
-    if (res.status === "ok" && res.update) {
-      setSVGStyle(res.update.style);
-      setSVGInformation(res.update.informationGroup);
-      setSVGViewbox(res.update.viewBox);
+  invoke<SVGUpdateResponseT>("update_svg", {
+    configuration,
+    baseConfiguration,
+  }).then((res) => {
+    if (res.status === "ok") {
+      if (res.update) {
+        // Was this a full update?
+        if (res.update.svg) {
+          // If it was, replace whole SVG
+          ctx.setSVG({
+            content: res.update.svg,
+            timestamp: new Date().toUTCString(),
+          });
+        } else {
+          // If it wasn't just plug in the new data
+          ctx.setSVGStyle(res.update.style);
+          ctx.setSVGInformation(res.update.informationGroup);
+          ctx.setSVGViewbox(res.update.viewBox);
+        }
+      }
 
       toast.success(res.message);
     } else {
@@ -118,4 +143,4 @@ function editSystem(ctx: AppState) {
     });
 }
 
-export { openFilePickerDialog, startProcessing, getSVG, updateSVG, editSystem };
+export { editSystem, getSVG, openFilePickerDialog, startProcessing, updateSVG };

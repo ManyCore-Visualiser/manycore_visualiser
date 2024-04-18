@@ -2,8 +2,8 @@ import {
   ColourConfig,
   ConfigurationVariantsT,
   CoordinatesHTMLSelectElement,
-  ItemArgumentConfiguration,
-  ItemConfiguration,
+  ItemArgumentConfigurationT,
+  ItemConfigurationT,
   LoadHTMLSelectElement,
   ProcessedAttributesGroupT,
 } from "../../../types/configuration";
@@ -15,7 +15,7 @@ function generateText(
   key: string,
   display: string,
   displayMap: DisplayMapT
-): ItemArgumentConfiguration | undefined {
+): ItemArgumentConfigurationT | undefined {
   const elem = form[`${variant}-${key}`] as HTMLInputElement | undefined;
 
   // Ensure element is in DOM and is checked
@@ -53,7 +53,7 @@ function generateNumber(
   key: string,
   display: string,
   displayMap: DisplayMapT
-): ItemArgumentConfiguration | undefined {
+): ItemArgumentConfigurationT | undefined {
   const elem = form[`${variant}-${key}`] as HTMLInputElement | undefined;
 
   // Ensure element is in DOM and is checked
@@ -67,7 +67,7 @@ function generateNumber(
         return generateText(form, variant, key, display, displayMap);
       }
 
-      let attrConf: ItemArgumentConfiguration;
+      let attrConf: ItemArgumentConfigurationT;
       const colourConf = generateColours(form, variant, key);
 
       if (select.value === "Fill") {
@@ -92,7 +92,7 @@ function generateBoolean(
   form: HTMLFormElement,
   variant: ConfigurationVariantsT,
   key: string
-): ItemArgumentConfiguration | undefined {
+): ItemArgumentConfigurationT | undefined {
   const elem = form[`${variant}-${key}`] as HTMLInputElement | undefined;
 
   // Ensure element is in DOM and is checked
@@ -107,7 +107,7 @@ function generateCoordinates(
   form: HTMLFormElement,
   variant: ConfigurationVariantsT,
   key: string
-): ItemArgumentConfiguration | undefined {
+): ItemArgumentConfigurationT | undefined {
   const elem = form[`${variant}-${key}`] as HTMLInputElement | undefined;
 
   // Ensure element is in DOM and is checked
@@ -130,7 +130,7 @@ function generateRouting(
   key: string,
   display: string,
   displayMap: DisplayMapT
-): ItemArgumentConfiguration | undefined {
+): ItemArgumentConfigurationT | undefined {
   const algorithmSelect = form[`${variant}-${key}-algo-select`] as
     | HTMLSelectElement
     | undefined;
@@ -159,11 +159,11 @@ export default function generateConfig(
   variant: ConfigurationVariantsT,
   attributes: ProcessedAttributesGroupT,
   displayMap: DisplayMapT
-): ItemConfiguration {
-  const config: ItemConfiguration = {};
+): ItemConfigurationT {
+  const config: ItemConfigurationT = {};
 
   Object.entries(attributes).forEach(([key, { type, display }]) => {
-    let attrConf: ItemArgumentConfiguration | undefined = undefined;
+    let attrConf: ItemArgumentConfigurationT | undefined = undefined;
 
     if (type === "boolean") attrConf = generateBoolean(form, variant, key);
     else if (type === "coordinates")

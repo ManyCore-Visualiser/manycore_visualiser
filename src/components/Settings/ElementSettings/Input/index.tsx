@@ -1,8 +1,8 @@
 import type {
   ConfigurationVariantsT,
   ProcessedAttributesGroupContentT,
-} from "../../../types/configuration";
-import { DisplayMapDispatchActionT } from "../../../types/displayMap";
+} from "../../../../types/configuration";
+import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
 import BooleanInput from "./BooleanInput";
 import CoordinatesInput from "./CoordinatesInput";
 import NumberInput from "./NumberInput";
@@ -77,8 +77,6 @@ const Input: React.FunctionComponent<InputT> = ({
         </>
       );
   }
-
-  // Unknown algorithm
 
   return <></>;
 };

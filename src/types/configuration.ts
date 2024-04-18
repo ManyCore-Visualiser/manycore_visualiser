@@ -1,6 +1,6 @@
 import { BaseResponseT } from "./baseResponse";
 
-export type ConfigurationVariantsT = "Cores" | "Routers" | "Channels";
+export type ConfigurationVariantsT = "Cores" | "Routers" | "Channels" | "SVG";
 
 type AttributeTypeT = "number" | "text" | "boolean" | "routing" | "coordinates";
 export type AttributeVariantsT = "Text" | "ColouredText" | "Fill";
@@ -31,8 +31,8 @@ export type ColourConfig = {
   colours: [string, string, string, string];
 };
 
-export type ItemConfiguration = {
-  [key: string]: ItemArgumentConfiguration;
+export type ItemConfigurationT = {
+  [key: string]: ItemArgumentConfigurationT;
 };
 
 type CoordinatesValuesT = "T" | "B";
@@ -43,7 +43,7 @@ type LoadConfigurationT = "Percentage" | "Fraction";
 export interface LoadHTMLSelectElement extends HTMLSelectElement {
   value: LoadConfigurationT;
 }
-export type ItemArgumentConfiguration =
+export type ItemArgumentConfigurationT =
   | { Text: string }
   | { Fill: ColourConfig }
   | { ColouredText: [string, ColourConfig] }
@@ -58,8 +58,29 @@ export type ItemArgumentConfiguration =
       };
     };
 
-export type Configuration = {
-  coreConfig: ItemConfiguration;
-  routerConfig: ItemConfiguration;
-  channelConfig: ItemConfiguration;
+export type ConfigurationT = {
+  coreConfig: ItemConfigurationT;
+  routerConfig: ItemConfigurationT;
+  channelConfig: ItemConfigurationT;
+};
+
+export type ConfigurableBaseConfigurationAttributeT = {
+  type: "FontSize";
+  display: string;
+  default: number;
+  min: number;
+  max: number;
+};
+export type ConfigurableBaseConfigurationT = {
+  [key: string]: ConfigurableBaseConfigurationAttributeT;
+};
+
+export interface BaseConfigurationResponseT extends BaseResponseT {
+  baseConfiguration: ConfigurableBaseConfigurationT;
+}
+
+export type BaseConfigurationItemT = number;
+
+export type BaseConfigurationT = {
+  [key: string]: BaseConfigurationItemT;
 };

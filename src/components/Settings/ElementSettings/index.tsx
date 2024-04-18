@@ -4,7 +4,7 @@ import {
   ProcessedAttributesGroupT,
 } from "../../../types/configuration";
 import { DisplayMapDispatchActionT } from "../../../types/displayMap";
-import Input from "../Input";
+import Input from "./Input";
 
 type ElementSettingsT = {
   attributes: ProcessedAttributesGroupT;
