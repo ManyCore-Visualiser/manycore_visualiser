@@ -1,8 +1,7 @@
 import { useRef, useState } from "react";
-import type {
-  ConfigurationVariantsT,
-  ProcessedAttributesGroupContentT,
-} from "../../../../types/configuration";
+import { UseFormRegister } from "react-hook-form";
+import { FieldNameT, FormValues } from "../..";
+import type { ConfigurationVariantsT } from "../../../../types/configuration";
 import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
 import TwotoneTextFields from "../../../icons/TwotoneTextFields";
 import DisplayModal from "../../DisplayModal";
@@ -13,8 +12,10 @@ type RoutingInputProps = {
   algorithms: string[];
   variant: ConfigurationVariantsT;
   attribute: string;
-  info: ProcessedAttributesGroupContentT;
+  display: string;
   dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>;
+  index: number;
+  register: UseFormRegister<FormValues>;
 };
 
 const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
@@ -22,11 +23,16 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
   algorithms,
   variant,
   attribute,
-  info,
+  display,
   dispatchDisplayMap,
+  index,
+  register,
 }) => {
   const [checked, setChecked] = useState(false);
   const none = "None";
+  const algoName: FieldNameT = `${variant}.${index}.${attribute}-algo-select`;
+  const loadName: FieldNameT = `${variant}.${index}.${attribute}-load`;
+  const loadSelectName: FieldNameT = `${loadName}-select`;
 
   const modalRef = useRef<HTMLDialogElement>(null);
 
@@ -40,20 +46,16 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
     <>
       <div className="px-1">
         <div className="flex items-center py-2 text-lg">
-          <label
-            htmlFor={`${variant}-${attribute}-algo-select`}
-            className="whitespace-pre-wrap"
-          >
+          <label htmlFor={algoName} className="whitespace-pre-wrap">
             Routing algorithm{" "}
           </label>
           <div className="content dropdown-wrapper">
             <select
-              name={`${variant}-${attribute}-algo-select`}
-              id={`${variant}-${attribute}-algo-select`}
               disabled={!algorithms}
               className="appearance-none dropdown"
-              defaultValue={undefined}
-              onChange={(ev) => setChecked(ev.target.value !== none)}
+              {...register(algoName, {
+                onChange: (ev) => setChecked(ev.target.value !== none),
+              })}
             >
               <option>{none}</option>
               {algorithms.map((algorithm) => (
@@ -69,13 +71,12 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
         {checked && (
           <div className="flex flex-col text-lg py-2">
             <div className="flex flex-row items-center pb-2">
-              <span className="whitespace-pre-wrap">Loads as </span>
+              <span className="whitespace-pre-wrap">{display} as </span>
               <div className="content dropdown-wrapper">
                 <select
-                  name={`${variant}-${attribute}-load-select`}
-                  id={`${variant}-${attribute}-load-select`}
                   className="appearance-none dropdown"
                   defaultValue="percentage"
+                  {...register(loadSelectName)}
                 >
                   <option value="Percentage">Percentage</option>
                   <option value="Fraction">Fraction</option>
@@ -85,10 +86,7 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
                 <TwotoneTextFields width="1em" height="1em" className="ml-4" />
               </button>
             </div>
-            <ColourBoundaries
-              attribute={`${attribute}-load`}
-              variant={variant}
-            />
+            <ColourBoundaries baseName={loadName} register={register} />
             <span className="text-zinc-300 font-normal text-justify">
               The above boundaries are w.r.t 100% of bandwidth usage. Use values
               between 0-100 to configure each colour step.
@@ -99,7 +97,7 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
       <DisplayModal
         variant={variant}
         mref={modalRef}
-        attributeDisplay={info.display}
+        attributeDisplay={display}
         dispatchDisplayMap={dispatchDisplayMap}
         attribute={attribute}
       />

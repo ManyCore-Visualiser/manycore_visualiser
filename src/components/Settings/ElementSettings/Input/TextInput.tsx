@@ -1,29 +1,33 @@
 import { useRef, useState } from "react";
-import {
-  ConfigurationVariantsT,
-  ProcessedAttributesGroupContentT,
-} from "../../../../types/configuration";
+import { UseFormRegister } from "react-hook-form";
+import { FieldNameT, FormValues } from "../..";
+import { ConfigurationVariantsT } from "../../../../types/configuration";
 import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
 import TwotoneTextFields from "../../../icons/TwotoneTextFields";
 import DisplayModal from "../../DisplayModal";
 
 type TextInputProps = {
   attribute: string;
-  info: ProcessedAttributesGroupContentT;
+  display: string;
   variant: ConfigurationVariantsT;
   dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>;
   fillSelected: string | undefined;
   setFillSelected: React.Dispatch<React.SetStateAction<string | undefined>>;
+  index: number;
+  register: UseFormRegister<FormValues>;
 };
 
 const TextInput: React.FunctionComponent<TextInputProps> = ({
   attribute,
-  info,
+  display,
   variant,
   dispatchDisplayMap,
+  index,
+  register,
 }) => {
   const [checked, setChecked] = useState(false);
   const modalRef = useRef<HTMLDialogElement>(null);
+  const name: FieldNameT = `${variant}.${index}.${attribute}`;
 
   function showModal() {
     if (modalRef.current) {
@@ -37,13 +41,14 @@ const TextInput: React.FunctionComponent<TextInputProps> = ({
         <div className="flex flex-row items-center">
           <div className="flex items-center checkbox-container">
             <input
-              id={`${variant}-${attribute}`}
               type="checkbox"
-              name={`${variant}-${attribute}`}
               className="checkbox"
-              onChange={(ev) => setChecked(ev.target.checked)}
+              id={name}
+              {...register(name, {
+                onChange: (ev) => setChecked(ev.target.checked),
+              })}
             ></input>
-            <label htmlFor={`${variant}-${attribute}`}>{info.display}</label>
+            <label htmlFor={name}>{display}</label>
           </div>
           {checked && (
             <button onClick={showModal} type="button">
@@ -55,7 +60,7 @@ const TextInput: React.FunctionComponent<TextInputProps> = ({
       <DisplayModal
         variant={variant}
         mref={modalRef}
-        attributeDisplay={info.display}
+        attributeDisplay={display}
         dispatchDisplayMap={dispatchDisplayMap}
         attribute={attribute}
       />

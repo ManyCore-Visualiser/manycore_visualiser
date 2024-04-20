@@ -1,14 +1,23 @@
-import { ConfigurableBaseConfigurationT } from "../../../types/configuration";
+import { UseFieldArrayReturn, UseFormRegister } from "react-hook-form";
+import { FormValues } from "..";
+import {
+  ConfigurableBaseConfigurationT,
+  ConfigurationVariantsT,
+} from "../../../types/configuration";
 import BaseSettingsInput from "./BaseSettingsInput";
 
 type BaseSettingsProps = {
-  variant: string;
+  variant: ConfigurationVariantsT;
   configurableBaseConfiguration: ConfigurableBaseConfigurationT;
+  register: UseFormRegister<FormValues>;
+  fieldsArray: UseFieldArrayReturn<FormValues, ConfigurationVariantsT>;
 };
 
 const BaseSettings: React.FunctionComponent<BaseSettingsProps> = ({
   variant,
   configurableBaseConfiguration,
+  register,
+  fieldsArray,
 }) => {
   return (
     <div className="flex flex-col mt-10">
@@ -18,12 +27,14 @@ const BaseSettings: React.FunctionComponent<BaseSettingsProps> = ({
       <p className="text-zinc-300 font-normal text-justify py-2">
         Note: Changing any of these settings will cause a full {variant} reload.
       </p>
-      {Object.keys(configurableBaseConfiguration).map((key) => (
+      {fieldsArray.fields.map((field, index) => (
         <BaseSettingsInput
-          key={key}
-          attribute={key}
+          key={field.id}
+          attribute={field.attribute}
           variant={variant}
-          specifics={configurableBaseConfiguration[key]}
+          specifics={configurableBaseConfiguration[field.attribute]}
+          index={index}
+          register={register}
         />
       ))}
     </div>
