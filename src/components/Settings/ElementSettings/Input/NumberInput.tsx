@@ -1,33 +1,40 @@
 import { useRef, useState } from "react";
+import { UseFormRegister } from "react-hook-form";
+import { FieldNameT, FormValues } from "../..";
 import {
   AttributeVariantsT,
   ConfigurationVariantsT,
-  ProcessedAttributesGroupContentT,
 } from "../../../../types/configuration";
-import DisplayModal from "../../DisplayModal";
 import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
 import TwotoneTextFields from "../../../icons/TwotoneTextFields";
+import DisplayModal from "../../DisplayModal";
 import ColourBoundaries from "./ColourBoundaries";
 
 type NumberInputProps = {
   attribute: string;
-  info: ProcessedAttributesGroupContentT;
+  display: string;
   variant: ConfigurationVariantsT;
   dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>;
   fillSelected: string | undefined;
   setFillSelected: React.Dispatch<React.SetStateAction<string | undefined>>;
+  index: number;
+  register: UseFormRegister<FormValues>;
 };
 
 const NumberInput: React.FunctionComponent<NumberInputProps> = ({
   attribute,
-  info,
+  display,
   variant,
   dispatchDisplayMap,
   fillSelected,
   setFillSelected,
+  index,
+  register,
 }) => {
   const [type, setType] = useState<AttributeVariantsT>("Text");
   const [checked, setChecked] = useState(false);
+  const name: FieldNameT = `${variant}.${index}.${attribute}`;
+  const selectName: FieldNameT = `${variant}.${index}.${attribute}-select`;
 
   const modalRef = useRef<HTMLDialogElement>(null);
 
@@ -43,29 +50,30 @@ const NumberInput: React.FunctionComponent<NumberInputProps> = ({
         <div className="flex flex-row items-center py-2">
           <div className="flex items-center checkbox-container">
             <input
-              id={`${variant}-${attribute}`}
               type="checkbox"
-              name={`${variant}-${attribute}`}
               className="checkbox"
-              onChange={(ev) => setChecked(ev.target.checked)}
+              id={name}
+              {...register(name, {
+                onChange: (ev) => setChecked(ev.target.checked),
+              })}
             ></input>
-            <label htmlFor={`${variant}-${attribute}`}>{info.display}</label>
+            <label htmlFor={name}>{display}</label>
           </div>
           <span className="whitespace-pre-wrap"> as </span>
           <div className="content dropdown-wrapper">
             <select
-              name={`${variant}-${attribute}-select`}
-              id={`${variant}-${attribute}-select`}
               disabled={!checked}
-              onChange={(ev) => {
-                setType(ev.target.value as AttributeVariantsT);
+              {...register(selectName, {
+                onChange: (ev) => {
+                  setType(ev.target.value as AttributeVariantsT);
 
-                if (ev.target.value === "Fill") {
-                  setFillSelected(attribute);
-                } else if (fillSelected === attribute) {
-                  setFillSelected(undefined);
-                }
-              }}
+                  if (ev.target.value === "Fill") {
+                    setFillSelected(attribute);
+                  } else if (fillSelected === attribute) {
+                    setFillSelected(undefined);
+                  }
+                },
+              })}
               className="appearance-none dropdown"
             >
               <option value="Text">Text</option>
@@ -89,13 +97,13 @@ const NumberInput: React.FunctionComponent<NumberInputProps> = ({
           )}
         </div>
         {checked && type !== "Text" && (
-          <ColourBoundaries attribute={attribute} variant={variant} />
+          <ColourBoundaries register={register} baseName={name} />
         )}
       </div>
       <DisplayModal
         variant={variant}
         mref={modalRef}
-        attributeDisplay={info.display}
+        attributeDisplay={display}
         dispatchDisplayMap={dispatchDisplayMap}
         attribute={attribute}
       />

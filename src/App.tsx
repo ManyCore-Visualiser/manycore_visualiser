@@ -1,18 +1,25 @@
 import "@fontsource/roboto-mono/400.css";
-import React, { createContext, useContext, useRef, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import AppReadyDummy from "./components/AppReadyDummy";
 import Controls from "./components/Controls";
 import FileLoader from "./components/FileLoader";
 import Graph from "./components/Graph";
+import HoverInfo from "./components/HoverInfo";
 import Loading from "./components/Loading";
 import Settings from "./components/Settings";
 import {
   ConfigurableBaseConfigurationT,
   ProcessedAttributesT,
 } from "./types/configuration";
-import type { SVGT, SVGUpdateT } from "./types/svg";
-import { TransformT } from "./types/transform";
-import HoverInfo from "./components/HoverInfo";
 import { Point } from "./types/freeForm";
+import type { SVGT, SVGUpdateT } from "./types/svg";
+import { getBaseConfiguration } from "./utils/loadUtils";
 
 export type AppState = {
   svgRef: React.MutableRefObject<SVGSVGElement | undefined>;
@@ -26,8 +33,6 @@ export type AppState = {
   setSVGInformation: React.Dispatch<React.SetStateAction<SVGUpdateT>>;
   svgViewbox: SVGUpdateT;
   setSVGViewbox: React.Dispatch<React.SetStateAction<SVGUpdateT>>;
-  transform: TransformT;
-  setTransform: React.Dispatch<React.SetStateAction<TransformT>>;
   settings: boolean;
   showSettings: React.Dispatch<React.SetStateAction<boolean>>;
   attributes: ProcessedAttributesT | undefined;
@@ -35,9 +40,6 @@ export type AppState = {
     React.SetStateAction<ProcessedAttributesT | undefined>
   >;
   configurableBaseConfiguration: ConfigurableBaseConfigurationT | undefined;
-  setConfigurableBaseConfiguration: React.Dispatch<
-    React.SetStateAction<ConfigurableBaseConfigurationT | undefined>
-  >;
   editing: boolean;
   setEditing: React.Dispatch<React.SetStateAction<boolean>>;
   freeForm: boolean;
@@ -56,7 +58,6 @@ function App() {
   const [svgStyle, setSVGStyle] = useState<SVGUpdateT>(null);
   const [svgInformation, setSVGInformation] = useState<SVGUpdateT>(null);
   const [svgViewbox, setSVGViewbox] = useState<SVGUpdateT>(null);
-  const [transform, setTransform] = useState<TransformT>(undefined);
   const [settings, showSettings] = useState(false);
   const [attributes, setAttributes] = useState<
     ProcessedAttributesT | undefined
@@ -68,7 +69,14 @@ function App() {
   const graphParentRef = useRef<HTMLDivElement | null>(null);
   const settingsRef = useRef<HTMLDivElement | null>(null);
   const [configurableBaseConfiguration, setConfigurableBaseConfiguration] =
-    useState<ConfigurableBaseConfigurationT | undefined>(undefined);
+    useState<ConfigurableBaseConfigurationT>();
+
+  // Get base configuration on mount. This is application version specific and won't change
+  useEffect(() => {
+    getBaseConfiguration().then((res) =>
+      setConfigurableBaseConfiguration(res.baseConfiguration)
+    );
+  }, []);
 
   return (
     <AppStateContext.Provider
@@ -84,8 +92,6 @@ function App() {
         setSVGInformation,
         svgViewbox,
         setSVGViewbox,
-        transform,
-        setTransform,
         settings,
         showSettings,
         attributes,
@@ -98,10 +104,10 @@ function App() {
         setFreeFormPoints,
         graphParentRef,
         configurableBaseConfiguration,
-        setConfigurableBaseConfiguration,
         settingsRef,
       }}
     >
+      <AppReadyDummy />
       <HoverInfo />
       {(processingInput || editing) && <Loading />}
       {!svg && <FileLoader />}

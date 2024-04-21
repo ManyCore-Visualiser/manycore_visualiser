@@ -2,12 +2,13 @@ import { BaseResponseT } from "./baseResponse";
 
 export type ConfigurationVariantsT = "Cores" | "Routers" | "Channels" | "SVG";
 
-type AttributeTypeT = "number" | "text" | "boolean" | "routing" | "coordinates";
+export type AttributeTypeT = "number" | "text" | "boolean" | "routing" | "coordinates";
 export type AttributeVariantsT = "Text" | "ColouredText" | "Fill";
 
 export type ProcessedAttributesGroupContentT = {
   display: string;
   type: AttributeTypeT;
+  new?: boolean;
 };
 
 export type ProcessedAttributesGroupT = {
@@ -43,20 +44,32 @@ type LoadConfigurationT = "Percentage" | "Fraction";
 export interface LoadHTMLSelectElement extends HTMLSelectElement {
   value: LoadConfigurationT;
 }
+
+export type TextArgumentT = { type: "Text"; display: string };
+export type FillArgumentT = { type: "Fill" } & ColourConfig;
+export type ColouredTextArgumentT = {
+  type: "ColouredText";
+  display: string;
+} & ColourConfig;
+export type BooleanArgumentT = { type: "Boolean"; value: boolean };
+export type CoordinatesArgumentT = {
+  type: "Coordinates";
+  orientation: CoordinatesValuesT;
+};
+export type RoutingArgumentT = {
+  type: "Routing";
+  algorithm: string;
+  loadConfiguration: LoadConfigurationT;
+  display: string;
+} & ColourConfig;
+
 export type ItemArgumentConfigurationT =
-  | { Text: string }
-  | { Fill: ColourConfig }
-  | { ColouredText: [string, ColourConfig] }
-  | { Boolean: true }
-  | { Coordinates: CoordinatesValuesT }
-  | {
-      Routing: {
-        algorithm: string;
-        loadConfiguration: LoadConfigurationT;
-        loadColours: ColourConfig;
-        display: string;
-      };
-    };
+  | TextArgumentT
+  | FillArgumentT
+  | ColouredTextArgumentT
+  | BooleanArgumentT
+  | CoordinatesArgumentT
+  | RoutingArgumentT;
 
 export type ConfigurationT = {
   coreConfig: ItemConfigurationT;
@@ -64,8 +77,9 @@ export type ConfigurationT = {
   channelConfig: ItemConfigurationT;
 };
 
+export type ConfigurableBaseConfigurationTypes = "FontSize";
 export type ConfigurableBaseConfigurationAttributeT = {
-  type: "FontSize";
+  type: ConfigurableBaseConfigurationTypes;
   display: string;
   default: number;
   min: number;
@@ -83,4 +97,9 @@ export type BaseConfigurationItemT = number;
 
 export type BaseConfigurationT = {
   [key: string]: BaseConfigurationItemT;
+};
+
+export type WholeConfigurationT = {
+  baseConfiguration: BaseConfigurationT;
+  configuration: ConfigurationT;
 };

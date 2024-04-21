@@ -1,21 +1,37 @@
-import { useCallback, useReducer, useRef, useState } from "react";
+import { invoke } from "@tauri-apps/api";
+import { listen } from "@tauri-apps/api/event";
+import { useEffect, useReducer, useRef, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useAppContext } from "../../App";
-import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
 import {
-  editSystem,
-  openFilePickerDialog,
-  updateSVG,
-} from "../../utils/loadUtils";
+  AttributeTypeT,
+  ConfigurableBaseConfigurationTypes,
+  ConfigurationVariantsT,
+} from "../../types/configuration";
+import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
+import { editSystem, loadNewSystem, updateSVG } from "../../utils/loadUtils";
+import BaseSettings from "./BaseSettings";
+import addToBaseSettings from "./BaseSettings/utils/addToBaseSettings";
 import ElementSettings from "./ElementSettings";
-import generateConfig from "./ElementSettings/generateConfig";
+import addToElementSettings from "./ElementSettings/utils/addToElementSettings";
 import SettingsButton from "./SettingsButton";
 import "./checkbox.css";
 import "./colour.css";
 import "./number.css";
 import "./select.css";
-import toast from "react-hot-toast";
-import BaseSettings from "./BaseSettings";
-import generateBaseConfig from "./BaseSettings/generateBaseConfig";
+import generateConfiguration from "./utils/generateConfiguration";
+
+export type FieldT = {
+  attribute: string;
+  display: string;
+  type: AttributeTypeT | ConfigurableBaseConfigurationTypes;
+} & Record<string, string | number | boolean>;
+
+export type FormValues = {
+  [key in ConfigurationVariantsT]: FieldT[];
+};
+
+export type FieldNameT = `${ConfigurationVariantsT}.${number}.${string}`;
 
 const Settings: React.FunctionComponent = () => {
   const ctx = useAppContext();
@@ -31,67 +47,107 @@ const Settings: React.FunctionComponent = () => {
   const [coreFillSelected, setCoreFillSelected] = useState<string>();
   const [routerFillSelected, setRouterFillSelected] = useState<string>();
 
-  const handleSubmit = useCallback(
-    ((ev) => {
-      ev.preventDefault();
-
-      if (
-        formRef.current &&
-        ctx.attributes &&
+  const onSubmit = (data: FormValues) => {
+    if (ctx.attributes && ctx.configurableBaseConfiguration) {
+      const configuration = generateConfiguration(
+        data,
+        displayMap,
+        ctx.attributes,
         ctx.configurableBaseConfiguration
-      ) {
-        const baseConfiguration = generateBaseConfig(
-          formRef.current,
-          "SVG",
-          ctx.configurableBaseConfiguration
-        );
+      );
 
-        const coreConfig = generateConfig(
-          formRef.current,
-          "Cores",
-          ctx.attributes.core,
-          displayMap
-        );
-
-        const routerConfig = generateConfig(
-          formRef.current,
-          "Routers",
-          ctx.attributes.router,
-          displayMap
-        );
-
-        const channelConfig = generateConfig(
-          formRef.current,
-          "Channels",
-          ctx.attributes.channel,
-          displayMap
-        );
-
-        if (
-          Object.keys(channelConfig).filter((key) => key != "@borderRouters")
-            .length > 2
-        ) {
-          toast.error(
-            "You can only select two channel attributes on top of displaying border routers.",
-            { duration: 10000 }
-          );
-
-          return;
-        }
-
+      if (configuration) {
         updateSVG(
-          baseConfiguration,
-          {
-            coreConfig,
-            routerConfig,
-            channelConfig,
-          },
+          configuration.baseConfiguration,
+          configuration.configuration,
           ctx
         );
       }
-    }) as React.FormEventHandler<HTMLFormElement>,
-    [formRef, ctx.attributes, displayMap]
-  );
+    }
+  };
+
+  // Listen to configuration import/export events
+  useEffect(() => {
+    // const importListener = listen<string>("load_config", (ev) => {
+    //   if (formRef.current) {
+    //     const wholeConfiguration = JSON.parse(
+    //       ev.payload
+    //     ) as WholeConfigurationT;
+    //     populateFromConfiguration(
+    //       formRef.current,
+    //       wholeConfiguration,
+    //       dispatchDisplayMap,
+    //       "SVG",
+    //       "Cores",
+    //       "Routers",
+    //       "Channels"
+    //     );
+    //   }
+    // });
+
+    const exportListener = listen("export_config", () => {
+      if (formRef.current) {
+        if (
+          formRef.current &&
+          ctx.attributes &&
+          ctx.configurableBaseConfiguration
+        ) {
+          const wholeConfiguration = generateConfiguration(
+            getValues(),
+            displayMap,
+            ctx.attributes,
+            ctx.configurableBaseConfiguration
+          );
+          if (wholeConfiguration)
+            invoke("store_configuration", {
+              wholeConfiguration: JSON.stringify(wholeConfiguration),
+            });
+        }
+      }
+    });
+
+    return () => {
+      // importListener.then((unlisten) => unlisten());
+      exportListener.then((unlisten) => unlisten());
+    };
+  }, [ctx.attributes, ctx.configurableBaseConfiguration, displayMap]);
+
+  const { register, handleSubmit, control, getValues } = useForm<FormValues>();
+  const svgArray = useFieldArray({
+    name: "SVG" as ConfigurationVariantsT,
+    control,
+  });
+  const coreArray = useFieldArray({
+    name: "Cores" as ConfigurationVariantsT,
+    control,
+  });
+  const routerArray = useFieldArray({
+    name: "Routers" as ConfigurationVariantsT,
+    control,
+  });
+  const channelArray = useFieldArray({
+    name: "Channels" as ConfigurationVariantsT,
+    control,
+  });
+
+  useEffect(() => {
+    if (ctx.attributes && ctx.configurableBaseConfiguration) {
+      const values = getValues();
+
+      addToElementSettings(ctx.attributes.core, coreArray, values.Cores);
+      addToElementSettings(ctx.attributes.router, routerArray, values.Routers);
+      addToElementSettings(
+        ctx.attributes.channel,
+        channelArray,
+        values.Channels
+      );
+    }
+  }, [ctx.attributes]);
+
+  useEffect(() => {
+    if (ctx.configurableBaseConfiguration)
+      addToBaseSettings(ctx.configurableBaseConfiguration, svgArray);
+  }, [ctx.configurableBaseConfiguration]);
 
   return (
     <div
@@ -104,46 +160,51 @@ const Settings: React.FunctionComponent = () => {
         <h3 className="block text-indigo-400 text-2xl">
           Visualisation Settings
         </h3>
-        <form ref={formRef} onSubmit={handleSubmit}>
+        <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
           {ctx.configurableBaseConfiguration && (
             <BaseSettings
               variant="SVG"
               configurableBaseConfiguration={ctx.configurableBaseConfiguration}
+              register={register}
+              fieldsArray={svgArray}
             />
           )}
           {ctx.attributes && (
             <>
               <ElementSettings
-                attributes={ctx.attributes.core}
                 variant="Cores"
                 dispatchDisplayMap={dispatchDisplayMap}
                 fillSelected={coreFillSelected}
                 setFillSelected={setCoreFillSelected}
+                register={register}
+                fieldsArray={coreArray}
               />
               <ElementSettings
                 dispatchDisplayMap={dispatchDisplayMap}
-                attributes={ctx.attributes.router}
                 variant="Routers"
                 fillSelected={routerFillSelected}
                 setFillSelected={setRouterFillSelected}
+                register={register}
+                fieldsArray={routerArray}
               />
               <ElementSettings
                 dispatchDisplayMap={dispatchDisplayMap}
-                attributes={ctx.attributes.channel}
                 variant="Channels"
                 fillSelected={routerFillSelected}
                 setFillSelected={setRouterFillSelected}
                 algorithms={ctx.attributes.algorithms}
                 observedAlgorithm={ctx.attributes.observedAlgorithm}
+                register={register}
+                fieldsArray={channelArray}
               />
             </>
           )}
         </form>
       </div>
-      <div className="w-full grid grid-cols-2 grid-rows-2 gap-2 px-2 pb-2 pt-4">
+      <div className="w-full grid grid-cols-2 grid-rows-3 gap-2 px-2 pb-2 pt-4">
         <SettingsButton
           text="Load new system"
-          action={() => openFilePickerDialog(ctx)}
+          action={() => loadNewSystem(ctx)}
         />
         <SettingsButton
           text="Edit system"
@@ -151,6 +212,8 @@ const Settings: React.FunctionComponent = () => {
             editSystem(ctx);
           }}
         />
+        <SettingsButton text="Export Configuration" action={() => {}} />
+        <SettingsButton text="Load Configuration" action={() => {}} />
         <SettingsButton
           text="Apply"
           action={() => {

@@ -8,28 +8,36 @@ import {
   AttributesResponseT,
   BaseConfigurationResponseT,
   BaseConfigurationT,
-  ConfigurableBaseConfigurationT,
   ConfigurationT,
+  ProcessedAttributesGroupT,
   ProcessedAttributesT,
 } from "../types/configuration";
 import { SVGResponseT, SVGT, SVGUpdateResponseT } from "../types/svg";
 
-async function openFilePickerDialog(ctx: AppState) {
-  const file = await open({
+async function loadNewSystem(ctx: AppState) {
+  open({
     filters: [{ name: "ManyCore XML", extensions: ["xml"] }],
-  });
-
-  if (file) {
-    startProcessing(file as string, ctx);
-  }
+  })
+    .then((file) => {
+      if (!file) {
+        // User cancelled
+        return;
+      }
+      if (typeof file == "string") {
+        startProcessing(file, ctx);
+      } else {
+        toast.error("You can only select one input file.", { duration: 10000 });
+      }
+    })
+    .catch((e) => {
+      toast.error(`Could not open selected file: ${e}`, { duration: 10000 });
+    });
 }
 
 function startProcessing(filePath: string, ctx: AppState) {
   ctx.setProcessingInput(true);
-  ctx.setTransform(undefined);
   invoke<BaseResponseT>("parse", { filePath }).then((res) => {
     if (res.status === "ok") {
-      getBaseConfiguration(ctx.setConfigurableBaseConfiguration);
       getSVG(ctx.setSVG);
       getAttributes(ctx.setAttributes);
 
@@ -41,15 +49,8 @@ function startProcessing(filePath: string, ctx: AppState) {
   });
 }
 
-function getBaseConfiguration(
-  setConfigurableBaseConfiguration: React.Dispatch<
-    React.SetStateAction<ConfigurableBaseConfigurationT | undefined>
-  >
-) {
-  invoke<BaseConfigurationResponseT>("get_base_configuration").then((res) => {
-    // This can only succeed
-    setConfigurableBaseConfiguration(res.baseConfiguration);
-  });
+async function getBaseConfiguration() {
+  return await invoke<BaseConfigurationResponseT>("get_base_configuration");
 }
 
 function getSVG(setSVG: React.Dispatch<React.SetStateAction<SVGT>>) {
@@ -97,6 +98,30 @@ function updateSVG(
   });
 }
 
+function getSortedUpdatedAttributes(
+  prev: ProcessedAttributesGroupT,
+  curr: ProcessedAttributesGroupT
+) {
+  const prevKeys = Object.keys(prev);
+
+  const currKeys = Object.keys(curr);
+
+  const newKeys = new Set([...prevKeys, ...currKeys].sort());
+
+  const ret: ProcessedAttributesGroupT = {};
+
+  for (const key of newKeys) {
+    if (curr[key] && prev[key] && prev[key].type === curr[key].type) {
+      ret[key] = { ...prev[key], new: false };
+    } else if (curr[key]) {
+      ret[key] = { ...curr[key] };
+      ret[key].new = true;
+    }
+  }
+
+  return ret;
+}
+
 function getAttributes(
   setAttributes: React.Dispatch<
     React.SetStateAction<ProcessedAttributesT | undefined>
@@ -110,7 +135,30 @@ function getAttributes(
         );
       }
 
-      setAttributes(res.attributes);
+      setAttributes((previousAttributes) => {
+        const core = getSortedUpdatedAttributes(
+          previousAttributes?.core ?? {},
+          res.attributes?.core ?? {}
+        );
+
+        const router = getSortedUpdatedAttributes(
+          previousAttributes?.router ?? {},
+          res.attributes?.router ?? {}
+        );
+
+        const channel = getSortedUpdatedAttributes(
+          previousAttributes?.channel ?? {},
+          res.attributes?.channel ?? {}
+        );
+
+        return {
+          core,
+          router,
+          channel,
+          observedAlgorithm: res.attributes?.observedAlgorithm,
+          algorithms: res.attributes?.algorithms ?? [],
+        };
+      });
       toast.success(res.message);
     } else {
       toast.error(res.message, { duration: 10000 });
@@ -143,4 +191,11 @@ function editSystem(ctx: AppState) {
     });
 }
 
-export { editSystem, getSVG, openFilePickerDialog, startProcessing, updateSVG };
+export {
+  editSystem,
+  getSVG,
+  loadNewSystem,
+  startProcessing,
+  updateSVG,
+  getBaseConfiguration,
+};

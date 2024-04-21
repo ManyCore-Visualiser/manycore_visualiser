@@ -1,21 +1,26 @@
 import { useState } from "react";
-import {
-  ConfigurationVariantsT,
-  ProcessedAttributesGroupContentT,
-} from "../../../../types/configuration";
+import { UseFormRegister } from "react-hook-form";
+import { FieldNameT, FormValues } from "../..";
+import { ConfigurationVariantsT } from "../../../../types/configuration";
 
 type CoordinatesInputProps = {
   attribute: string;
-  info: ProcessedAttributesGroupContentT;
+  display: string;
   variant: ConfigurationVariantsT;
+  index: number;
+  register: UseFormRegister<FormValues>;
 };
 
 const CoordinatesInput: React.FunctionComponent<CoordinatesInputProps> = ({
   attribute,
   variant,
-  info,
+  display,
+  index,
+  register,
 }) => {
   const [checked, setChecked] = useState(false);
+  const name: FieldNameT = `${variant}.${index}.${attribute}`;
+  const selectName: FieldNameT = `${variant}.${index}.${attribute}-select`;
 
   return (
     <>
@@ -23,22 +28,22 @@ const CoordinatesInput: React.FunctionComponent<CoordinatesInputProps> = ({
         <div className="flex flex-row items-center">
           <div className="flex items-center checkbox-container">
             <input
-              id={`${variant}-${attribute}`}
               type="checkbox"
-              name={`${variant}-${attribute}`}
               className="checkbox"
-              onChange={(ev) => setChecked(ev.target.checked)}
+              id={name}
+              {...register(name, {
+                onChange: (ev) => setChecked(ev.target.checked),
+              })}
             ></input>
-            <label htmlFor={`${variant}-${attribute}`}>{info.display}</label>
+            <label htmlFor={name}>{display}</label>
           </div>
           <span className="whitespace-pre-wrap"> from </span>
           <div className="content dropdown-wrapper">
             <select
-              name={`${variant}-${attribute}-select`}
-              id={`${variant}-${attribute}-select`}
               disabled={!checked}
               defaultValue="T"
               className="appearance-none dropdown"
+              {...register(selectName)}
             >
               <option value="T">Top left</option>
               <option value="B">Bottom left</option>

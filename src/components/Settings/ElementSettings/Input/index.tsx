@@ -1,6 +1,8 @@
+import { UseFormRegister } from "react-hook-form";
+import { FormValues } from "../..";
 import type {
+  AttributeTypeT,
   ConfigurationVariantsT,
-  ProcessedAttributesGroupContentT,
 } from "../../../../types/configuration";
 import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
 import BooleanInput from "./BooleanInput";
@@ -11,33 +13,51 @@ import TextInput from "./TextInput";
 
 type InputT = {
   attribute: string;
-  info: ProcessedAttributesGroupContentT;
   variant: ConfigurationVariantsT;
   dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>;
   fillSelected: string | undefined;
   setFillSelected: React.Dispatch<React.SetStateAction<string | undefined>>;
   observedAlgorithm?: string | undefined;
   algorithms?: string[];
+  index: number;
+  register: UseFormRegister<FormValues>;
+  type: AttributeTypeT;
+  display: string;
 };
 
 const Input: React.FunctionComponent<InputT> = ({
   attribute,
-  info,
   variant,
   dispatchDisplayMap,
   fillSelected,
   setFillSelected,
   algorithms,
   observedAlgorithm,
+  index,
+  register,
+  type,
+  display,
 }) => {
-  switch (info.type) {
+  switch (type) {
     case "boolean":
       return (
-        <BooleanInput attribute={attribute} info={info} variant={variant} />
+        <BooleanInput
+          attribute={attribute}
+          display={display}
+          variant={variant}
+          index={index}
+          register={register}
+        />
       );
     case "coordinates":
       return (
-        <CoordinatesInput attribute={attribute} info={info} variant={variant} />
+        <CoordinatesInput
+          attribute={attribute}
+          display={display}
+          variant={variant}
+          index={index}
+          register={register}
+        />
       );
     case "text":
       return (
@@ -45,9 +65,11 @@ const Input: React.FunctionComponent<InputT> = ({
           attribute={attribute}
           dispatchDisplayMap={dispatchDisplayMap}
           fillSelected={fillSelected}
-          info={info}
+          display={display}
           setFillSelected={setFillSelected}
           variant={variant}
+          index={index}
+          register={register}
         />
       );
     case "number":
@@ -56,9 +78,11 @@ const Input: React.FunctionComponent<InputT> = ({
           attribute={attribute}
           dispatchDisplayMap={dispatchDisplayMap}
           fillSelected={fillSelected}
-          info={info}
+          display={display}
           setFillSelected={setFillSelected}
           variant={variant}
+          index={index}
+          register={register}
         />
       );
     case "routing":
@@ -70,8 +94,10 @@ const Input: React.FunctionComponent<InputT> = ({
               algorithms={algorithms}
               observedAlgorithm={observedAlgorithm}
               variant={variant}
-              info={info}
+              display={display}
               dispatchDisplayMap={dispatchDisplayMap}
+              index={index}
+              register={register}
             />
           )}
         </>
