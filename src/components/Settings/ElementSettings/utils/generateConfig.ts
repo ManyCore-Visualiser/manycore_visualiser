@@ -4,20 +4,18 @@ import {
   ConfigurationVariantsT,
   ItemArgumentConfigurationT,
   ItemConfigurationT,
-  ProcessedAttributesGroupT,
 } from "../../../../types/configuration";
 import { DisplayMapT } from "../../../../types/displayMap";
 
 function generateText(
   field: FieldT,
   displayMap: DisplayMapT,
-  display: string,
   variant: ConfigurationVariantsT
 ): ItemArgumentConfigurationT | undefined {
   if (field[field.attribute]) {
     return {
       type: "Text",
-      display: displayMap[`${variant}-${field.attribute}`] ?? display,
+      display: displayMap[`${variant}-${field.attribute}`] ?? field.display,
     };
   }
 
@@ -48,14 +46,13 @@ function generateColours(field: FieldT, key?: string): ColourConfig {
 function generateNumber(
   field: FieldT,
   displayMap: DisplayMapT,
-  display: string,
   variant: ConfigurationVariantsT
 ): ItemArgumentConfigurationT | undefined {
   if (field[field.attribute]) {
     const select = field[`${field.attribute}-select`];
 
     if (select == "Text") {
-      return generateText(field, displayMap, display, variant);
+      return generateText(field, displayMap, variant);
     } else {
       const colourConf = generateColours(field);
       if (select == "Fill") {
@@ -63,7 +60,7 @@ function generateNumber(
       } else {
         return {
           type: "ColouredText",
-          display: displayMap[`${variant}-${field.attribute}`] ?? display,
+          display: displayMap[`${variant}-${field.attribute}`] ?? field.display,
           ...colourConf,
         };
       }
@@ -93,7 +90,6 @@ function generateCoordinates(
 function generateRouting(
   field: FieldT,
   displayMap: DisplayMapT,
-  display: string,
   variant: ConfigurationVariantsT
 ): ItemArgumentConfigurationT | undefined {
   const algorithmSelect = field[`${field.attribute}-algo-select`];
@@ -108,14 +104,13 @@ function generateRouting(
       algorithm: algorithmSelect as string,
       loadConfiguration: loadsSelect as "Percentage" | "Fraction",
       ...colourConf,
-      display: displayMap[`${variant}-${field.attribute}`] ?? display,
+      display: displayMap[`${variant}-${field.attribute}`] ?? field.display,
     };
   }
   return undefined;
 }
 
 export default function generateElementConfig(
-  attributes: ProcessedAttributesGroupT,
   fields: FieldT[],
   displayMap: DisplayMapT,
   variant: ConfigurationVariantsT
@@ -123,17 +118,16 @@ export default function generateElementConfig(
   const config: ItemConfigurationT = {};
   for (const field of fields) {
     let attrConf: ItemArgumentConfigurationT | undefined = undefined;
-    const type = attributes[field.attribute].type;
-    const display = attributes[field.attribute].display;
 
-    if (type === "boolean") attrConf = generateBoolean(field);
-    else if (type === "coordinates") attrConf = generateCoordinates(field);
-    else if (type === "number")
-      attrConf = generateNumber(field, displayMap, display, variant);
-    else if (type === "routing")
-      attrConf = generateRouting(field, displayMap, display, variant);
-    else if (type === "text")
-      attrConf = generateText(field, displayMap, display, variant);
+    if (field.type === "boolean") attrConf = generateBoolean(field);
+    else if (field.type === "coordinates")
+      attrConf = generateCoordinates(field);
+    else if (field.type === "number")
+      attrConf = generateNumber(field, displayMap, variant);
+    else if (field.type === "routing")
+      attrConf = generateRouting(field, displayMap, variant);
+    else if (field.type === "text")
+      attrConf = generateText(field, displayMap, variant);
 
     if (attrConf) config[field.attribute] = attrConf;
   }

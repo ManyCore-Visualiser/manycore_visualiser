@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { UseFormRegister } from "react-hook-form";
-import { FieldNameT, FormValues } from "../..";
+import { useFormContext, useWatch } from "react-hook-form";
+import { FieldNameT } from "../..";
 import { ConfigurationVariantsT } from "../../../../types/configuration";
 
 type CoordinatesInputProps = {
@@ -8,7 +7,6 @@ type CoordinatesInputProps = {
   display: string;
   variant: ConfigurationVariantsT;
   index: number;
-  register: UseFormRegister<FormValues>;
 };
 
 const CoordinatesInput: React.FunctionComponent<CoordinatesInputProps> = ({
@@ -16,11 +14,11 @@ const CoordinatesInput: React.FunctionComponent<CoordinatesInputProps> = ({
   variant,
   display,
   index,
-  register,
 }) => {
-  const [checked, setChecked] = useState(false);
   const name: FieldNameT = `${variant}.${index}.${attribute}`;
   const selectName: FieldNameT = `${variant}.${index}.${attribute}-select`;
+  const { register, control } = useFormContext();
+  const checked = useWatch({ name, control });
 
   return (
     <>
@@ -31,9 +29,7 @@ const CoordinatesInput: React.FunctionComponent<CoordinatesInputProps> = ({
               type="checkbox"
               className="checkbox"
               id={name}
-              {...register(name, {
-                onChange: (ev) => setChecked(ev.target.checked),
-              })}
+              {...register(name)}
             ></input>
             <label htmlFor={name}>{display}</label>
           </div>

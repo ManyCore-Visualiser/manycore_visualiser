@@ -1,17 +1,16 @@
-import { UseFormRegister } from "react-hook-form";
-import { FieldNameT, FormValues } from "../..";
+import { useFormContext } from "react-hook-form";
+import { FieldNameT } from "../..";
 
 type ColourBoundariesProps = {
   max?: number;
-  register: UseFormRegister<FormValues>;
   baseName: FieldNameT;
 };
 
 const ColourBoundaries: React.FunctionComponent<ColourBoundariesProps> = ({
   max = 65535,
-  register,
   baseName,
 }) => {
+  const { register } = useFormContext();
   return (
     <div className="grid grid-rows-1 grid-cols-4 gap-2 py-2">
       <div className="col-span-1 flex flex-col">

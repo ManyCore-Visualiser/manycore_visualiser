@@ -2,8 +2,7 @@ import toast from "react-hot-toast";
 import { FormValues } from "..";
 import {
   ConfigurableBaseConfigurationT,
-  ProcessedAttributesT,
-  WholeConfigurationT
+  WholeConfigurationT,
 } from "../../../types/configuration";
 import { DisplayMapT } from "../../../types/displayMap";
 import generateBaseConfig from "../BaseSettings/utils/generateBaseConfig";
@@ -31,7 +30,6 @@ function sanitiseConfiguration(
 export default function generateConfiguration(
   data: FormValues,
   displayMap: DisplayMapT,
-  attributes: ProcessedAttributesT,
   configurableBaseConfiguration: ConfigurableBaseConfigurationT
 ): WholeConfigurationT | null {
   const baseConfiguration = generateBaseConfig(
@@ -39,22 +37,15 @@ export default function generateConfiguration(
     configurableBaseConfiguration
   );
 
-  const coreConfig = generateElementConfig(
-    attributes.core,
-    data.Cores,
-    displayMap,
-    "Cores"
-  );
+  const coreConfig = generateElementConfig(data.Cores, displayMap, "Cores");
 
   const routerConfig = generateElementConfig(
-    attributes.router,
     data.Routers,
     displayMap,
     "Routers"
   );
 
   const channelConfig = generateElementConfig(
-    attributes.channel,
     data.Channels,
     displayMap,
     "Channels"

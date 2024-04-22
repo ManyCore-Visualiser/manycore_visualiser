@@ -20,7 +20,7 @@ function addFontSize(
 
 export default function addToBaseSettings(
   baseConfiguration: ConfigurableBaseConfigurationT,
-  fieldArray: UseFieldArrayReturn<FormValues, ConfigurationVariantsT>
+  array: UseFieldArrayReturn<FormValues, ConfigurationVariantsT>
 ) {
   const fields: FieldT[] = [];
   Object.entries(baseConfiguration).forEach(([attribute, entry]) => {
@@ -31,5 +31,5 @@ export default function addToBaseSettings(
     }
   });
 
-  fieldArray.replace(fields);
+  array.replace(fields);
 }

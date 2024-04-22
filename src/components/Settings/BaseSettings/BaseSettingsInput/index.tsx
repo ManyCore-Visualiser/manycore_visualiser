@@ -1,5 +1,3 @@
-import { UseFormRegister } from "react-hook-form";
-import { FormValues } from "../..";
 import {
   ConfigurableBaseConfigurationAttributeT,
   ConfigurationVariantsT,
@@ -11,7 +9,6 @@ type BaseSettingsInputProps = {
   variant: ConfigurationVariantsT;
   specifics: ConfigurableBaseConfigurationAttributeT;
   index: number;
-  register: UseFormRegister<FormValues>;
 };
 
 const BaseSettingsInput: React.FunctionComponent<BaseSettingsInputProps> = ({
@@ -19,7 +16,6 @@ const BaseSettingsInput: React.FunctionComponent<BaseSettingsInputProps> = ({
   variant,
   specifics,
   index,
-  register,
 }) => {
   switch (specifics.type) {
     case "FontSize":
@@ -29,7 +25,6 @@ const BaseSettingsInput: React.FunctionComponent<BaseSettingsInputProps> = ({
           variant={variant}
           specifics={specifics}
           index={index}
-          register={register}
         />
       );
   }

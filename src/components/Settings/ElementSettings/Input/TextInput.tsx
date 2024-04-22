@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
-import { UseFormRegister } from "react-hook-form";
-import { FieldNameT, FormValues } from "../..";
+import { useRef } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+import { FieldNameT, useSettingsContext } from "../..";
 import { ConfigurationVariantsT } from "../../../../types/configuration";
 import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
 import TwotoneTextFields from "../../../icons/TwotoneTextFields";
@@ -10,24 +10,21 @@ type TextInputProps = {
   attribute: string;
   display: string;
   variant: ConfigurationVariantsT;
-  dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>;
   fillSelected: string | undefined;
   setFillSelected: React.Dispatch<React.SetStateAction<string | undefined>>;
   index: number;
-  register: UseFormRegister<FormValues>;
 };
 
 const TextInput: React.FunctionComponent<TextInputProps> = ({
   attribute,
   display,
   variant,
-  dispatchDisplayMap,
   index,
-  register,
 }) => {
-  const [checked, setChecked] = useState(false);
   const modalRef = useRef<HTMLDialogElement>(null);
   const name: FieldNameT = `${variant}.${index}.${attribute}`;
+  const { register, control } = useFormContext();
+  const checked = useWatch({ name, control });
 
   function showModal() {
     if (modalRef.current) {
@@ -44,9 +41,7 @@ const TextInput: React.FunctionComponent<TextInputProps> = ({
               type="checkbox"
               className="checkbox"
               id={name}
-              {...register(name, {
-                onChange: (ev) => setChecked(ev.target.checked),
-              })}
+              {...register(name)}
             ></input>
             <label htmlFor={name}>{display}</label>
           </div>
@@ -61,7 +56,6 @@ const TextInput: React.FunctionComponent<TextInputProps> = ({
         variant={variant}
         mref={modalRef}
         attributeDisplay={display}
-        dispatchDisplayMap={dispatchDisplayMap}
         attribute={attribute}
       />
     </>

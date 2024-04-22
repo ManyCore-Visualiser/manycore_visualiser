@@ -1,15 +1,12 @@
-import { UseFormRegister } from "react-hook-form";
-import { FieldNameT, FormValues } from "../..";
-import {
-  ConfigurationVariantsT
-} from "../../../../types/configuration";
+import { useFormContext } from "react-hook-form";
+import { FieldNameT } from "../..";
+import { ConfigurationVariantsT } from "../../../../types/configuration";
 
 type BooleanInputProps = {
   attribute: string;
   display: string;
   variant: ConfigurationVariantsT;
   index: number;
-  register: UseFormRegister<FormValues>;
 };
 
 const BooleanInput: React.FunctionComponent<BooleanInputProps> = ({
@@ -17,9 +14,9 @@ const BooleanInput: React.FunctionComponent<BooleanInputProps> = ({
   attribute,
   display,
   index,
-  register,
 }) => {
   const name: FieldNameT = `${variant}.${index}.${attribute}`;
+  const { register } = useFormContext();
 
   return (
     <div className="grid grid-cols-1 text-lg py-2 grid-rows-1">

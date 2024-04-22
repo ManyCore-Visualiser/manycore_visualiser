@@ -1,11 +1,7 @@
-import { useRef, useState } from "react";
-import { UseFormRegister } from "react-hook-form";
-import { FieldNameT, FormValues } from "../..";
-import {
-  AttributeVariantsT,
-  ConfigurationVariantsT,
-} from "../../../../types/configuration";
-import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
+import { useRef } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+import { FieldNameT } from "../..";
+import { ConfigurationVariantsT } from "../../../../types/configuration";
 import TwotoneTextFields from "../../../icons/TwotoneTextFields";
 import DisplayModal from "../../DisplayModal";
 import ColourBoundaries from "./ColourBoundaries";
@@ -14,27 +10,25 @@ type NumberInputProps = {
   attribute: string;
   display: string;
   variant: ConfigurationVariantsT;
-  dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>;
   fillSelected: string | undefined;
   setFillSelected: React.Dispatch<React.SetStateAction<string | undefined>>;
   index: number;
-  register: UseFormRegister<FormValues>;
 };
 
 const NumberInput: React.FunctionComponent<NumberInputProps> = ({
   attribute,
   display,
   variant,
-  dispatchDisplayMap,
   fillSelected,
   setFillSelected,
   index,
-  register,
 }) => {
-  const [type, setType] = useState<AttributeVariantsT>("Text");
-  const [checked, setChecked] = useState(false);
   const name: FieldNameT = `${variant}.${index}.${attribute}`;
   const selectName: FieldNameT = `${variant}.${index}.${attribute}-select`;
+
+  const { register, control } = useFormContext();
+  const checked = useWatch({ name, control });
+  const type = useWatch({ name: selectName, control });
 
   const modalRef = useRef<HTMLDialogElement>(null);
 
@@ -53,9 +47,7 @@ const NumberInput: React.FunctionComponent<NumberInputProps> = ({
               type="checkbox"
               className="checkbox"
               id={name}
-              {...register(name, {
-                onChange: (ev) => setChecked(ev.target.checked),
-              })}
+              {...register(name)}
             ></input>
             <label htmlFor={name}>{display}</label>
           </div>
@@ -65,8 +57,6 @@ const NumberInput: React.FunctionComponent<NumberInputProps> = ({
               disabled={!checked}
               {...register(selectName, {
                 onChange: (ev) => {
-                  setType(ev.target.value as AttributeVariantsT);
-
                   if (ev.target.value === "Fill") {
                     setFillSelected(attribute);
                   } else if (fillSelected === attribute) {
@@ -96,15 +86,12 @@ const NumberInput: React.FunctionComponent<NumberInputProps> = ({
             </button>
           )}
         </div>
-        {checked && type !== "Text" && (
-          <ColourBoundaries register={register} baseName={name} />
-        )}
+        {checked && type !== "Text" && <ColourBoundaries baseName={name} />}
       </div>
       <DisplayModal
         variant={variant}
         mref={modalRef}
         attributeDisplay={display}
-        dispatchDisplayMap={dispatchDisplayMap}
         attribute={attribute}
       />
     </>

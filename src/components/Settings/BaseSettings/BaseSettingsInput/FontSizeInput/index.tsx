@@ -1,19 +1,17 @@
-import { useState } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+import { FieldNameT } from "../../..";
 import {
   ConfigurableBaseConfigurationAttributeT,
   ConfigurationVariantsT,
 } from "../../../../../types/configuration";
-import "./index.css";
 import { CSSPropertiesWithProperties } from "../../../../../types/css";
-import { FieldNameT, FormValues } from "../../..";
-import { UseFormRegister } from "react-hook-form";
+import "./index.css";
 
 type FontSizeInputProps = {
   attribute: string;
   variant: ConfigurationVariantsT;
   specifics: ConfigurableBaseConfigurationAttributeT;
   index: number;
-  register: UseFormRegister<FormValues>;
 };
 
 const FontSizeInput: React.FunctionComponent<FontSizeInputProps> = ({
@@ -21,10 +19,10 @@ const FontSizeInput: React.FunctionComponent<FontSizeInputProps> = ({
   variant,
   specifics,
   index,
-  register,
 }) => {
-  const [value, setValue] = useState<number>(specifics.default);
   const name: FieldNameT = `${variant}.${index}.${attribute}`;
+  const { register, control, setValue } = useFormContext();
+  const value = useWatch({ name, control });
 
   return (
     <div className="flex flex-col text-lg py-2 grid-rows-1">
@@ -51,13 +49,12 @@ const FontSizeInput: React.FunctionComponent<FontSizeInputProps> = ({
             min: specifics.min,
             max: specifics.max,
             valueAsNumber: true,
-            onChange: (ev) =>
-              setValue(() => {
-                let newVal = parseInt(ev.target.value);
-                if (isNaN(newVal)) newVal = specifics.default;
+            onChange: (ev) => {
+              let newVal = parseInt(ev.target.value);
+              if (isNaN(newVal)) newVal = specifics.default;
 
-                return newVal;
-              }),
+              setValue(name, newVal);
+            },
           })}
         ></input>
         <span>{specifics.max}</span>

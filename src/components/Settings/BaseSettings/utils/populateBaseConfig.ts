@@ -1,27 +1,24 @@
+import { UseFormSetValue } from "react-hook-form";
+import { FieldT, FormValues } from "../..";
 import {
   BaseConfigurationT,
   ConfigurationVariantsT,
 } from "../../../../types/configuration";
-import { nativeInputValueSetter } from "../../utils/nativeSetters";
+import { findIndex } from "../../utils/populateFromConfiguration";
 
 export default function populateBaseConfig(
-  form: HTMLFormElement,
-  baseConfiguration: BaseConfigurationT,
-  variant: ConfigurationVariantsT
+  array: FieldT[],
+  variant: ConfigurationVariantsT,
+  setValue: UseFormSetValue<FormValues>,
+  baseConfiguration: BaseConfigurationT
 ) {
-  Object.keys(baseConfiguration).forEach((attribute) => {
-    const element = form[`${variant}-${attribute}`] as HTMLInputElement | null;
-
-    // Ensure this version of the program supports this base attribute by checking
-    // we have an element to configure it in the settings.
-    if (element) {
-      nativeInputValueSetter?.call(
-        element,
-        baseConfiguration[attribute].toString(10)
-      );
-
-      // Trigger side effects
-      element.dispatchEvent(new Event("change", { bubbles: true }));
+  Object.entries(baseConfiguration).forEach(([attribute, entry]) => {
+    // We only support FontSize for now
+    const index = findIndex(array, attribute);
+    if (index !== -1) {
+      setValue(`${variant}.${index}.${attribute}`, entry, {
+        shouldDirty: true,
+      });
     }
   });
 }

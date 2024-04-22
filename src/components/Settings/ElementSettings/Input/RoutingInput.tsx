@@ -1,40 +1,37 @@
-import { useRef, useState } from "react";
-import { UseFormRegister } from "react-hook-form";
-import { FieldNameT, FormValues } from "../..";
+import { useRef } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+import { FieldNameT } from "../..";
+import { useAppContext } from "../../../../App";
 import type { ConfigurationVariantsT } from "../../../../types/configuration";
-import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
 import TwotoneTextFields from "../../../icons/TwotoneTextFields";
 import DisplayModal from "../../DisplayModal";
 import ColourBoundaries from "./ColourBoundaries";
 
 type RoutingInputProps = {
-  observedAlgorithm: string | undefined;
-  algorithms: string[];
   variant: ConfigurationVariantsT;
   attribute: string;
   display: string;
-  dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>;
   index: number;
-  register: UseFormRegister<FormValues>;
 };
 
 const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
-  observedAlgorithm,
-  algorithms,
   variant,
   attribute,
   display,
-  dispatchDisplayMap,
   index,
-  register,
 }) => {
-  const [checked, setChecked] = useState(false);
+  const { attributes } = useAppContext();
+  const { algorithms, observedAlgorithm } = attributes || {};
+
   const none = "None";
   const algoName: FieldNameT = `${variant}.${index}.${attribute}-algo-select`;
   const loadName: FieldNameT = `${variant}.${index}.${attribute}-load`;
   const loadSelectName: FieldNameT = `${loadName}-select`;
 
   const modalRef = useRef<HTMLDialogElement>(null);
+
+  const { register, control } = useFormContext();
+  const selectedAlgorithm = useWatch({ name: algoName, control });
 
   function showModal() {
     if (modalRef.current) {
@@ -53,12 +50,10 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
             <select
               disabled={!algorithms}
               className="appearance-none dropdown"
-              {...register(algoName, {
-                onChange: (ev) => setChecked(ev.target.value !== none),
-              })}
+              {...register(algoName)}
             >
               <option>{none}</option>
-              {algorithms.map((algorithm) => (
+              {algorithms?.map((algorithm) => (
                 <option key={algorithm} value={algorithm}>
                   {algorithm === "Observed" && observedAlgorithm
                     ? `${algorithm} (${observedAlgorithm})`
@@ -68,7 +63,7 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
             </select>
           </div>
         </div>
-        {checked && (
+        {selectedAlgorithm !== none && (
           <div className="flex flex-col text-lg py-2">
             <div className="flex flex-row items-center pb-2">
               <span className="whitespace-pre-wrap">{display} as </span>
@@ -86,7 +81,7 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
                 <TwotoneTextFields width="1em" height="1em" className="ml-4" />
               </button>
             </div>
-            <ColourBoundaries baseName={loadName} register={register} />
+            <ColourBoundaries baseName={loadName} />
             <span className="text-zinc-300 font-normal text-justify">
               The above boundaries are w.r.t 100% of bandwidth usage. Use values
               between 0-100 to configure each colour step.
@@ -98,7 +93,6 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
         variant={variant}
         mref={modalRef}
         attributeDisplay={display}
-        dispatchDisplayMap={dispatchDisplayMap}
         attribute={attribute}
       />
     </>

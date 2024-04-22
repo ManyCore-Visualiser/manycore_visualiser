@@ -85,7 +85,7 @@ function addText(
 
 export default function addToElementSettings(
   attributes: ProcessedAttributesGroupT,
-  fieldsArray: UseFieldArrayReturn<FormValues, ConfigurationVariantsT>,
+  array: UseFieldArrayReturn<FormValues, ConfigurationVariantsT>,
   previousData: FieldT[]
 ) {
   let prevTracker = 0;
@@ -114,11 +114,11 @@ export default function addToElementSettings(
         previousData[prevTracker].attribute === attribute
       ) {
         // Swap
-        fieldsArray.update(j, field);
+        array.update(j, field);
         prevTracker += 1;
       } else {
         // Insert
-        fieldsArray.insert(j, field);
+        array.insert(j, field);
       }
     } else {
       prevTracker += 1;
@@ -127,10 +127,10 @@ export default function addToElementSettings(
 
   // Calculate to be removed ones
   const toBeRemoved = [];
-  for (let i = 0; i < fieldsArray.fields.length; i++) {
+  for (let i = 0; i < previousData.length; i++) {
     // Check if any of old fields are not present in new attributes.
     // If so, remember index and queue removal.
-    if (!attributes[fieldsArray.fields[i].attribute]) toBeRemoved.push(i);
+    if (!attributes[previousData[i].attribute]) toBeRemoved.push(i);
   }
-  fieldsArray.remove(toBeRemoved);
+  array.remove(toBeRemoved);
 }

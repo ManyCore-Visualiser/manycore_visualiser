@@ -1,4 +1,4 @@
-import { UseFieldArrayReturn, UseFormRegister } from "react-hook-form";
+import { UseFieldArrayReturn } from "react-hook-form";
 import { FormValues } from "..";
 import {
   ConfigurableBaseConfigurationT,
@@ -9,14 +9,12 @@ import BaseSettingsInput from "./BaseSettingsInput";
 type BaseSettingsProps = {
   variant: ConfigurationVariantsT;
   configurableBaseConfiguration: ConfigurableBaseConfigurationT;
-  register: UseFormRegister<FormValues>;
   fieldsArray: UseFieldArrayReturn<FormValues, ConfigurationVariantsT>;
 };
 
 const BaseSettings: React.FunctionComponent<BaseSettingsProps> = ({
   variant,
   configurableBaseConfiguration,
-  register,
   fieldsArray,
 }) => {
   return (
@@ -34,7 +32,6 @@ const BaseSettings: React.FunctionComponent<BaseSettingsProps> = ({
           variant={variant}
           specifics={configurableBaseConfiguration[field.attribute]}
           index={index}
-          register={register}
         />
       ))}
     </div>

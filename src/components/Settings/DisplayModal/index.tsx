@@ -1,14 +1,13 @@
 import { useRef } from "react";
-import "./style.css";
-import { DisplayMapDispatchActionT } from "../../../types/displayMap";
 import { createPortal } from "react-dom";
+import { useSettingsContext } from "..";
 import { ConfigurationVariantsT } from "../../../types/configuration";
+import "./style.css";
 
 type DisplayModalT = {
   mref: React.RefObject<HTMLDialogElement>;
   attributeDisplay: string;
   attribute: string;
-  dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>;
   variant: ConfigurationVariantsT;
 };
 
@@ -16,10 +15,12 @@ const DisplayModal: React.FunctionComponent<DisplayModalT> = ({
   mref,
   attributeDisplay,
   attribute,
-  dispatchDisplayMap,
   variant,
 }) => {
+  const { displayMap, dispatchDisplayMap } = useSettingsContext();
+
   const inputRef = useRef<HTMLInputElement>(null);
+  const mapKey = `${variant}-${attribute}`;
 
   function closeModal() {
     if (mref.current) {
@@ -30,7 +31,7 @@ const DisplayModal: React.FunctionComponent<DisplayModalT> = ({
   function handleSave() {
     if (inputRef.current && inputRef.current.value.length > 0) {
       dispatchDisplayMap({
-        attribute: `${variant}-${attribute}`,
+        attribute: mapKey,
         display: inputRef.current.value,
       });
     }
@@ -48,7 +49,11 @@ const DisplayModal: React.FunctionComponent<DisplayModalT> = ({
             <input
               ref={inputRef}
               type="text"
-              placeholder="Write here..."
+              placeholder={
+                displayMap && displayMap[mapKey]
+                  ? displayMap[mapKey]
+                  : attributeDisplay
+              }
               // TODO: Do not use outline-none, bad for accessibility
               className="bg-transparent border-b-2 border-b-white focus:outline-none pt-4"
             ></input>
