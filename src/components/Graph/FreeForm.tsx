@@ -111,7 +111,7 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
   function resizeFreeForm(freeForm: HTMLDivElement, domRect: DOMRect) {
     setContainerData(domRect);
 
-    // We are copying the main group's bounding box onto our free form container
+    // We are copying the svg's bounding box onto our free form container
     const { top, left, width, height } = domRect;
     freeForm.style.top = `${top}px`;
     freeForm.style.left = `${left}px`;
@@ -123,13 +123,12 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
     if (!entries.length || entries.length > 1) {
       console.error("FreeForm Resize Observer is observing invalid elements.");
     } else {
-      const mainGroup = document.getElementById("mainGroup");
       const freeForm = document.getElementById(
         freeFormId
       ) as HTMLDivElement | null;
 
-      if (freeForm && mainGroup) {
-        resizeFreeForm(freeForm, mainGroup.getBoundingClientRect());
+      if (freeForm && svgRef.current) {
+        resizeFreeForm(freeForm, svgRef.current.getBoundingClientRect());
       }
     }
   };
@@ -145,12 +144,11 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
     }
 
     if (svgRef.current && node) {
-      const mainGroup = svgRef.current.getElementById("mainGroup");
-      if (mainGroup) {
+      if (svgRef.current) {
         resizeObserverRef.current.observe(document.body);
 
-        // We are going to copy the main group's bounding box
-        const domRect = mainGroup.getBoundingClientRect();
+        // We are going to copy the svg's bounding box
+        const domRect = svgRef.current.getBoundingClientRect();
 
         resizeFreeForm(node, domRect);
       }

@@ -62,8 +62,7 @@ fn app_setup(app: &mut App) -> Result<(), Box<dyn Error>> {
             let _ = window.emit(LOAD_NEW_SYSTEM, 0);
         } else if event_id == LOAD_CONFIGURATION {
             load_configuration(window, handle.state());
-        }
-        else if event_id == EXPORT_XML {
+        } else if event_id == EXPORT_XML {
             export_xml(window, handle.state());
         } else if event_id == EXPORT_CONFIGURATION {
             export_configuration(window, handle.state());
@@ -99,12 +98,12 @@ fn main() {
             parse::parse,
             svg::get_svg,
             svg::update_svg,
-            svg::render_svg,
             configuration::get_attributes,
             configuration::get_base_configuration,
             info::get_info,
             edit::initiate_edit,
-            export::store_configuration
+            export::store_configuration,
+            export::export_render,
         ])
         .setup(&app_setup)
         .run(tauri::generate_context!())

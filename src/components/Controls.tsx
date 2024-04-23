@@ -1,13 +1,13 @@
 import { invoke } from "@tauri-apps/api";
+import { useState } from "react";
 import { useAppContext } from "../App";
+import { Point } from "../types/freeForm";
+import { ClipPathInput } from "../types/svg";
+import { cleanUpPanZoom, registerPanZoom } from "../utils/svgPanZoom";
 import ControlButton from "./ControlButton";
 import RoundBorderOuter from "./icons/RoundBorderOuter";
 import TwotoneCameraEnhance from "./icons/TwotoneCameraEnhance";
 import TwotoneSettings from "./icons/TwotoneSettings";
-import { ClipPathInput, SVGRenderResponseT } from "../types/svg";
-import { cleanUpPanZoom, registerPanZoom } from "../utils/svgPanZoom";
-import { Point } from "../types/freeForm";
-import toast from "react-hot-toast";
 
 function convertPoint(point: Point, viewBox: DOMRect): [number, number] {
   const x = viewBox.width * (point.x / 100) + viewBox.x;
@@ -23,7 +23,7 @@ const Controls: React.FunctionComponent = () => {
     ctx.showSettings(true);
   };
 
-  const handleExport = () => {
+  const handleExport = (renderMode: "PNG" | "SVG") => {
     let clipPath: ClipPathInput | undefined = undefined;
     if (ctx.freeFormPoints.length > 0 && ctx.svgRef.current) {
       let x = Number.MAX_SAFE_INTEGER;
@@ -67,16 +67,13 @@ const Controls: React.FunctionComponent = () => {
       };
     }
 
-    invoke<SVGRenderResponseT>("render_svg", { clipPath }).then((res) => {
-      if (res.status === "error") {
-        toast.error(res.message, { duration: 10000 });
-      } else {
-        toast.success(res.message);
-      }
-    });
+    // Will emit message to window
+    invoke("export_render", { clipPath, renderMode });
   };
 
   const handleFreeForm = () => {
+    setExporting(false);
+
     ctx.setFreeForm((freeform) => {
       if (freeform) {
         if (ctx.graphParentRef.current)
@@ -93,8 +90,10 @@ const Controls: React.FunctionComponent = () => {
     });
   };
 
+  const [exporting, setExporting] = useState(false);
+
   return (
-    <div className="fixed bottom-7 left-0">
+    <div className="fixed bottom-7 left-0 flex">
       <ControlButton
         Icon={TwotoneSettings}
         action={handleSettings}
@@ -102,9 +101,32 @@ const Controls: React.FunctionComponent = () => {
       />
       <ControlButton
         Icon={TwotoneCameraEnhance}
-        action={handleExport}
+        action={() => setExporting((prev) => !prev)}
         disabled={ctx.freeForm && ctx.freeFormPoints.length < 3}
-      />
+      >
+        <div
+          className={`flex flex-col absolute top-0 left-0 right-0 items-center transition-all duration-300 z-40 ${
+            exporting
+              ? "opacity-100 -translate-y-full"
+              : "translate-y-3 opacity-0"
+          }`}
+        >
+          <button
+            className="bg-indigo-200 text-indigo-700 rounded-full px-4 py-1 font-bold text-base"
+            disabled={!exporting}
+            onClick={() => handleExport("SVG")}
+          >
+            SVG
+          </button>
+          <button
+            className="bg-indigo-200 text-indigo-700 rounded-full px-4 py-1 font-bold text-base my-4"
+            disabled={!exporting}
+            onClick={() => handleExport("PNG")}
+          >
+            PNG
+          </button>
+        </div>
+      </ControlButton>
       <ControlButton
         Icon={RoundBorderOuter}
         action={handleFreeForm}

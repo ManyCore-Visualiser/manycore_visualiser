@@ -103,6 +103,7 @@ const Settings: React.FunctionComponent = () => {
     // it performs well and everything is pure as per React requirements.
     const importListener = listen<string>("load_config", (ev) => {
       const wholeConfiguration = JSON.parse(ev.payload) as WholeConfigurationT;
+      
       populateFromConfiguration(
         wholeConfiguration,
         getValues(),
