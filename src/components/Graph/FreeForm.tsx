@@ -87,16 +87,13 @@ const FreeForm: React.FunctionComponent<FreeFormProps> = ({ svgRef }) => {
         if (point) {
           let [dx, dy, prevPoint] = calculateDeltas(point, ev.altKey, points);
 
-          if (dx < dy) {
-            hLine.current.classList.remove("hidden");
-            vLine.current.classList.remove("hidden");
+          hLine.current.classList.remove("hidden");
+          vLine.current.classList.remove("hidden");
 
+          if (dx < dy) {
             vLine.current.style.left = `calc(${prevPoint.x}% - ${lineSize})`;
             hLine.current.style.top = `calc(${point.y}% - ${lineSize})`;
           } else {
-            vLine.current.classList.remove("hidden");
-            hLine.current.classList.remove("hidden");
-
             hLine.current.style.top = `calc(${prevPoint.y}% - ${lineSize})`;
             vLine.current.style.left = `calc(${point.x}% - ${lineSize})`;
           }

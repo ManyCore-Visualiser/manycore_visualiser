@@ -16,6 +16,7 @@ function generateText(
     return {
       type: "Text",
       display: displayMap[`${variant}-${field.attribute}`] ?? field.display,
+      colour: field[`${field.attribute}-colour`].toString(),
     };
   }
 

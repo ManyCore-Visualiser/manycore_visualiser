@@ -1,30 +1,48 @@
 .colour {
-    appearance: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    
-    background: none;
-    border: 1px solid theme(colors.white);
-    cursor: pointer;
-    height: 1.5rem;
-    width: 100%;
-    padding: 0;
+  @apply appearance-none;
+
+  background: none;
+  border: 1px solid theme(colors.white);
+  cursor: pointer;
+  height: 1.5rem;
+  width: 100%;
+  padding: 0;
 }
 
 .colour::-webkit-color-swatch-wrapper {
-    padding: 0;
+  padding: 0;
 }
 
 .colour-left,
 .colour-left::-webkit-color-swatch-wrapper,
 .colour-left::-webkit-color-swatch {
-    border-bottom-left-radius: 99999px;
-    border-top-left-radius: 99999px;
+  border-bottom-left-radius: 99999px;
+  border-top-left-radius: 99999px;
 }
 
 .colour-right,
 .colour-right::-webkit-color-swatch-wrapper,
 .colour-right::-webkit-color-swatch {
-    border-bottom-right-radius: 99999px;
-    border-top-right-radius: 99999px;
+  border-bottom-right-radius: 99999px;
+  border-top-right-radius: 99999px;
+}
+
+.colour-button {
+  @apply appearance-none;
+
+  border: 1px solid theme(colors.white);
+  border-radius: 99999px;
+
+  cursor: pointer;
+
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: 1rem;
+}
+
+.colour-button::-webkit-color-swatch,
+.colour-button::-webkit-color-swatch-wrapper {
+  padding: 0;
+
+  border-radius: 99999px;
 }

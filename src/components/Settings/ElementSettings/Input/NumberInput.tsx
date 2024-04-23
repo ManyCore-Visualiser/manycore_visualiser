@@ -24,6 +24,7 @@ const NumberInput: React.FunctionComponent<NumberInputProps> = ({
   index,
 }) => {
   const name: FieldNameT = `${variant}.${index}.${attribute}`;
+  const colourName: FieldNameT = `${variant}.${index}.${attribute}-colour`;
   const selectName: FieldNameT = `${variant}.${index}.${attribute}-select`;
 
   const { register, control } = useFormContext();
@@ -81,9 +82,19 @@ const NumberInput: React.FunctionComponent<NumberInputProps> = ({
             </select>
           </div>
           {type !== "Fill" && checked && (
-            <button onClick={showModal} type="button">
-              <TwotoneTextFields width="1em" height="1em" className="ml-4" />
-            </button>
+            <>
+              <button onClick={showModal} type="button">
+                <TwotoneTextFields width="1em" height="1em" className="ml-4" />
+              </button>
+              {type !== "ColouredText" && (
+                <input
+                  type="color"
+                  className="colour-button"
+                  id={colourName}
+                  {...register(colourName)}
+                />
+              )}
+            </>
           )}
         </div>
         {checked && type !== "Text" && <ColourBoundaries baseName={name} />}

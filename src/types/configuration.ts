@@ -2,7 +2,12 @@ import { BaseResponseT } from "./baseResponse";
 
 export type ConfigurationVariantsT = "Cores" | "Routers" | "Channels" | "SVG";
 
-export type AttributeTypeT = "number" | "text" | "boolean" | "routing" | "coordinates";
+export type AttributeTypeT =
+  | "number"
+  | "text"
+  | "boolean"
+  | "routing"
+  | "coordinates";
 export type AttributeVariantsT = "Text" | "ColouredText" | "Fill";
 
 export type ProcessedAttributesGroupContentT = {
@@ -45,7 +50,7 @@ export interface LoadHTMLSelectElement extends HTMLSelectElement {
   value: LoadConfigurationT;
 }
 
-export type TextArgumentT = { type: "Text"; display: string };
+export type TextArgumentT = { type: "Text"; display: string; colour?: string };
 export type FillArgumentT = { type: "Fill" } & ColourConfig;
 export type ColouredTextArgumentT = {
   type: "ColouredText";

@@ -13,19 +13,23 @@ import {
 import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
 import { findIndex } from "../../utils/populateFromConfiguration";
 
-function populateCheck(
+function populateText(
   array: FieldT[],
   attribute: string,
   variant: ConfigurationVariantsT,
   setValue: UseFormSetValue<FormValues>,
-  entry: BooleanArgumentT | TextArgumentT,
+  entry: TextArgumentT,
   dispatchDisplayMap?: React.Dispatch<DisplayMapDispatchActionT>
 ) {
   const index = findIndex(array, attribute);
   if (index !== -1) {
+    setValue(`${variant}.${index}.${attribute}`, true, {
+      shouldDirty: true,
+    });
+
     setValue(
-      `${variant}.${index}.${attribute}`,
-      entry.type === "Boolean" ? entry.value : true,
+      `${variant}.${index}.${attribute}-colour`,
+      entry.colour ?? "#000000",
       {
         shouldDirty: true,
       }
@@ -37,6 +41,21 @@ function populateCheck(
         display: entry.display,
       });
     }
+  }
+}
+
+function populateBoolean(
+  array: FieldT[],
+  attribute: string,
+  variant: ConfigurationVariantsT,
+  setValue: UseFormSetValue<FormValues>,
+  entry: BooleanArgumentT
+) {
+  const index = findIndex(array, attribute);
+  if (index !== -1) {
+    setValue(`${variant}.${index}.${attribute}`, entry.value, {
+      shouldDirty: true,
+    });
   }
 }
 
@@ -132,7 +151,7 @@ export default function populateConfig(
   Object.entries(configuration).forEach(([attribute, entry]) => {
     switch (entry.type) {
       case "Boolean":
-        populateCheck(array, attribute, variant, setValue, entry);
+        populateBoolean(array, attribute, variant, setValue, entry);
         break;
       case "ColouredText":
         populateNumber(
@@ -161,7 +180,7 @@ export default function populateConfig(
         );
         break;
       case "Text":
-        populateCheck(
+        populateText(
           array,
           attribute,
           variant,

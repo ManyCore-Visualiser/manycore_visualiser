@@ -71,6 +71,8 @@ const Settings: React.FunctionComponent = () => {
         ctx.configurableBaseConfiguration
       );
 
+      console.log(configuration)
+
       if (configuration) {
         updateSVG(
           configuration.baseConfiguration,

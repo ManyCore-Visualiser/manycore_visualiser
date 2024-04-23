@@ -1,8 +1,7 @@
 import { useRef } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
-import { FieldNameT, useSettingsContext } from "../..";
+import { FieldNameT } from "../..";
 import { ConfigurationVariantsT } from "../../../../types/configuration";
-import { DisplayMapDispatchActionT } from "../../../../types/displayMap";
 import TwotoneTextFields from "../../../icons/TwotoneTextFields";
 import DisplayModal from "../../DisplayModal";
 
@@ -23,6 +22,7 @@ const TextInput: React.FunctionComponent<TextInputProps> = ({
 }) => {
   const modalRef = useRef<HTMLDialogElement>(null);
   const name: FieldNameT = `${variant}.${index}.${attribute}`;
+  const colourName: FieldNameT = `${variant}.${index}.${attribute}-colour`;
   const { register, control } = useFormContext();
   const checked = useWatch({ name, control });
 
@@ -46,9 +46,12 @@ const TextInput: React.FunctionComponent<TextInputProps> = ({
             <label htmlFor={name}>{display}</label>
           </div>
           {checked && (
-            <button onClick={showModal} type="button">
-              <TwotoneTextFields width="1em" height="1em" className="ml-4" />
-            </button>
+            <>
+              <button onClick={showModal} type="button">
+                <TwotoneTextFields width="1em" height="1em" className="ml-4" />
+              </button>
+              <input type="color" className="colour-button" id={colourName} {...register(colourName)} />
+            </>
           )}
         </div>
       </div>
