@@ -1,10 +1,10 @@
-use std::fs;
+use std::{fs, ops::Mul, path::PathBuf};
 
 use manycore_svg::{BaseConfiguration, Configuration, CoordinateT};
 use resvg::{
     render,
     tiny_skia::Pixmap,
-    usvg::{Options, Transform, Tree},
+    usvg::{fontdb::Database, Options, Size, Transform, Tree},
 };
 use serde::{Deserialize, Serialize};
 use tauri::{api::dialog::FileDialogBuilder, AppHandle, Manager, Window};
@@ -186,6 +186,36 @@ pub(crate) enum RenderMode {
     PNG,
 }
 
+/// Internal utility to wrap PNG export operations in a Result.
+fn export_png(
+    file_path: PathBuf,
+    svg_str: &str,
+    font_database: &Database,
+    scale: f32,
+) -> Result<(), String> {
+    let tree =
+        Tree::from_str(svg_str, &Options::default(), &font_database).map_err(|e| e.to_string())?;
+
+    // Scale dimensions
+    let w = tree.size().width().mul(scale);
+    let h = tree.size().height().mul(scale);
+    let size = Size::from_wh(w, h)
+        .ok_or("Please provide a valid scale value. Could not compute image size.")?
+        .to_int_size();
+
+    // Allocate buffer
+    let mut target_image = Pixmap::new(size.width(), size.height()).ok_or("err")?;
+
+    // Calculate transform
+    let transform = Transform::default().pre_scale(scale, scale);
+
+    // This just does the rendering, no result/option
+    render(&tree, transform, &mut target_image.as_mut());
+
+    // Write to disk
+    target_image.save_png(file_path).map_err(|e| e.to_string())
+}
+
 /// Exports the [`SVG`] in its current state as SVG or PNG, optionally adding a [`ClipPath`].
 #[tauri::command]
 pub(crate) fn export_render(
@@ -194,7 +224,8 @@ pub(crate) fn export_render(
     state: tauri::State<'_, State>,
     clip_path: Option<ClipPathInput>,
     render_mode: RenderMode,
-) -> Result<(), ()> {
+    scale: f32,
+) -> Result<(), String> {
     if let (Ok(font_database_mutex), Ok(mut svg_mutex)) =
         (state.font_database.try_lock(), state.svg.try_lock())
     {
@@ -207,8 +238,11 @@ pub(crate) fn export_render(
             let mut serializer = quick_xml::se::Serializer::new(&mut svg_string);
             serializer.indent(' ', 4);
 
-            let (svg_string_res, width, height) = match clip_path {
+            // Serialise SVG
+            match clip_path {
                 Some(clip_path) => {
+                    // Serialise SVG with user defined clipPath
+
                     let view_box = svg.view_box_mut().swap(
                         clip_path.x,
                         clip_path.y,
@@ -222,15 +256,13 @@ pub(crate) fn export_render(
                     svg.view_box_mut().restore_from(&view_box);
                     svg.clear_freeform_clip_path();
 
-                    (res, clip_path.width, clip_path.height)
+                    res
                 }
-                None => (
-                    svg.serialize(serializer),
-                    *svg.view_box().width(),
-                    *svg.view_box().height(),
-                ),
-            };
+                None => svg.serialize(serializer),
+            }
+            .map_err(|e| e.to_string())?;
 
+            // Calculate this to only call FileDialogBuilder once
             let (filter_name, extension, message) = match render_mode {
                 RenderMode::PNG => (
                     "Portable Network Graphics (PNG)",
@@ -244,103 +276,59 @@ pub(crate) fn export_render(
                 ),
             };
 
-            // Clone the window label
+            // Clone the window label, will be moved into FileDialogBuilder's closure
             let window_label = window.label().to_owned();
-            match svg_string_res {
-                Ok(_) => {
-                    // Open file picker
-                    FileDialogBuilder::new()
-                        .add_filter(filter_name, &[extension])
-                        .save_file(move |file_path| {
-                            // Ensure user has picked a file path
-                            if let Some(mut file_path) = file_path {
-                                file_path = file_path.with_extension(extension);
 
-                                // Try to grab the original window
-                                match handle.get_window(window_label.as_str()) {
-                                    Some(window) => match render_mode {
-                                        // Attempt PNG -> SVG conversion
-                                        RenderMode::PNG => match Tree::from_str(
-                                            svg_string.as_str(),
-                                            &Options::default(),
-                                            &font_database,
-                                        ) {
-                                            Ok(tree) => {
-                                                let target_height = u32::try_from(height).unwrap();
-                                                let target_width = u32::try_from(width).unwrap();
-                                                // Attempt PNG buffer allocation
-                                                let target_image =
-                                                    Pixmap::new(target_width, target_height);
-                                                match target_image {
-                                                    Some(mut img_buf) => {
-                                                        // Write PNG to buffer
-                                                        // This just does the rendering, no result/option
-                                                        render(
-                                                            &tree,
-                                                            Transform::default(),
-                                                            &mut img_buf.as_mut(),
-                                                        );
-                                                        // Attempt writing PNG to disk
-                                                        match img_buf.save_png(file_path) {
-                                                            Ok(_) => {
-                                                                let _ =
-                                                                    window.emit(OK_EVENT, message);
-                                                            }
-                                                            Err(e) => {
-                                                                let _ = window.emit(
-                                                                    ERROR_EVENT,
-                                                                    e.to_string(),
-                                                                );
-                                                            }
-                                                        }
-                                                    }
-                                                    None => {
-                                                        let _ = window.emit(
-                                                        ERROR_EVENT,
-                                                        "Could not allocate memory to generate PNG",
-                                                    );
-                                                    }
-                                                }
-                                            }
-                                            Err(e) => {
-                                                // Couldn't convert SVG to simplified tree
-                                                let _ = window.emit(ERROR_EVENT, e.to_string());
-                                            }
-                                        },
-                                        // Attempt writing SVG string to disk
-                                        RenderMode::SVG => match fs::write(file_path, svg_string) {
-                                            Ok(_) => {
-                                                let _ = window.emit(OK_EVENT, message);
-                                            }
-                                            Err(e) => {
-                                                let _ = window.emit(ERROR_EVENT, e.to_string());
-                                            }
-                                        },
-                                    },
-                                    None => {
-                                        // Could not grab the window
-                                        let _ = window.emit(ERROR_EVENT, GENERIC_ERROR);
+            // Open file picker
+            // ASYNC CONTEXT - CAN'T RETURN TO JS PROMISE
+            FileDialogBuilder::new()
+                .add_filter(filter_name, &[extension])
+                .save_file(move |file_path| {
+                    // Ensure user has picked a file path
+                    if let Some(mut file_path) = file_path {
+                        // Sanitise extension
+                        file_path = file_path.with_extension(extension);
+
+                        // Try to grab the original window
+                        match handle.get_window(window_label.as_str()) {
+                            Some(window) => {
+                                let export_res = match render_mode {
+                                    // Attempt SVG -> PNG conversion
+                                    RenderMode::PNG => export_png(
+                                        file_path,
+                                        svg_string.as_str(),
+                                        &font_database,
+                                        scale,
+                                    ),
+                                    // Attempt writing SVG string to disk
+                                    RenderMode::SVG => {
+                                        fs::write(file_path, svg_string).map_err(|e| e.to_string())
+                                    }
+                                };
+
+                                match export_res {
+                                    Ok(_) => {
+                                        let _ = window.emit(OK_EVENT, message);
+                                    }
+                                    Err(e) => {
+                                        let _ = window.emit(ERROR_EVENT, e.to_string());
                                     }
                                 }
                             }
-                        });
-                    return Ok(());
-                }
-                Err(e) => {
-                    let _ = window.emit(
-                        ERROR_EVENT,
-                        format!("Could not generate intermediate SVG: {e}"),
-                    );
-                    return Ok(());
-                }
-            }
-        } else {
-            let _ = window.emit(ERROR_EVENT, "You must load a system first.");
+                            None => {
+                                // Could not grab the window
+                                let _ = window.emit(ERROR_EVENT, GENERIC_ERROR);
+                            }
+                        }
+                    }
+                });
+            // ASYNC CONTEXT ENDS
             return Ok(());
+        } else {
+            return Err("You must load a system first.".to_string());
         }
     }
 
     // Could not lock mutex
-    let _ = window.emit(ERROR_EVENT, GENERIC_ERROR);
-    return Ok(());
+    return Err(GENERIC_ERROR.to_string());
 }
