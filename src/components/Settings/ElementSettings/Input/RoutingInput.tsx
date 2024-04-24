@@ -1,10 +1,10 @@
-import { useRef } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { FieldNameT } from "../..";
 import { useAppContext } from "../../../../App";
 import type { ConfigurationVariantsT } from "../../../../types/configuration";
+import { useModalContext } from "../../../Modal";
 import TwotoneTextFields from "../../../icons/TwotoneTextFields";
-import DisplayModal from "../../DisplayModal";
+import { useDisplayModalContext } from "../../DisplayModal";
 import ColourBoundaries from "./ColourBoundaries";
 
 type RoutingInputProps = {
@@ -28,15 +28,20 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
   const loadName: FieldNameT = `${variant}.${index}.${attribute}-load`;
   const loadSelectName: FieldNameT = `${loadName}-select`;
 
-  const modalRef = useRef<HTMLDialogElement>(null);
-
   const { register, control } = useFormContext();
   const selectedAlgorithm = useWatch({ name: algoName, control });
 
+  const { setDisplay } = useModalContext();
+  const { setData } = useDisplayModalContext();
+
   function showModal() {
-    if (modalRef.current) {
-      modalRef.current.showModal();
-    }
+    setData({
+      attribute,
+      attributeDisplay: display,
+      variant,
+    });
+
+    setDisplay(true);
   }
 
   return (
@@ -89,12 +94,6 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
           </div>
         )}
       </div>
-      <DisplayModal
-        variant={variant}
-        mref={modalRef}
-        attributeDisplay={display}
-        attribute={attribute}
-      />
     </>
   );
 };

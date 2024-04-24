@@ -1,9 +1,9 @@
-import { useRef } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { FieldNameT } from "../..";
 import { ConfigurationVariantsT } from "../../../../types/configuration";
+import { useModalContext } from "../../../Modal";
 import TwotoneTextFields from "../../../icons/TwotoneTextFields";
-import DisplayModal from "../../DisplayModal";
+import { useDisplayModalContext } from "../../DisplayModal";
 
 type TextInputProps = {
   attribute: string;
@@ -20,16 +20,22 @@ const TextInput: React.FunctionComponent<TextInputProps> = ({
   variant,
   index,
 }) => {
-  const modalRef = useRef<HTMLDialogElement>(null);
   const name: FieldNameT = `${variant}.${index}.${attribute}`;
   const colourName: FieldNameT = `${variant}.${index}.${attribute}-colour`;
   const { register, control } = useFormContext();
   const checked = useWatch({ name, control });
 
+  const { setDisplay } = useModalContext();
+  const { setData } = useDisplayModalContext();
+
   function showModal() {
-    if (modalRef.current) {
-      modalRef.current.showModal();
-    }
+    setData({
+      attribute,
+      attributeDisplay: display,
+      variant,
+    });
+
+    setDisplay(true);
   }
 
   return (
@@ -50,17 +56,16 @@ const TextInput: React.FunctionComponent<TextInputProps> = ({
               <button onClick={showModal} type="button">
                 <TwotoneTextFields width="1em" height="1em" className="ml-4" />
               </button>
-              <input type="color" className="colour-button" id={colourName} {...register(colourName)} />
+              <input
+                type="color"
+                className="colour-button"
+                id={colourName}
+                {...register(colourName)}
+              />
             </>
           )}
         </div>
       </div>
-      <DisplayModal
-        variant={variant}
-        mref={modalRef}
-        attributeDisplay={display}
-        attribute={attribute}
-      />
     </>
   );
 };

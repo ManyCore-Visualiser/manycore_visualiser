@@ -8,7 +8,7 @@ import {
   restoreMatrix,
 } from "../../utils/svgPanZoom";
 import "./style.css";
-import { registerHoveringEvents } from "./hovering";
+import { registerMouseEvents } from "./mouseEvents";
 import FreeForm from "./FreeForm";
 import toast from "react-hot-toast";
 
@@ -40,7 +40,7 @@ const Graph: React.FunctionComponent = () => {
           "processingGroup"
         ) as SVGGElement | null;
 
-        registerHoveringEvents(processingGroup);
+        registerMouseEvents(processingGroup);
 
         registerPanZoom(ctx.graphParentRef.current);
       } else {

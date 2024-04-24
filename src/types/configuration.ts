@@ -77,8 +77,8 @@ export type ItemArgumentConfigurationT =
   | RoutingArgumentT;
 
 export type ConfigurationT = {
-  coreConfig: ItemConfigurationT;
-  routerConfig: ItemConfigurationT;
+  coreConfig: ItemConfigurationT & FillOverrideT;
+  routerConfig: ItemConfigurationT & FillOverrideT;
   channelConfig: ItemConfigurationT;
 };
 
@@ -108,3 +108,17 @@ export type WholeConfigurationT = {
   baseConfiguration: BaseConfigurationT;
   configuration: ConfigurationT;
 };
+
+export type FillOverrideGroupT = Map<number, string>;
+
+type FillOverrideT = {
+  fill: FillOverrideGroupT;
+};
+
+export type DispatchFillOverrideGroupT =
+  | {
+      type: "add";
+      id: number;
+      colour: string;
+    }
+  | { type: "remove"; id: number };

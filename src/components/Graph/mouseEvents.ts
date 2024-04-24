@@ -44,11 +44,20 @@ function handleMouseLeave(_: MouseEvent) {
   if (target) target.dispatchEvent(event);
 }
 
-export function registerHoveringEvents(processingGroup: SVGGElement | null) {
+function handleRightClick(ev: MouseEvent) {
+  if (ev.target instanceof SVGPathElement) {
+    ev.preventDefault();
+    console.log(ev.target.id);
+    ev.target.dataset.tooltipId = "fill-switch";
+  }
+}
+
+export function registerMouseEvents(processingGroup: SVGGElement | null) {
   if (processingGroup) {
     const paths = processingGroup.querySelectorAll<SVGPathElement>("g > path");
 
     paths.forEach((path) => {
+      path.addEventListener("contextmenu", handleRightClick);
       path.addEventListener("mouseenter", handleMouseEnter);
       path.addEventListener("mouseleave", handleMouseLeave);
     });

@@ -3,6 +3,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useReducer,
   useRef,
   useState,
 } from "react";
@@ -15,6 +16,8 @@ import Loading from "./components/Loading";
 import Settings from "./components/Settings";
 import {
   ConfigurableBaseConfigurationT,
+  DispatchFillOverrideGroupT,
+  FillOverrideGroupT,
   ProcessedAttributesT,
 } from "./types/configuration";
 import { Point } from "./types/freeForm";
@@ -70,6 +73,23 @@ function App() {
   const settingsRef = useRef<HTMLDivElement | null>(null);
   const [configurableBaseConfiguration, setConfigurableBaseConfiguration] =
     useState<ConfigurableBaseConfigurationT>();
+
+  const reduceFill: React.Reducer<
+    FillOverrideGroupT,
+    DispatchFillOverrideGroupT
+  > = (state, action) => {
+    const newMap = new Map(state);
+    switch (action.type) {
+      case "add":
+        newMap.set(action.id, action.colour);
+        return newMap;
+      case "remove":
+        newMap.delete(action.id);
+        return newMap;
+    }
+  };
+  const [coreFills, dispatchCoreFills] = useReducer(reduceFill, new Map());
+  const [routerFills, dispatchRouterFills] = useReducer(reduceFill, new Map());
 
   // Get base configuration on mount. This is application version specific and won't change
   useEffect(() => {

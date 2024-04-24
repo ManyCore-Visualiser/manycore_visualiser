@@ -29,6 +29,11 @@ import "./number.css";
 import "./select.css";
 import generateConfiguration from "./utils/generateConfiguration";
 import populateFromConfiguration from "./utils/populateFromConfiguration";
+import { ModalContext } from "../Modal";
+import DisplayModal, {
+  DisplayModalContext,
+  DisplayModalContextDataT,
+} from "./DisplayModal";
 
 export type FieldT = {
   attribute: string;
@@ -60,6 +65,10 @@ const Settings: React.FunctionComponent = () => {
     return { ...state, [action.attribute]: action.display };
   };
   const [displayMap, dispatchDisplayMap] = useReducer(displayReducer, {});
+  const [displayModal, setDisplayModal] = useState(false);
+  const [displayModalData, setDisplayModalData] =
+    useState<DisplayModalContextDataT>({});
+
   const [coreFillSelected, setCoreFillSelected] = useState<string>();
   const [routerFillSelected, setRouterFillSelected] = useState<string>();
 
@@ -71,7 +80,7 @@ const Settings: React.FunctionComponent = () => {
         ctx.configurableBaseConfiguration
       );
 
-      console.log(configuration)
+      console.log(configuration);
 
       if (configuration) {
         updateSVG(
@@ -105,7 +114,7 @@ const Settings: React.FunctionComponent = () => {
     // it performs well and everything is pure as per React requirements.
     const importListener = listen<string>("load_config", (ev) => {
       const wholeConfiguration = JSON.parse(ev.payload) as WholeConfigurationT;
-      
+
       populateFromConfiguration(
         wholeConfiguration,
         getValues(),
@@ -181,83 +190,92 @@ const Settings: React.FunctionComponent = () => {
 
   return (
     <SettingsContext.Provider value={{ displayMap, dispatchDisplayMap }}>
-      <div
-        ref={ctx.settingsRef}
-        className={`fixed z-20 bg-black text-white flex flex-col h-screen transition-transform duration-200 ease-in-out justify-between w-96 select-none ${
-          ctx.settings ? "translate-x-0" : "-translate-x-full"
-        }`}
+      <ModalContext.Provider
+        value={{ display: displayModal, setDisplay: setDisplayModal }}
       >
-        <div className="overflow-y-scroll no-scrollbar px-2">
-          <h3 className="block text-indigo-400 text-2xl">
-            Visualisation Settings
-          </h3>
-          <FormProvider {...formMethods}>
-            <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-              {ctx.configurableBaseConfiguration && (
-                <BaseSettings
-                  variant="SVG"
-                  configurableBaseConfiguration={
-                    ctx.configurableBaseConfiguration
+        <DisplayModalContext.Provider
+          value={{ data: displayModalData, setData: setDisplayModalData }}
+        >
+          <div
+            ref={ctx.settingsRef}
+            className={`fixed z-20 bg-black text-white flex flex-col h-screen transition-transform duration-200 ease-in-out justify-between w-96 select-none ${
+              ctx.settings ? "translate-x-0" : "-translate-x-full"
+            }`}
+          >
+            <div className="overflow-y-scroll no-scrollbar px-2">
+              <h3 className="block text-indigo-400 text-2xl">
+                Visualisation Settings
+              </h3>
+              <FormProvider {...formMethods}>
+                <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
+                  {ctx.configurableBaseConfiguration && (
+                    <BaseSettings
+                      variant="SVG"
+                      configurableBaseConfiguration={
+                        ctx.configurableBaseConfiguration
+                      }
+                      fieldsArray={svgArray}
+                    />
+                  )}
+                  {ctx.attributes && (
+                    <>
+                      <ElementSettings
+                        variant="Cores"
+                        fillSelected={coreFillSelected}
+                        setFillSelected={setCoreFillSelected}
+                        fieldsArray={coreArray}
+                      />
+                      <ElementSettings
+                        variant="Routers"
+                        fillSelected={routerFillSelected}
+                        setFillSelected={setRouterFillSelected}
+                        fieldsArray={routerArray}
+                      />
+                      <ElementSettings
+                        variant="Channels"
+                        fillSelected={routerFillSelected}
+                        setFillSelected={setRouterFillSelected}
+                        fieldsArray={channelArray}
+                      />
+                    </>
+                  )}
+                </form>
+              </FormProvider>
+            </div>
+            <div className="w-full grid grid-cols-2 grid-rows-3 gap-2 px-2 pb-2 pt-4">
+              <SettingsButton
+                text="Load new system"
+                action={() => loadNewSystem(ctx)}
+              />
+              <SettingsButton
+                text="Edit system"
+                action={() => {
+                  editSystem(ctx);
+                }}
+              />
+              <SettingsButton text="Export Configuration" action={() => {}} />
+              <SettingsButton text="Load Configuration" action={() => {}} />
+              <SettingsButton
+                text="Apply"
+                action={() => {
+                  if (formRef.current) {
+                    formRef.current.dispatchEvent(
+                      new Event("submit", { cancelable: false, bubbles: true })
+                    );
                   }
-                  fieldsArray={svgArray}
-                />
-              )}
-              {ctx.attributes && (
-                <>
-                  <ElementSettings
-                    variant="Cores"
-                    fillSelected={coreFillSelected}
-                    setFillSelected={setCoreFillSelected}
-                    fieldsArray={coreArray}
-                  />
-                  <ElementSettings
-                    variant="Routers"
-                    fillSelected={routerFillSelected}
-                    setFillSelected={setRouterFillSelected}
-                    fieldsArray={routerArray}
-                  />
-                  <ElementSettings
-                    variant="Channels"
-                    fillSelected={routerFillSelected}
-                    setFillSelected={setRouterFillSelected}
-                    fieldsArray={channelArray}
-                  />
-                </>
-              )}
-            </form>
-          </FormProvider>
-        </div>
-        <div className="w-full grid grid-cols-2 grid-rows-3 gap-2 px-2 pb-2 pt-4">
-          <SettingsButton
-            text="Load new system"
-            action={() => loadNewSystem(ctx)}
-          />
-          <SettingsButton
-            text="Edit system"
-            action={() => {
-              editSystem(ctx);
-            }}
-          />
-          <SettingsButton text="Export Configuration" action={() => {}} />
-          <SettingsButton text="Load Configuration" action={() => {}} />
-          <SettingsButton
-            text="Apply"
-            action={() => {
-              if (formRef.current) {
-                formRef.current.dispatchEvent(
-                  new Event("submit", { cancelable: false, bubbles: true })
-                );
-              }
-            }}
-          />
-          <SettingsButton
-            text="Close"
-            action={() => {
-              ctx.showSettings(false);
-            }}
-          />
-        </div>
-      </div>
+                }}
+              />
+              <SettingsButton
+                text="Close"
+                action={() => {
+                  ctx.showSettings(false);
+                }}
+              />
+            </div>
+          </div>
+          <DisplayModal />
+        </DisplayModalContext.Provider>
+      </ModalContext.Provider>
     </SettingsContext.Provider>
   );
 };
