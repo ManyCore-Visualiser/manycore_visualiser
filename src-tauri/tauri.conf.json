@@ -6,8 +6,8 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "manycore_visualiser",
-    "version": "0.0.0"
+    "productName": "ManyCore Visualiser",
+    "version": "1.0.0"
   },
   "tauri": {
     "allowlist": {
@@ -29,9 +29,11 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "manycore_visualiser",
+        "title": "ManyCore Visualiser",
         "width": 800,
         "height": 600,
+        "minWidth": 800,
+        "minHeight": 600,
         "fileDropEnabled": false
       }
     ],
@@ -48,7 +50,17 @@
         "icons/128x128@2x.png",
         "icons/icon.icns",
         "icons/icon.ico"
-      ]
+      ],
+      "windows": {
+        "allowDowngrades": true,
+        "nsis": {
+          "installMode": "both"
+        },
+        "webviewInstallMode": {
+          "silent": true,
+          "type": "embedBootstrapper"
+        }
+      }
     }
   }
 }
