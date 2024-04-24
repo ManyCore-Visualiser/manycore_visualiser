@@ -3,7 +3,7 @@ import {
   ELEMENT_INFO_DESTROY_EVENT,
   ELEMENT_INFO_EVENT,
   HoveringInfoT,
-} from "./Graph/hovering";
+} from "./Graph/mouseEvents";
 
 export const HOVER_INFO_ID = "hoverInfo";
 

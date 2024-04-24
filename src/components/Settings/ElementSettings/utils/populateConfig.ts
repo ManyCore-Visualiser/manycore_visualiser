@@ -21,8 +21,8 @@ function populateText(
   entry: TextArgumentT,
   dispatchDisplayMap?: React.Dispatch<DisplayMapDispatchActionT>
 ) {
-  const index = findIndex(array, attribute);
-  if (index !== -1) {
+  const { outcome, index } = findIndex(array, variant, attribute);
+  if (outcome) {
     setValue(`${variant}.${index}.${attribute}`, true, {
       shouldDirty: true,
     });
@@ -51,8 +51,8 @@ function populateBoolean(
   setValue: UseFormSetValue<FormValues>,
   entry: BooleanArgumentT
 ) {
-  const index = findIndex(array, attribute);
-  if (index !== -1) {
+  const { outcome, index } = findIndex(array, variant, attribute);
+  if (outcome) {
     setValue(`${variant}.${index}.${attribute}`, entry.value, {
       shouldDirty: true,
     });
@@ -82,8 +82,8 @@ function populateNumber(
   entry: ColouredTextArgumentT | FillArgumentT,
   dispatchDisplayMap?: React.Dispatch<DisplayMapDispatchActionT>
 ) {
-  const index = findIndex(array, attribute);
-  if (index !== -1) {
+  const { outcome, index } = findIndex(array, variant, attribute);
+  if (outcome) {
     const base: FieldNameT = `${variant}.${index}.${attribute}`;
     setValue(base, true, { shouldDirty: true });
     setValue(`${base}-select`, entry.type, {
@@ -107,8 +107,8 @@ function populateCoordinates(
   setValue: UseFormSetValue<FormValues>,
   entry: CoordinatesArgumentT
 ) {
-  const index = findIndex(array, attribute);
-  if (index !== -1) {
+  const { outcome, index } = findIndex(array, variant, attribute);
+  if (outcome) {
     setValue(`${variant}.${index}.${attribute}`, entry.orientation, {
       shouldDirty: true,
     });
@@ -123,8 +123,8 @@ function populateRouting(
   entry: RoutingArgumentT,
   dispatchDisplayMap: React.Dispatch<DisplayMapDispatchActionT>
 ) {
-  const index = findIndex(array, attribute);
-  if (index !== -1) {
+  const { outcome, index } = findIndex(array, variant, attribute);
+  if (outcome) {
     const base: FieldNameT = `${variant}.${index}.${attribute}`;
     const algoName: FieldNameT = `${base}-algo-select`;
     const loadName: FieldNameT = `${base}-load`;

@@ -110,10 +110,13 @@ function move(ev: MouseEvent) {
 
 // Mouse down handler
 function enableMotion(ev: MouseEvent) {
-  from.x = ev.clientX;
-  from.y = ev.clientY;
+  // Only trigger on left button
+  if (ev.buttons === 1) {
+    from.x = ev.clientX;
+    from.y = ev.clientY;
 
-  motion = true;
+    motion = true;
+  }
 }
 
 // Mouse up handler

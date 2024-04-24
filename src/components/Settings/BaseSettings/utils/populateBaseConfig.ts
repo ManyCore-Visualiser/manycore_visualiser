@@ -14,8 +14,8 @@ export default function populateBaseConfig(
 ) {
   Object.entries(baseConfiguration).forEach(([attribute, entry]) => {
     // We only support FontSize for now
-    const index = findIndex(array, attribute);
-    if (index !== -1) {
+    const { outcome, index } = findIndex(array, variant, attribute);
+    if (outcome) {
       setValue(`${variant}.${index}.${attribute}`, entry, {
         shouldDirty: true,
       });

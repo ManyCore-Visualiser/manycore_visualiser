@@ -1,9 +1,9 @@
-import { useRef } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { FieldNameT } from "../..";
 import { ConfigurationVariantsT } from "../../../../types/configuration";
+import { useModalContext } from "../../../Modal";
 import TwotoneTextFields from "../../../icons/TwotoneTextFields";
-import DisplayModal from "../../DisplayModal";
+import { useDisplayModalContext } from "../../DisplayModal";
 import ColourBoundaries from "./ColourBoundaries";
 
 type NumberInputProps = {
@@ -31,12 +31,17 @@ const NumberInput: React.FunctionComponent<NumberInputProps> = ({
   const checked = useWatch({ name, control });
   const type = useWatch({ name: selectName, control });
 
-  const modalRef = useRef<HTMLDialogElement>(null);
+  const { setDisplay } = useModalContext();
+  const { setData } = useDisplayModalContext();
 
   function showModal() {
-    if (modalRef.current) {
-      modalRef.current.showModal();
-    }
+    setData({
+      attribute,
+      attributeDisplay: display,
+      variant,
+    });
+
+    setDisplay("display");
   }
 
   return (
@@ -99,12 +104,6 @@ const NumberInput: React.FunctionComponent<NumberInputProps> = ({
         </div>
         {checked && type !== "Text" && <ColourBoundaries baseName={name} />}
       </div>
-      <DisplayModal
-        variant={variant}
-        mref={modalRef}
-        attributeDisplay={display}
-        attribute={attribute}
-      />
     </>
   );
 };

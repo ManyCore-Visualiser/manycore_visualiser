@@ -5,6 +5,7 @@ import {
   AttributeTypeT,
   ConfigurationVariantsT,
 } from "../../../types/configuration";
+import FillOverrides from "./FillOverrides";
 import Input from "./Input";
 
 type ElementSettingsT = {
@@ -37,6 +38,9 @@ const ElementSettings: React.FunctionComponent<ElementSettingsT> = ({
           index={index}
         />
       ))}
+      {variant !== "Channels" && variant !== "SVG" && (
+        <FillOverrides variant={variant} />
+      )}
     </div>
   );
 };
