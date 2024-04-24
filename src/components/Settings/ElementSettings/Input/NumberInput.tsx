@@ -41,7 +41,7 @@ const NumberInput: React.FunctionComponent<NumberInputProps> = ({
       variant,
     });
 
-    setDisplay(true);
+    setDisplay("display");
   }
 
   return (

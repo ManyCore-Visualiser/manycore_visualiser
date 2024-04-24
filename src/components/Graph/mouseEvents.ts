@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api";
+import toast from "react-hot-toast";
 import { InfoResponseT } from "../../types/svg";
 import { HOVER_INFO_ID } from "../HoverInfo";
-import toast from "react-hot-toast";
 
 export const ELEMENT_INFO_EVENT = "elementinfo";
 export const ELEMENT_INFO_DESTROY_EVENT = "elementdestroy";
@@ -10,6 +10,7 @@ export type HoveringInfoT = {
   x: number;
   y: number;
 };
+export const ELEMENT_FILL_EVENT = "elementfill";
 
 function handleMouseEnter(ev: MouseEvent) {
   if (ev.target instanceof Element) {
@@ -47,8 +48,13 @@ function handleMouseLeave(_: MouseEvent) {
 function handleRightClick(ev: MouseEvent) {
   if (ev.target instanceof SVGPathElement) {
     ev.preventDefault();
-    console.log(ev.target.id);
-    ev.target.dataset.tooltipId = "fill-switch";
+
+    const event = new CustomEvent(ELEMENT_FILL_EVENT, {
+      detail: ev.target.id,
+      bubbles: true,
+      cancelable: false,
+    });
+    ev.target.dispatchEvent(event);
   }
 }
 

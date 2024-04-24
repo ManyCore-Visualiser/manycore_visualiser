@@ -13,6 +13,7 @@ import FileLoader from "./components/FileLoader";
 import Graph from "./components/Graph";
 import HoverInfo from "./components/HoverInfo";
 import Loading from "./components/Loading";
+import { ModalContext } from "./components/Modal";
 import Settings from "./components/Settings";
 import {
   ConfigurableBaseConfigurationT,
@@ -51,6 +52,10 @@ export type AppState = {
   setFreeFormPoints: React.Dispatch<React.SetStateAction<Point[]>>;
   graphParentRef: React.MutableRefObject<HTMLDivElement | null>;
   settingsRef: React.MutableRefObject<HTMLDivElement | null>;
+  coreFills: FillOverrideGroupT;
+  routerFills: FillOverrideGroupT;
+  dispatchCoreFills: React.Dispatch<DispatchFillOverrideGroupT>;
+  dispatchRouterFills: React.Dispatch<DispatchFillOverrideGroupT>;
 };
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -86,10 +91,13 @@ function App() {
       case "remove":
         newMap.delete(action.id);
         return newMap;
+      case "replace":
+        return action.map;
     }
   };
   const [coreFills, dispatchCoreFills] = useReducer(reduceFill, new Map());
   const [routerFills, dispatchRouterFills] = useReducer(reduceFill, new Map());
+  const [displayFillModal, setDisplayFillModal] = useState<string | null>(null);
 
   // Get base configuration on mount. This is application version specific and won't change
   useEffect(() => {
@@ -125,6 +133,10 @@ function App() {
         graphParentRef,
         configurableBaseConfiguration,
         settingsRef,
+        coreFills,
+        routerFills,
+        dispatchCoreFills,
+        dispatchRouterFills,
       }}
     >
       <AppReadyDummy />
@@ -134,7 +146,14 @@ function App() {
       {svg && (
         <>
           <Settings />
-          <Graph />
+          <ModalContext.Provider
+            value={{
+              display: displayFillModal,
+              setDisplay: setDisplayFillModal,
+            }}
+          >
+            <Graph />
+          </ModalContext.Provider>
           <Controls />
         </>
       )}

@@ -2,6 +2,7 @@ import toast from "react-hot-toast";
 import { FormValues } from "..";
 import {
   ConfigurableBaseConfigurationT,
+  FillOverrideGroupT,
   WholeConfigurationT,
 } from "../../../types/configuration";
 import { DisplayMapT } from "../../../types/displayMap";
@@ -30,7 +31,9 @@ function sanitiseConfiguration(
 export default function generateConfiguration(
   data: FormValues,
   displayMap: DisplayMapT,
-  configurableBaseConfiguration: ConfigurableBaseConfigurationT
+  configurableBaseConfiguration: ConfigurableBaseConfigurationT,
+  coreFills: FillOverrideGroupT,
+  routerFills: FillOverrideGroupT
 ): WholeConfigurationT | null {
   const baseConfiguration = generateBaseConfig(
     data.SVG,
@@ -53,6 +56,12 @@ export default function generateConfiguration(
 
   return sanitiseConfiguration({
     baseConfiguration,
-    configuration: { coreConfig, routerConfig, channelConfig },
+    configuration: {
+      coreConfig,
+      routerConfig,
+      channelConfig,
+      coreFills: Object.fromEntries(coreFills.entries()),
+      routerFills: Object.fromEntries(routerFills.entries()),
+    },
   });
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useAppContext } from "../../App";
 import {
   MatrixT,
@@ -7,15 +8,19 @@ import {
   resetMatrix,
   restoreMatrix,
 } from "../../utils/svgPanZoom";
-import "./style.css";
-import { registerMouseEvents } from "./mouseEvents";
+import { useModalContext } from "../Modal";
+import FillModal from "./FillModal";
 import FreeForm from "./FreeForm";
-import toast from "react-hot-toast";
+import { ELEMENT_FILL_EVENT, registerMouseEvents } from "./mouseEvents";
+import "./style.css";
 
 const Graph: React.FunctionComponent = () => {
   const ctx = useAppContext();
   const parser = new DOMParser();
   const [oldMatrix, setOldMatrix] = useState<MatrixT | undefined>(undefined);
+  const [fillElementId, setFillElementId] = useState("");
+  const { setDisplay } = useModalContext();
+  const modalName = "fill";
 
   // Render SVG when updated
   useEffect(() => {
@@ -114,10 +119,39 @@ const Graph: React.FunctionComponent = () => {
     }
   }, [ctx.settings]);
 
+  function handleFillEvent(ev: CustomEvent) {
+    ev.preventDefault();
+
+    setFillElementId(ev.detail);
+    setDisplay(modalName);
+  }
+
+  // Register fill event
+  useEffect(() => {
+    if (ctx.graphParentRef.current) {
+      ctx.graphParentRef.current.addEventListener(
+        ELEMENT_FILL_EVENT,
+        handleFillEvent as EventListener
+      );
+    }
+
+    return () => {
+      if (ctx.graphParentRef.current) {
+        ctx.graphParentRef.current.removeEventListener(
+          ELEMENT_FILL_EVENT,
+          handleFillEvent as EventListener
+        );
+      }
+    };
+  }, []);
+
   return (
-    <div className="h-full w-full py-4 graph-parent" ref={ctx.graphParentRef}>
-      {ctx.freeForm && <FreeForm svgRef={ctx.svgRef} />}
-    </div>
+    <>
+      <div className="h-full w-full py-4 graph-parent" ref={ctx.graphParentRef}>
+        {ctx.freeForm && <FreeForm svgRef={ctx.svgRef} />}
+      </div>
+      <FillModal name={modalName} elementId={fillElementId} />
+    </>
   );
 };
 

@@ -77,9 +77,11 @@ export type ItemArgumentConfigurationT =
   | RoutingArgumentT;
 
 export type ConfigurationT = {
-  coreConfig: ItemConfigurationT & FillOverrideT;
-  routerConfig: ItemConfigurationT & FillOverrideT;
+  coreConfig: ItemConfigurationT;
+  routerConfig: ItemConfigurationT;
   channelConfig: ItemConfigurationT;
+  coreFills: SerDeFillOverrideGroupT;
+  routerFills: SerDeFillOverrideGroupT;
 };
 
 export type ConfigurableBaseConfigurationTypes = "FontSize";
@@ -110,15 +112,17 @@ export type WholeConfigurationT = {
 };
 
 export type FillOverrideGroupT = Map<number, string>;
-
-type FillOverrideT = {
-  fill: FillOverrideGroupT;
+export type SerDeFillOverrideGroupT = {
+  [key: string]: string;
 };
-
 export type DispatchFillOverrideGroupT =
   | {
       type: "add";
       id: number;
       colour: string;
     }
-  | { type: "remove"; id: number };
+  | { type: "remove"; id: number }
+  | {
+      type: "replace";
+      map: Map<number, string>;
+    };

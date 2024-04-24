@@ -1,6 +1,7 @@
 import { useFormContext, useWatch } from "react-hook-form";
 import { FieldNameT } from "../..";
 import { ConfigurationVariantsT } from "../../../../types/configuration";
+
 import { useModalContext } from "../../../Modal";
 import TwotoneTextFields from "../../../icons/TwotoneTextFields";
 import { useDisplayModalContext } from "../../DisplayModal";
@@ -35,7 +36,7 @@ const TextInput: React.FunctionComponent<TextInputProps> = ({
       variant,
     });
 
-    setDisplay(true);
+    setDisplay("display");
   }
 
   return (

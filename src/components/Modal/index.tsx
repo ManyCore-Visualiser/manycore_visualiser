@@ -4,22 +4,23 @@ import "./style.css";
 
 type ModalProps = {
   children: JSX.Element | JSX.Element[];
+  name: string;
 };
 
 type ModalContextT = {
-  display: boolean;
-  setDisplay: React.Dispatch<React.SetStateAction<boolean>>;
+  display: string | null;
+  setDisplay: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 export const ModalContext = createContext<ModalContextT | null>(null);
 
-const Modal: React.FunctionComponent<ModalProps> = ({ children }) => {
+const Modal: React.FunctionComponent<ModalProps> = ({ name, children }) => {
   const { display } = useModalContext();
   const modalRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     if (modalRef.current) {
-      if (display) modalRef.current.showModal();
+      if (display === name) modalRef.current.showModal();
       else modalRef.current.close();
     }
   }, [display]);

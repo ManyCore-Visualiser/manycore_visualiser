@@ -1,0 +1,11 @@
+.freeFormLine {
+  @apply from-transparent from-50% to-indigo-500 to-50%;
+}
+
+.freeFormLineH {
+  @apply bg-gradient-to-r bg-[length:1%_100%];
+}
+
+.freeFormLineV {
+  @apply bg-gradient-to-b bg-[length:100%_1%];
+}

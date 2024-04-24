@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Point } from "../../types/freeForm";
-import { useAppContext } from "../../App";
+import { Point } from "../../../types/freeForm";
+import { useAppContext } from "../../../App";
+import "./style.css";
 
 type FreeFormProps = {
   svgRef: React.MutableRefObject<SVGSVGElement | undefined>;

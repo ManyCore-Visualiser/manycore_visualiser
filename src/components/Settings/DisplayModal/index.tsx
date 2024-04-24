@@ -28,9 +28,10 @@ const DisplayModal: React.FunctionComponent = () => {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const mapKey = `${variant}-${attribute}`;
+  const modalName = "display";
 
   function closeModal() {
-    setDisplay(false);
+    setDisplay((prev) => (prev === modalName ? null : prev));
   }
 
   function handleSave() {
@@ -46,7 +47,7 @@ const DisplayModal: React.FunctionComponent = () => {
   }
 
   return (
-    <Modal>
+    <Modal name={modalName}>
       <div className="flex flex-col">
         <h5 className="text-3xl text-indigo-500">
           Display "{attributeDisplay}" as:

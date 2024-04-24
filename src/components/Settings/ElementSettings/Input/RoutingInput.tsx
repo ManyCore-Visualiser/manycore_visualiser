@@ -41,7 +41,7 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
       variant,
     });
 
-    setDisplay(true);
+    setDisplay("display");
   }
 
   return (
