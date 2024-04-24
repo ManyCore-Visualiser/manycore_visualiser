@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { useAppContext } from "../App";
 import { loadNewSystem } from "../utils/loadUtils";
 
-const AppReadyDummy: React.FunctionComponent = () => {
+const RustEvents: React.FunctionComponent = () => {
   const ctx = useAppContext();
 
   const showError = (message: string) =>
@@ -49,4 +49,4 @@ const AppReadyDummy: React.FunctionComponent = () => {
   return <></>;
 };
 
-export default AppReadyDummy;
+export default RustEvents;

@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import AppReadyDummy from "./components/AppReadyDummy";
+import RustEvents from "./components/RustEvents";
 import Controls from "./components/Controls";
 import FileLoader from "./components/FileLoader";
 import Graph from "./components/Graph";
@@ -99,11 +99,32 @@ function App() {
   const [routerFills, dispatchRouterFills] = useReducer(reduceFill, new Map());
   const [displayFillModal, setDisplayFillModal] = useState<string | null>(null);
 
-  // Get base configuration on mount. This is application version specific and won't change
+  function handleContextMenu(ev: MouseEvent) {
+    // Remove below line in dev mode to get dev tools
+    ev.preventDefault();
+  }
+
+  function handleKeyDown(ev: KeyboardEvent) {
+    if (ev.ctrlKey && ev.key === "r") {
+      // Block page refresh
+      ev.preventDefault();
+    }
+  }
+
+  // onMount operations
   useEffect(() => {
+    // Get base configuration on mount. This is application version specific and won't change
     getBaseConfiguration().then((res) =>
       setConfigurableBaseConfiguration(res.baseConfiguration)
     );
+
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
+
+    () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   return (
@@ -139,7 +160,7 @@ function App() {
         dispatchRouterFills,
       }}
     >
-      <AppReadyDummy />
+      <RustEvents />
       <HoverInfo />
       {(processingInput || editing) && <Loading />}
       {!svg && <FileLoader />}
