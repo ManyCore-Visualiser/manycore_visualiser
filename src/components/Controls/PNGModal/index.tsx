@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ClipPathInput } from "../../../types/svg";
 import Modal, { useModalContext } from "../../Modal";
 import "../../Settings/number.css";
+import toast from "react-hot-toast";
 
 type FillModalProps = {
   name: string;
@@ -22,7 +23,6 @@ const PNGModal: React.FunctionComponent<FillModalProps> = ({
   const computedWidth = width * scale;
   const computedHeight = height * scale;
   const warning = computedWidth > 2000 || computedHeight > 2000;
-  console.log(warning, computedWidth, computedHeight);
 
   function closeModal() {
     setDisplay((prev) => (prev === name ? null : prev));
@@ -30,7 +30,9 @@ const PNGModal: React.FunctionComponent<FillModalProps> = ({
 
   function handleExport() {
     // Will emit message to window
-    invoke("export_render", { clipPath, renderMode: "PNG", scale });
+    invoke("export_render", { clipPath, renderMode: "PNG", scale }).catch((e) =>
+      toast.error(e, { duration: 10000 })
+    );
 
     closeModal();
   }

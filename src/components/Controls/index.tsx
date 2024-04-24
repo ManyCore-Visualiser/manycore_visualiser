@@ -10,6 +10,7 @@ import TwotoneCameraEnhance from "../icons/TwotoneCameraEnhance";
 import TwotoneSettings from "../icons/TwotoneSettings";
 import { ModalContext } from "../Modal";
 import PNGModal from "./PNGModal";
+import toast from "react-hot-toast";
 
 function convertPoint(point: Point, viewBox: DOMRect): [number, number] {
   const x = viewBox.width * (point.x / 100) + viewBox.x;
@@ -94,7 +95,9 @@ const Controls: React.FunctionComponent = () => {
     if (renderMode === "SVG") {
       // Will emit message to window
       // Note that this is using the block scoped clipPath
-      invoke("export_render", { clipPath, renderMode, scale: 1 });
+      invoke("export_render", { clipPath, renderMode, scale: 1 }).catch((e) =>
+        toast.error(e, { duration: 10000 })
+      );
     } else {
       setDisplayModal(modalName);
     }
