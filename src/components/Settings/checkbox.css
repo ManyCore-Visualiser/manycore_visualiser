@@ -3,6 +3,9 @@
   /* This allows screen reader to still pick up the checkbox while tabbing */
   opacity: 0;
   position: absolute;
+
+  /* Block events on the actual checkbox. Clicking on label will trigger the check */
+  pointer-events: none;
 }
 
 .checkbox-container label {

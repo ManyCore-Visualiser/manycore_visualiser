@@ -19,7 +19,7 @@ const BaseSettings: React.FunctionComponent<BaseSettingsProps> = ({
 }) => {
   return (
     <div className="flex flex-col mt-10">
-      <span className="text-indigo-500 w-full text-2xl border-b-2 border-indigo-500">
+      <span className="text-indigo-500 w-full text-2xl border-b-2 border-indigo-500 font-semibold">
         <h4>{variant} Settings</h4>
       </span>
       <p className="text-zinc-300 font-normal text-justify py-2">

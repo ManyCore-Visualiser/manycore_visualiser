@@ -23,7 +23,7 @@ const ElementSettings: React.FunctionComponent<ElementSettingsT> = ({
 }) => {
   return (
     <div className="flex flex-col mt-10">
-      <span className="text-indigo-500 w-full text-2xl border-b-2 border-indigo-500">
+      <span className="text-indigo-500 w-full text-2xl border-b-2 border-indigo-500 font-semibold">
         <h4>{variant} information</h4>
       </span>
       {fieldsArray.fields.map((field, index) => (

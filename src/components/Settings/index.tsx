@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { useAppContext } from "../../App";
 import {
   AttributeTypeT,
@@ -17,7 +18,7 @@ import {
   WholeConfigurationT,
 } from "../../types/configuration";
 import { DisplayMapDispatchActionT, DisplayMapT } from "../../types/displayMap";
-import { editSystem, loadNewSystem, updateSVG } from "../../utils/loadUtils";
+import { editSystem, updateSVG } from "../../utils/loadUtils";
 import { ModalContext } from "../Modal";
 import BaseSettings from "./BaseSettings";
 import addToBaseSettings from "./BaseSettings/utils/addToBaseSettings";
@@ -30,11 +31,11 @@ import addToElementSettings from "./ElementSettings/utils/addToElementSettings";
 import SettingsButton from "./SettingsButton";
 import "./checkbox.css";
 import "./colour.css";
+import "./mask.css";
 import "./number.css";
 import "./select.css";
 import generateConfiguration from "./utils/generateConfiguration";
 import populateFromConfiguration from "./utils/populateFromConfiguration";
-import toast from "react-hot-toast";
 
 export type FieldT = {
   attribute: string;
@@ -224,75 +225,78 @@ const Settings: React.FunctionComponent = () => {
               ctx.settings ? "translate-x-0" : "-translate-x-full"
             }`}
           >
-            <div className="overflow-y-scroll no-scrollbar px-2">
-              <h3 className="block text-indigo-400 text-2xl">
-                Visualisation Settings
-              </h3>
-              <FormProvider {...formMethods}>
-                <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-                  {ctx.configurableBaseConfiguration && (
-                    <BaseSettings
-                      variant="SVG"
-                      configurableBaseConfiguration={
-                        ctx.configurableBaseConfiguration
-                      }
-                      fieldsArray={svgArray}
-                    />
-                  )}
-                  {ctx.attributes && (
-                    <>
-                      <ElementSettings
-                        variant="Cores"
-                        fillSelected={coreFillSelected}
-                        setFillSelected={setCoreFillSelected}
-                        fieldsArray={coreArray}
+            <h3 className="block text-indigo-400 text-4xl mx-2 border-b-2 border-b-indigo-700 font-bold">
+              Visualisation Settings
+            </h3>
+            <div className="overflow-y-scroll no-scrollbar bg-gradient-to-b from-transparent from-90% to-indigo-700">
+              <div className="px-2 h-full overflow-y-scroll no-scrollbar mask-settings">
+                <FormProvider {...formMethods}>
+                  <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
+                    {ctx.configurableBaseConfiguration && (
+                      <BaseSettings
+                        variant="SVG"
+                        configurableBaseConfiguration={
+                          ctx.configurableBaseConfiguration
+                        }
+                        fieldsArray={svgArray}
                       />
-                      <ElementSettings
-                        variant="Routers"
-                        fillSelected={routerFillSelected}
-                        setFillSelected={setRouterFillSelected}
-                        fieldsArray={routerArray}
-                      />
-                      <ElementSettings
-                        variant="Channels"
-                        fillSelected={routerFillSelected}
-                        setFillSelected={setRouterFillSelected}
-                        fieldsArray={channelArray}
-                      />
-                    </>
-                  )}
-                </form>
-              </FormProvider>
+                    )}
+                    {ctx.attributes && (
+                      <>
+                        <ElementSettings
+                          variant="Cores"
+                          fillSelected={coreFillSelected}
+                          setFillSelected={setCoreFillSelected}
+                          fieldsArray={coreArray}
+                        />
+                        <ElementSettings
+                          variant="Routers"
+                          fillSelected={routerFillSelected}
+                          setFillSelected={setRouterFillSelected}
+                          fieldsArray={routerArray}
+                        />
+                        <ElementSettings
+                          variant="Channels"
+                          fillSelected={routerFillSelected}
+                          setFillSelected={setRouterFillSelected}
+                          fieldsArray={channelArray}
+                        />
+                      </>
+                    )}
+                  </form>
+                </FormProvider>
+              </div>
             </div>
-            <div className="w-full grid grid-cols-2 grid-rows-3 gap-2 px-2 pb-2 pt-4">
-              <SettingsButton
-                text="Load new system"
-                action={() => loadNewSystem(ctx)}
-              />
-              <SettingsButton
-                text="Edit system"
-                action={() => {
-                  editSystem(ctx);
-                }}
-              />
-              <SettingsButton text="Export Configuration" action={() => {}} />
-              <SettingsButton text="Load Configuration" action={() => {}} />
-              <SettingsButton
-                text="Apply"
-                action={() => {
-                  if (formRef.current) {
-                    formRef.current.dispatchEvent(
-                      new Event("submit", { cancelable: false, bubbles: true })
-                    );
-                  }
-                }}
-              />
-              <SettingsButton
-                text="Close"
-                action={() => {
-                  ctx.showSettings(false);
-                }}
-              />
+            <div className="w-full">
+              <div className="flex flex-col gap-2 px-2 py-2 border-t-2 border-t-indigo-700">
+                <SettingsButton
+                  text="Edit system"
+                  action={() => {
+                    editSystem(ctx);
+                  }}
+                />
+                <div className="flex flex-row gap-2">
+                  <SettingsButton
+                    text="Apply"
+                    action={() => {
+                      if (formRef.current) {
+                        formRef.current.dispatchEvent(
+                          new Event("submit", {
+                            cancelable: false,
+                            bubbles: true,
+                          })
+                        );
+                      }
+                    }}
+                  />
+                  <SettingsButton
+                    text="Close"
+                    action={() => {
+                      ctx.showSettings(false);
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <DisplayModal />

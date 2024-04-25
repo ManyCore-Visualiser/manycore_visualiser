@@ -1,0 +1,7 @@
+.mask-settings {
+  --buttonsH: 4rem;
+  --title: 2.5rem;
+  --padding: calc((100svh - (var(--buttonsH) + var(--title))) * 0.3);
+  padding-bottom: var(--padding);
+  mask-image: linear-gradient(to bottom, #000f 70%, #0000);
+}
