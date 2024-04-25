@@ -89,7 +89,10 @@ fn main() {
         .add_item(CustomMenuItem::new(EXPORT_XML, "Export XML"));
     let export = Submenu::new("Export", export_submenu);
 
-    let menu = Menu::new().add_submenu(load).add_submenu(export);
+    let menu = Menu::new()
+        .add_native_item(tauri::MenuItem::CloseWindow)
+        .add_submenu(load)
+        .add_submenu(export);
 
     tauri::Builder::default()
         .menu(menu)
