@@ -2,7 +2,7 @@ import { BaseResponseT } from "./baseResponse";
 
 type SVGObject = { content: string; timestamp: string };
 
-export type SVGUpdateT = string | null;
+export type SVGUpdateT = SVGObject | null;
 export type SVGT = SVGObject | null;
 
 export interface SVGResponseT extends BaseResponseT {

@@ -58,10 +58,10 @@ const Graph: React.FunctionComponent = () => {
 
   // Update SVG style when an update is dispatched
   useEffect(() => {
-    if (ctx.svgRef.current && ctx.svgStyle) {
+    if (ctx.svgRef.current && ctx.svgStyle?.content) {
       const currentStyle = ctx.svgRef.current.querySelector("style");
       if (currentStyle) {
-        currentStyle.innerHTML = ctx.svgStyle;
+        currentStyle.innerHTML = ctx.svgStyle.content;
       }
     }
   }, [ctx.svgStyle]);
@@ -72,7 +72,7 @@ const Graph: React.FunctionComponent = () => {
       const currentInformation =
         ctx.svgRef.current.getElementById("information");
       if (currentInformation) {
-        currentInformation.innerHTML = ctx.svgInformation ?? "";
+        currentInformation.innerHTML = ctx.svgInformation?.content ?? "";
       }
     }
   }, [ctx.svgInformation]);
@@ -80,7 +80,7 @@ const Graph: React.FunctionComponent = () => {
   // Update SVG viewBox when an update is dispatched
   useEffect(() => {
     if (ctx.svgRef.current && ctx.svgViewbox) {
-      ctx.svgRef.current.setAttribute("viewBox", ctx.svgViewbox);
+      ctx.svgRef.current.setAttribute("viewBox", ctx.svgViewbox.content);
     }
   }, [ctx.svgViewbox]);
 

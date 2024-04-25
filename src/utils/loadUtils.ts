@@ -85,9 +85,13 @@ function updateSVG(
           });
         } else {
           // If it wasn't just plug in the new data
-          ctx.setSVGStyle(res.update.style);
-          ctx.setSVGInformation(res.update.informationGroup);
-          ctx.setSVGViewbox(res.update.viewBox);
+          const timestamp = new Date().toISOString();
+          ctx.setSVGStyle({ timestamp, content: res.update.style });
+          ctx.setSVGInformation({
+            timestamp,
+            content: res.update.informationGroup,
+          });
+          ctx.setSVGViewbox({ timestamp, content: res.update.viewBox });
         }
       }
 
