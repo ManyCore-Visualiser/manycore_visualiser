@@ -1,5 +1,5 @@
 .slider {
-  @apply appearance-none w-full mx-[5%] rounded-full h-2 bg-indigo-500;
+  @apply appearance-none w-full mx-[5%] rounded-full h-2 bg-indigo-500 cursor-pointer;
 
   /* Saturate backgrround depending on value */
   filter: saturate(calc(((var(--value) - var(--min)) / var(--range)) * 100%));

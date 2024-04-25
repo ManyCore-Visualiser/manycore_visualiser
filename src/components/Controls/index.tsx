@@ -147,14 +147,14 @@ const Controls: React.FunctionComponent = () => {
             }`}
           >
             <button
-              className="bg-indigo-200 text-indigo-700 rounded-full px-4 py-1 font-bold text-base"
+              className="bg-indigo-200 text-indigo-700 rounded-full px-4 py-1 font-bold text-base focus:outline-none transition-transform hover:scale-110 duration-300 shadow-md shadow-black/25"
               disabled={!exporting}
               onClick={() => handleExport("SVG")}
             >
               SVG
             </button>
             <button
-              className="bg-indigo-200 text-indigo-700 rounded-full px-4 py-1 font-bold text-base my-4"
+              className="bg-indigo-200 text-indigo-700 rounded-full px-4 py-1 font-bold text-base my-4 focus:outline-none transition-transform hover:scale-110 duration-300 shadow-md shadow-black/25"
               disabled={!exporting}
               onClick={() => handleExport("PNG")}
             >

@@ -84,8 +84,6 @@ const Settings: React.FunctionComponent = () => {
         ctx.routerFills
       );
 
-      console.log(configuration);
-
       if (configuration) {
         updateSVG(
           configuration.baseConfiguration,
@@ -225,51 +223,50 @@ const Settings: React.FunctionComponent = () => {
               ctx.settings ? "translate-x-0" : "-translate-x-full"
             }`}
           >
-            <h3 className="block text-indigo-400 text-4xl mx-2 border-b-2 border-b-indigo-700 font-bold">
+            <h3 className="block text-indigo-400 text-4xl mx-2 border-b-2 border-b-indigo-700 font-bold py-2">
               Visualisation Settings
             </h3>
-            <div className="overflow-y-scroll no-scrollbar bg-gradient-to-b from-transparent from-90% to-indigo-700">
-              <div className="px-2 h-full overflow-y-scroll no-scrollbar mask-settings">
-                <FormProvider {...formMethods}>
-                  <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-                    {ctx.configurableBaseConfiguration && (
-                      <BaseSettings
-                        variant="SVG"
-                        configurableBaseConfiguration={
-                          ctx.configurableBaseConfiguration
-                        }
-                        fieldsArray={svgArray}
+            <div className="overflow-y-scroll no-scrollbar mask-settings px-2">
+              <FormProvider {...formMethods}>
+                <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
+                  {ctx.configurableBaseConfiguration && (
+                    <BaseSettings
+                      variant="SVG"
+                      configurableBaseConfiguration={
+                        ctx.configurableBaseConfiguration
+                      }
+                      fieldsArray={svgArray}
+                    />
+                  )}
+                  {ctx.attributes && (
+                    <>
+                      <ElementSettings
+                        variant="Cores"
+                        fillSelected={coreFillSelected}
+                        setFillSelected={setCoreFillSelected}
+                        fieldsArray={coreArray}
                       />
-                    )}
-                    {ctx.attributes && (
-                      <>
-                        <ElementSettings
-                          variant="Cores"
-                          fillSelected={coreFillSelected}
-                          setFillSelected={setCoreFillSelected}
-                          fieldsArray={coreArray}
-                        />
-                        <ElementSettings
-                          variant="Routers"
-                          fillSelected={routerFillSelected}
-                          setFillSelected={setRouterFillSelected}
-                          fieldsArray={routerArray}
-                        />
-                        <ElementSettings
-                          variant="Channels"
-                          fillSelected={routerFillSelected}
-                          setFillSelected={setRouterFillSelected}
-                          fieldsArray={channelArray}
-                        />
-                      </>
-                    )}
-                  </form>
-                </FormProvider>
-              </div>
+                      <ElementSettings
+                        variant="Routers"
+                        fillSelected={routerFillSelected}
+                        setFillSelected={setRouterFillSelected}
+                        fieldsArray={routerArray}
+                      />
+                      <ElementSettings
+                        variant="Channels"
+                        fillSelected={routerFillSelected}
+                        setFillSelected={setRouterFillSelected}
+                        fieldsArray={channelArray}
+                      />
+                    </>
+                  )}
+                </form>
+              </FormProvider>
             </div>
-            <div className="w-full">
-              <div className="flex flex-col gap-2 px-2 py-2 border-t-2 border-t-indigo-700">
+            <div className="w-full px-2">
+              <div className="flex flex-col gap-2 py-2 border-t-2 border-t-indigo-700">
                 <SettingsButton
+                  large
                   text="Edit system"
                   action={() => {
                     editSystem(ctx);

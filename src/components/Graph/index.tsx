@@ -104,6 +104,18 @@ const Graph: React.FunctionComponent = () => {
         ctx.graphParentRef.current.style.marginLeft = `${settingsWidth}px`;
         ctx.graphParentRef.current.style.width = `calc(100% - ${settingsWidth}px)`;
 
+        ctx.svgRef.current.classList.add(
+          "transition-transform",
+          "duration-300"
+        );
+        setTimeout(() => {
+          if (ctx.svgRef.current)
+            ctx.svgRef.current.classList.remove(
+              "transition-transform",
+              "duration-300"
+            );
+        }, 500);
+
         setOldMatrix(resetMatrix(ctx.svgRef.current));
       } else {
         ctx.graphParentRef.current.style.marginLeft = "";
@@ -112,6 +124,18 @@ const Graph: React.FunctionComponent = () => {
         ctx.graphParentRef.current.classList.add("w-full");
 
         if (oldMatrix) {
+          ctx.svgRef.current.classList.add(
+            "transition-transform",
+            "duration-300"
+          );
+          setTimeout(() => {
+            if (ctx.svgRef.current)
+              ctx.svgRef.current.classList.remove(
+                "transition-transform",
+                "duration-300"
+              );
+          }, 500);
+
           restoreMatrix(oldMatrix, ctx.svgRef.current);
           setOldMatrix(undefined);
         }
@@ -147,7 +171,10 @@ const Graph: React.FunctionComponent = () => {
 
   return (
     <>
-      <div className="h-full w-full py-4 graph-parent" ref={ctx.graphParentRef}>
+      <div
+        className="h-full w-full py-4 graph-parent transition-all duration-300"
+        ref={ctx.graphParentRef}
+      >
         {ctx.freeForm && <FreeForm svgRef={ctx.svgRef} />}
       </div>
       <FillModal name={modalName} elementId={fillElementId} />

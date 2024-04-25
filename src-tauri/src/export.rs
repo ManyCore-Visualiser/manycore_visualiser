@@ -1,6 +1,6 @@
 use std::{fs, ops::Mul, path::PathBuf};
 
-use manycore_svg::{BaseConfiguration, Configuration, CoordinateT};
+use manycore_svg::{BaseConfiguration, Configuration, CoordinateT, SVG};
 use resvg::{
     render,
     tiny_skia::Pixmap,
@@ -233,13 +233,8 @@ pub(crate) fn export_render(
             // Clone font database because we can't move it in the asynchronouse file dialogue
             let font_database = font_database.clone();
 
-            // Pretty serialise
-            let mut svg_string = String::new();
-            let mut serializer = quick_xml::se::Serializer::new(&mut svg_string);
-            serializer.indent(' ', 4);
-
             // Serialise SVG
-            match clip_path {
+            let svg_string = match clip_path {
                 Some(clip_path) => {
                     // Serialise SVG with user defined clipPath
 
@@ -251,14 +246,14 @@ pub(crate) fn export_render(
                     );
 
                     svg.add_freeform_clip_path(clip_path.clip_path);
-                    let res = svg.serialize(serializer);
+                    let res = String::try_from(svg as &SVG);
 
                     svg.view_box_mut().restore_from(&view_box);
                     svg.clear_freeform_clip_path();
 
                     res
                 }
-                None => svg.serialize(serializer),
+                None => String::try_from(svg as &SVG),
             }
             .map_err(|e| e.to_string())?;
 

@@ -82,7 +82,7 @@ const RoutingInput: React.FunctionComponent<RoutingInputProps> = ({
                   <option value="Fraction">Fraction</option>
                 </select>
               </div>
-              <button onClick={showModal} type="button">
+              <button onClick={showModal} type="button" className="focus:outline-none">
                 <TwotoneTextFields width="1em" height="1em" className="ml-4" />
               </button>
             </div>
