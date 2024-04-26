@@ -104,7 +104,7 @@ function App() {
 
   function handleContextMenu(ev: MouseEvent) {
     // Remove below line in dev mode to get dev tools
-    // ev.preventDefault();
+    ev.preventDefault();
   }
 
   function handleKeyDown(ev: KeyboardEvent) {
