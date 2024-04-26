@@ -1611,12 +1611,12 @@ dependencies = [
 
 [[package]]
 name = "manycore_parser"
-version = "0.5.0"
-source = "git+https://github.com/joe2k01/manycore_parser.git#da6f2aa55c64ca6791d04564aa1fa476d0f1e9a5"
+version = "0.5.1"
+source = "git+https://github.com/joe2k01/manycore_parser.git#7cf46dc7ffb8b2b324f84c9793df3b7e94e44a13"
 dependencies = [
  "getset",
  "manycore_utils",
- "quick-xml 0.31.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quick-xml 0.31.0 (git+https://github.com/tafia/quick-xml.git)",
  "serde",
  "serde_json",
 ]
@@ -1624,7 +1624,7 @@ dependencies = [
 [[package]]
 name = "manycore_svg"
 version = "0.5.5"
-source = "git+https://github.com/joe2k01/manycore_svg.git#b2da9c647aaa22c8d583c01b80fce4b2cf656bdd"
+source = "git+https://github.com/joe2k01/manycore_svg.git#a98811f6f1d862ff654161329c6900c2aecad5a9"
 dependencies = [
  "const_format",
  "getset",
