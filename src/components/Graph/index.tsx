@@ -77,6 +77,17 @@ const Graph: React.FunctionComponent = () => {
     }
   }, [ctx.svgInformation]);
 
+  // Update SVG tasks group when an update is dispatched
+  useEffect(() => {
+    if (ctx.svgRef.current && ctx.svgTasks?.content) {
+      const currentTasks =
+        ctx.svgRef.current.getElementById("tasks");
+      if (currentTasks) {
+        currentTasks.innerHTML = ctx.svgTasks.content;
+      }
+    }
+  }, [ctx.svgTasks]);
+
   // Update SVG viewBox when an update is dispatched
   useEffect(() => {
     if (ctx.svgRef.current && ctx.svgViewbox) {

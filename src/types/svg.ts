@@ -13,12 +13,13 @@ export interface SVGUpdateResponseT extends BaseResponseT {
   update?: {
     style: string;
     informationGroup: string;
+    tasksGroup: string;
     viewBox: string;
     svg?: string;
   };
 }
 
-export interface SVGRenderResponseT extends BaseResponseT {}
+export interface SVGRenderResponseT extends BaseResponseT { }
 
 export interface InfoResponseT extends BaseResponseT {
   info?: Object;

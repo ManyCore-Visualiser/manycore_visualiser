@@ -38,6 +38,8 @@ export type AppState = {
   setSVGStyle: React.Dispatch<React.SetStateAction<SVGUpdateT>>;
   svgInformation: SVGUpdateT;
   setSVGInformation: React.Dispatch<React.SetStateAction<SVGUpdateT>>;
+  svgTasks: SVGUpdateT;
+  setSVGTasks: React.Dispatch<React.SetStateAction<SVGUpdateT>>;
   svgViewbox: SVGUpdateT;
   setSVGViewbox: React.Dispatch<React.SetStateAction<SVGUpdateT>>;
   settings: boolean;
@@ -68,6 +70,7 @@ function App() {
   const [svg, setSVG] = useState<SVGT>(null);
   const [svgStyle, setSVGStyle] = useState<SVGUpdateT>(null);
   const [svgInformation, setSVGInformation] = useState<SVGUpdateT>(null);
+  const [svgTasks, setSVGTasks] = useState<SVGT>(null);
   const [svgViewbox, setSVGViewbox] = useState<SVGUpdateT>(null);
   const [settings, showSettings] = useState(false);
   const [attributes, setAttributes] = useState<
@@ -142,6 +145,8 @@ function App() {
         setSVGStyle,
         svgInformation,
         setSVGInformation,
+        svgTasks,
+        setSVGTasks,
         svgViewbox,
         setSVGViewbox,
         settings,

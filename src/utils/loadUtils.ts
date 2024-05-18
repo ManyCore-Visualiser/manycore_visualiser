@@ -75,6 +75,7 @@ function updateSVG(
     baseConfiguration,
   }).then((res) => {
     if (res.status === "ok") {
+      console.log(res.update)
       if (res.update) {
         // Was this a full update?
         if (res.update.svg) {
@@ -91,6 +92,7 @@ function updateSVG(
             timestamp,
             content: res.update.informationGroup,
           });
+          ctx.setSVGTasks({ timestamp, content: res.update.tasksGroup })
           ctx.setSVGViewbox({ timestamp, content: res.update.viewBox });
         }
       }
