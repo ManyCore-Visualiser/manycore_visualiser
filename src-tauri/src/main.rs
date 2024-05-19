@@ -25,6 +25,7 @@ static LOAD_NEW_SYSTEM: &'static str = "load_new_system";
 static LOAD_CONFIGURATION: &'static str = "load_config";
 static EXPORT_CONFIGURATION: &'static str = "export_config";
 static EXPORT_XML: &'static str = "export_xml";
+static LICENSES: &'static str = "licenses";
 
 pub struct State {
     pub manycore: Arc<Mutex<Option<ManycoreSystem>>>,
@@ -66,6 +67,17 @@ fn app_setup(app: &mut App) -> Result<(), Box<dyn Error>> {
             export_xml(window, handle.state());
         } else if event_id == EXPORT_CONFIGURATION {
             export_configuration(window, handle.state());
+        } else if event_id == LICENSES {
+            if let Ok(window) = tauri::WindowBuilder::new(
+                &handle,
+                LICENSES,
+                tauri::WindowUrl::App("licenses.html".into()),
+            )
+            .build()
+            {
+                let _ = window.set_title("Licenses");
+                let _ = window.menu_handle().hide();
+            }
         }
     });
 
@@ -92,7 +104,8 @@ fn main() {
     let menu = Menu::new()
         .add_native_item(tauri::MenuItem::CloseWindow)
         .add_submenu(load)
-        .add_submenu(export);
+        .add_submenu(export)
+        .add_item(CustomMenuItem::new(LICENSES, "Licenses"));
 
     tauri::Builder::default()
         .menu(menu)

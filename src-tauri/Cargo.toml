@@ -5,6 +5,7 @@ description = "A ManyCore systems visualiser."
 authors = ["Giuseppe Barillari"]
 edition = "2021"
 license = "BSD-3-Clause-No-Military-License"
+repository = "https://github.com/ManyCore-Visualiser/manycore_visualiser"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
