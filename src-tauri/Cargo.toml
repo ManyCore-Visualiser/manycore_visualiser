@@ -2,8 +2,9 @@
 name = "manycore_visualiser"
 version = "1.0.0"
 description = "A ManyCore systems visualiser."
-authors = ["you"]
+authors = ["Giuseppe Barillari"]
 edition = "2021"
+license = "BSD-3-Clause-No-Military-License"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

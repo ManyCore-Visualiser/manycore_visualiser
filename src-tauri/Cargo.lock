@@ -1611,7 +1611,7 @@ dependencies = [
 [[package]]
 name = "manycore_parser"
 version = "0.5.2"
-source = "git+https://github.com/joe2k01/manycore_parser.git#cacbe761d0d157935b2a77869f755467105fa11e"
+source = "git+https://github.com/joe2k01/manycore_parser.git#1d1b7ff7f91c06ff6131d05484f38738570df154"
 dependencies = [
  "getset",
  "manycore_utils",
@@ -1623,7 +1623,7 @@ dependencies = [
 [[package]]
 name = "manycore_svg"
 version = "0.5.7"
-source = "git+https://github.com/joe2k01/manycore_svg.git#3a9a553eecc60336248f913e19a83a4a69c47583"
+source = "git+https://github.com/joe2k01/manycore_svg.git#3512ae81ff3fdbda2d3e6f73c34bae595f42123a"
 dependencies = [
  "const_format",
  "getset",
@@ -1637,7 +1637,7 @@ dependencies = [
 [[package]]
 name = "manycore_utils"
 version = "0.1.0"
-source = "git+https://github.com/joe2k01/manycore_utils.git#4eae41ee2aad69d39784753ef5c181bcd7592cd1"
+source = "git+https://github.com/joe2k01/manycore_utils.git#4362bd98a961d15d52162393215b19221f98a543"
 dependencies = [
  "serde",
 ]
