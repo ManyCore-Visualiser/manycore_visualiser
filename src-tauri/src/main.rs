@@ -18,7 +18,7 @@ use export::{export_configuration, export_xml, load_configuration};
 use manycore_parser::ManycoreSystem;
 use manycore_svg::SVG;
 use resvg::usvg::fontdb::Database;
-use tauri::{App, CustomMenuItem, Manager, Menu, Submenu};
+use tauri::{App, AppHandle, CustomMenuItem, Manager, Menu, Submenu};
 
 // Event names
 static LOAD_NEW_SYSTEM: &'static str = "load_new_system";
@@ -26,6 +26,9 @@ static LOAD_CONFIGURATION: &'static str = "load_config";
 static EXPORT_CONFIGURATION: &'static str = "export_config";
 static EXPORT_XML: &'static str = "export_xml";
 static LICENSES: &'static str = "licenses";
+static LICENSES_TITLE: &'static str = "Licenses";
+static MANUAL: &'static str = "manual";
+static MANUAL_TITLE: &'static str = "User manual";
 
 pub struct State {
     pub manycore: Arc<Mutex<Option<ManycoreSystem>>>,
@@ -49,6 +52,15 @@ impl State {
     }
 }
 
+fn open_window(handle: &AppHandle, path: &str, title: &str) {
+    if let Ok(window) =
+        tauri::WindowBuilder::new(handle, LICENSES, tauri::WindowUrl::App(path.into())).build()
+    {
+        let _ = window.set_title(title);
+        let _ = window.menu_handle().hide();
+    }
+}
+
 fn app_setup(app: &mut App) -> Result<(), Box<dyn Error>> {
     let main_window = app.get_window("main").unwrap();
     let handle = app.handle();
@@ -68,16 +80,9 @@ fn app_setup(app: &mut App) -> Result<(), Box<dyn Error>> {
         } else if event_id == EXPORT_CONFIGURATION {
             export_configuration(window, handle.state());
         } else if event_id == LICENSES {
-            if let Ok(window) = tauri::WindowBuilder::new(
-                &handle,
-                LICENSES,
-                tauri::WindowUrl::App("licenses.html".into()),
-            )
-            .build()
-            {
-                let _ = window.set_title("Licenses");
-                let _ = window.menu_handle().hide();
-            }
+            open_window(&handle, "/licenses.html", &LICENSES_TITLE);
+        } else if event_id == MANUAL {
+            open_window(&handle, "/manual/index.html", &MANUAL_TITLE);
         }
     });
 
@@ -105,7 +110,8 @@ fn main() {
         .add_native_item(tauri::MenuItem::CloseWindow)
         .add_submenu(load)
         .add_submenu(export)
-        .add_item(CustomMenuItem::new(LICENSES, "Licenses"));
+        .add_item(CustomMenuItem::new(LICENSES, LICENSES_TITLE))
+        .add_item(CustomMenuItem::new(MANUAL, MANUAL_TITLE));
 
     tauri::Builder::default()
         .menu(menu)

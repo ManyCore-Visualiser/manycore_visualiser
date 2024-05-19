@@ -1,0 +1,12 @@
+.content main {
+    display: flex;
+    flex-direction: column;
+}
+
+.centre {
+    margin-inline: auto;
+}
+
+.emoji {
+    font-family: "emoji";
+}
