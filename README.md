@@ -1,7 +1,15 @@
-# Tauri + React + Typescript
+# ManyCore Visualiser
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+<div align="center">
 
-## Recommended IDE Setup
+![Icon](./src-tauri/icons/128x128.png)
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+</div>
+
+ManyCore Visualiser is a Graphical User Interface program to generate renders of 2D matrix mesh NoC many-core systems.
+
+It allows exporting the renders in SVG and PNG formats.
+
+Known bugs:
+
+ - macOS: can't open external editors if the application is launched in finder.
