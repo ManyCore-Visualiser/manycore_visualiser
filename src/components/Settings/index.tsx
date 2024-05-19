@@ -150,7 +150,6 @@ const Settings: React.FunctionComponent = () => {
           ctx.coreFills,
           ctx.routerFills
         );
-        console.log(wholeConfiguration);
         if (wholeConfiguration)
           invoke("store_configuration", {
             wholeConfiguration: JSON.stringify(wholeConfiguration),

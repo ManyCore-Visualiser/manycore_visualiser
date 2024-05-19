@@ -4,9 +4,17 @@
 
 .graph-parent svg {
   will-change: transform;
-  transform-origin: top left;
   height: 100%;
   max-width: 100%;
+}
+
+svg {
+  overflow: visible;
+}
+
+#mainGroup {
+  transform-box: fill-box;
+  transform-origin: top left;
 }
 
 #processingGroup path:hover {

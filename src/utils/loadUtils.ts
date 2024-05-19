@@ -75,7 +75,6 @@ function updateSVG(
     baseConfiguration,
   }).then((res) => {
     if (res.status === "ok") {
-      console.log(res.update)
       if (res.update) {
         // Was this a full update?
         if (res.update.svg) {

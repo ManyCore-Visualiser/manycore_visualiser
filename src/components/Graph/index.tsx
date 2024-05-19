@@ -115,39 +115,45 @@ const Graph: React.FunctionComponent = () => {
         ctx.graphParentRef.current.style.marginLeft = `${settingsWidth}px`;
         ctx.graphParentRef.current.style.width = `calc(100% - ${settingsWidth}px)`;
 
-        ctx.svgRef.current.classList.add(
-          "transition-transform",
-          "duration-300"
-        );
-        setTimeout(() => {
-          if (ctx.svgRef.current)
-            ctx.svgRef.current.classList.remove(
-              "transition-transform",
-              "duration-300"
-            );
-        }, 500);
+        const mainGroup = ctx.svgRef.current.querySelector("g");
 
-        setOldMatrix(resetMatrix(ctx.svgRef.current));
+        if (mainGroup) {
+          mainGroup.classList.add(
+            "transition-transform",
+            "duration-300"
+          );
+          setTimeout(() => {
+            if (mainGroup)
+              mainGroup.classList.remove(
+                "transition-transform",
+                "duration-300"
+              );
+          }, 500);
+          setOldMatrix(resetMatrix(mainGroup));
+        }
+
       } else {
         ctx.graphParentRef.current.style.marginLeft = "";
         ctx.graphParentRef.current.style.width = "";
         ctx.graphParentRef.current.classList.remove("px-1");
         ctx.graphParentRef.current.classList.add("w-full");
 
-        if (oldMatrix) {
-          ctx.svgRef.current.classList.add(
+        const mainGroup = ctx.svgRef.current.querySelector("g");
+
+        if (oldMatrix && mainGroup) {
+          mainGroup.classList.add(
             "transition-transform",
             "duration-300"
           );
           setTimeout(() => {
-            if (ctx.svgRef.current)
-              ctx.svgRef.current.classList.remove(
+            if (mainGroup)
+              mainGroup.classList.remove(
                 "transition-transform",
                 "duration-300"
               );
           }, 500);
 
-          restoreMatrix(oldMatrix, ctx.svgRef.current);
+          restoreMatrix(oldMatrix, mainGroup);
           setOldMatrix(undefined);
         }
       }

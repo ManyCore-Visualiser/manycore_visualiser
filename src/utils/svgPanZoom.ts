@@ -57,17 +57,32 @@ function getDOMElements(ev: Event) {
 }
 
 /**
- * Applies the current matrix to an SVG element.
- * @param svg The target SVG element.
+ * Applies the current matrix to an SVG group.
+ * @param g The target SVG element.
  */
-function applyMatrix(svg: SVGSVGElement) {
-  svg.style.transform = `matrix3d(${matrix.scale}, 0, 0, 0, 0, ${matrix.scale}, 0, 0, 0, 0, 1, 0, ${matrix.tx}, ${matrix.ty}, 0, 1)`;
+function applyMatrix(g: SVGGElement) {
+  g.style.transform = `matrix3d(${matrix.scale}, 0, 0, 0, 0, ${matrix.scale}, 0, 0, 0, 0, 1, 0, ${matrix.tx}, ${matrix.ty}, 0, 1)`;
+}
+
+/**
+ * Calculates the ratio between screen pixels and SVG coordinates space.
+ * @param svg The SVG element.
+ * @param g The main group within the SVG element.
+ * @returns The x and y ratio between the two.
+ */
+function calculateRatios(svg: SVGSVGElement, g: SVGGElement): { ratioX: number, ratioY: number } {
+  const { width: svgW, height: svgH } = svg.viewBox.baseVal;
+  const { width: onScreenW, height: onScreenH } = g.getBoundingClientRect();
+  const ratioX = (svgW * matrix.scale) / onScreenW;
+  const ratioY = (svgH * matrix.scale) / onScreenH;
+
+  return { ratioX, ratioY };
 }
 
 // Zoom handler
 function zoom(ev: WheelEvent) {
   ev.preventDefault();
-  const { svg } = getDOMElements(ev);
+  const { svg, g } = getDOMElements(ev);
 
   let zoomDirection;
 
@@ -79,32 +94,36 @@ function zoom(ev: WheelEvent) {
     zoomDirection = zoomIn;
   }
 
-  const { x, y } = svg.getBoundingClientRect();
+  const { x, y } = g.getBoundingClientRect();
+  const { ratioX, ratioY } = calculateRatios(svg, g);
+
   const dx = (ev.clientX - x) * (zoomDirection - 1);
   const dy = (ev.clientY - y) * (zoomDirection - 1);
 
+  matrix.tx -= dx * ratioX;
+  matrix.ty -= dy * ratioY;
   matrix.scale *= zoomDirection;
-  matrix.tx -= dx;
-  matrix.ty -= dy;
 
-  applyMatrix(svg);
+  applyMatrix(g);
 }
 
 // Pan handler
 function move(ev: MouseEvent) {
   ev.preventDefault();
   if (motion) {
-    const { svg } = getDOMElements(ev);
+    const { svg, g } = getDOMElements(ev);
+
+    const { ratioX, ratioY } = calculateRatios(svg, g);
 
     const dx = ev.clientX - from.x;
     const dy = ev.clientY - from.y;
-    matrix.tx += dx;
-    matrix.ty += dy;
+    matrix.tx += dx * ratioX;
+    matrix.ty += dy * ratioY;
 
     from.x = ev.clientX;
     from.y = ev.clientY;
 
-    applyMatrix(svg);
+    applyMatrix(g);
   }
 }
 
@@ -150,17 +169,17 @@ function cleanUpPanZoom(graphParent: HTMLDivElement) {
 
 /**
  * Resets the current matrix and returns the matrix prior to modification.
- * @param svg The target SVG element.
+ * @param mainGroup The SVG element's main group.
  * @returns The untouched matrix.
  */
-function resetMatrix(svg: SVGSVGElement): MatrixT {
+function resetMatrix(mainGroup: SVGGElement): MatrixT {
   const matrixBackup = { ...matrix };
 
   matrix.scale = 1;
   matrix.ty = 0;
   matrix.tx = 0;
 
-  applyMatrix(svg);
+  applyMatrix(mainGroup);
 
   return matrixBackup;
 }
@@ -168,14 +187,15 @@ function resetMatrix(svg: SVGSVGElement): MatrixT {
 /**
  * Restores the provided matrix by replacing the current one.
  * @param oldMatrix The matrix to be restored.
- * @param svg The target SVG element.
+ * @param mainGroup The SVG element's main group.
  */
-function restoreMatrix(oldMatrix: MatrixT, svg: SVGSVGElement) {
+function restoreMatrix(oldMatrix: MatrixT, mainGroup: SVGGElement) {
   matrix.scale = oldMatrix.scale;
   matrix.tx = oldMatrix.tx;
   matrix.ty = oldMatrix.ty;
 
-  applyMatrix(svg);
+
+  applyMatrix(mainGroup);
 }
 
 export { registerPanZoom, cleanUpPanZoom, resetMatrix, restoreMatrix };
